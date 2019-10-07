@@ -1,0 +1,49 @@
+
+main() {
+    a: i64 = add(5, 6);
+    a = 1337;
+}
+
+add(a: i64, b: i64): i64 {
+    return a + b;
+}
+
+struct MyStruct {
+    a: i64,
+    b: i64,
+    c: u8,
+}
+
+enum Color {
+    RED,
+    GREEN,
+    BLUE,
+}
+
+enum Values {
+    VALUE_A(x: i64),
+    VALUE_B(y: i32, z: i32),
+}
+
+
+main() {
+    if (a == 1) {
+
+    }
+    loop {
+        break;
+    }
+
+    s: MyStruct;
+    s.a = 5;
+    s.b = 3;
+    s.c = 3;
+}
+
+test(MyStruct& s) {
+    s.a = 5;
+}
+
+test2(MyStruct& s) {
+    s.a = 3;
+}

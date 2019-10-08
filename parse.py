@@ -33,7 +33,9 @@ def main():
 
     !?mul_div_expr: primary_expression | (mul_div_expr "*" primary_expression) | (mul_div_expr "/" primary_expression)
     !?add_sub_expr: mul_div_expr | (add_sub_expr "+" mul_div_expr) | (add_sub_expr "-" mul_div_expr)
-    !?compare_expr: add_sub_expr | (compare_expr "==" add_sub_expr) | (compare_expr "!=" add_sub_expr)
+    !?compare_expr: add_sub_expr | (compare_expr compare_operator add_sub_expr)
+
+    !compare_operator: "==" | "!=" | ">=" | ">" | "<" "<="
 
     type: IDENTIFIER
 
@@ -47,7 +49,7 @@ def main():
         }
         test();
         a: i64 = 5 + 5 * 3;
-        b: bool = a == 3;
+        b: bool = a >= 3;
     }
 
     enum MyEnum {

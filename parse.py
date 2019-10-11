@@ -8,7 +8,8 @@ def main():
 
     translation_unit: (enum_def | struct_def | function_def)*
 
-    function_def: IDENTIFIER "(" ")" code_block
+    function_params: (IDENTIFIER":" type ",")* IDENTIFIER":" type
+    function_def: IDENTIFIER "(" function_params? ")" (":" IDENTIFIER)? code_block
 
     enum_entry: IDENTIFIER","
     enum_def: "enum" IDENTIFIER "{" enum_entry+ "}"
@@ -50,6 +51,17 @@ def main():
         test();
         a: i64 = 5 + 5 * 3;
         b: bool = a >= 3;
+    }
+
+    func_a() {
+    }
+    func_b(): i32 {
+    }
+    func_c(a: i32) {
+    }
+    func_d(a: i32): i32 {
+    }
+    func_e(a: i32, b: i32) {
     }
 
     enum MyEnum {

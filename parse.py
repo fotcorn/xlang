@@ -22,14 +22,15 @@ def main():
 
     code_block: "{" statement* "}"
 
-    statement: loop | if | (function_call ";") | variable_def | variable_assign
+    statement: loop | if | (function_call ";") | variable_def | variable_assign | control ";"
     loop: "loop" code_block
     if: "if" code_block
 
     variable_def: IDENTIFIER ":" type "=" compare_expr ";"
     variable_assign: IDENTIFIER "=" compare_expr ";"
+    !control: ("break" | "continue" | "return" compare_expr?)
 
-    function_call: IDENTIFIER "()"
+    function_call: IDENTIFIER "(" ")"
     primary_expression: IDENTIFIER | function_call | INTEGER
 
     !?mul_div_expr: primary_expression | (mul_div_expr "*" primary_expression) | (mul_div_expr "/" primary_expression)
@@ -44,37 +45,8 @@ def main():
     %ignore WS
     '''
 
-    code = '''
-    main() {
-        loop {
-        }
-        test();
-        a: i64 = 5 + 5 * 3;
-        b: bool = a >= 3;
-    }
-
-    func_a() {
-    }
-    func_b(): i32 {
-    }
-    func_c(a: i32) {
-    }
-    func_d(a: i32): i32 {
-    }
-    func_e(a: i32, b: i32) {
-    }
-
-    enum MyEnum {
-        RED,
-        BLUE,
-        GREEN,
-    }
-
-    struct MyStruct {
-        a: u64,
-        b: i16,
-    }
-    '''
+    with open('test.xl') as f:
+        code = f.read()
 
     lark = Lark(grammar, parser='lalr')
     tree = lark.parse(code)

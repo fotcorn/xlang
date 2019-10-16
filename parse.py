@@ -19,7 +19,8 @@ def main():
 
     IDENTIFIER: /[a-zA-Z_][a-zA-Z_0-9]*/
     INTEGER: /[1-9][0-9]*/
-    var_access: IDENTIFIER ("." IDENTIFIER)*
+    array_access: "[" compare_expr "]"
+    var_access: IDENTIFIER array_access? ("." IDENTIFIER array_access?)*
 
     code_block: "{" statement* "}"
 
@@ -47,7 +48,7 @@ def main():
     %ignore WS
     '''
 
-    with open('tests/struct_access.xl') as f:
+    with open('tests/array_access.xl') as f:
         code = f.read()
 
     lark = Lark(grammar, parser='lalr')

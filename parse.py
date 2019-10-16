@@ -33,7 +33,7 @@ def main():
     variable_assign: var_access "=" compare_expr ";"
     !control: ("break" | "continue" | "return" compare_expr?)
 
-    function_call: IDENTIFIER "(" ")"
+    function_call: IDENTIFIER "(" (compare_expr? | compare_expr ("," compare_expr)*) ")"
     primary_expression: var_access | function_call | INTEGER
 
     !?mul_div_expr: primary_expression | (mul_div_expr "*" primary_expression) | (mul_div_expr "/" primary_expression)
@@ -48,7 +48,7 @@ def main():
     %ignore WS
     '''
 
-    with open('tests/array_access.xl') as f:
+    with open('tests/function_call.xl') as f:
         code = f.read()
 
     lark = Lark(grammar, parser='lalr')

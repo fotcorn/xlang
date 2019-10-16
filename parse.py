@@ -26,7 +26,7 @@ def main():
 
     statement: loop | if | (function_call ";") | variable_dec | variable_def | variable_assign | control ";"
     loop: "loop" code_block
-    if: "if" code_block
+    if: "if" "(" compare_expr ")" code_block
 
     variable_dec: IDENTIFIER ":" type ";"
     variable_def: IDENTIFIER ":" type "=" compare_expr ";"
@@ -48,7 +48,7 @@ def main():
     %ignore WS
     '''
 
-    with open('tests/function_call.xl') as f:
+    with open('hello.xl') as f:
         code = f.read()
 
     lark = Lark(grammar, parser='lalr')

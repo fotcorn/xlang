@@ -21,8 +21,8 @@ enum Color {
 }
 
 enum Values {
-    VALUE_A(x: i64),
-    VALUE_B(y: i32, z: i32),
+    VALUE_A,
+    VALUE_B,
 }
 
 
@@ -40,10 +40,10 @@ main() {
     s.c = 3;
 }
 
-test(MyStruct& s) {
+test(s: MyStruct ) {
     s.a = 5;
 }
 
-test2(MyStruct& s) {
+test2(s: MyStruct) {
     s.a = 3;
 }

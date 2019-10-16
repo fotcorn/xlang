@@ -1,0 +1,12 @@
+struct Test {
+    a: int,
+    b: int,
+    c: int,
+}
+
+main() {
+    test: Test;
+    test.a = 5;
+    test.b = 3 * 5;
+    test.c = test.a + test.b;
+}

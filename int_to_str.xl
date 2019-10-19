@@ -1,0 +1,32 @@
+int_to_char(x: u32): u8[] {
+    i: u64 = 1;
+    j: u64 = 10;
+
+    loop {
+        if (x % j == x) {
+            break;
+        }
+        i = i + 1;
+        j = j * 10;
+        if (j >= 1000000000) {
+            break;
+        }
+    }
+
+    string: u8[] = u8[i];
+    k: u64 = 0;
+    loop {
+        value: u64 = x % 10;
+        string[i - j - 1] = value + 48;
+        x = x / 10;
+
+        k = k + 1;
+        if (k == i) {
+            break;
+        }
+    }
+}
+
+main() {
+    print(int_to_char(123123));
+}

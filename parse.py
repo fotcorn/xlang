@@ -9,7 +9,7 @@ def main():
     translation_unit: (enum_def | struct_def | function_def)*
 
     function_params: (IDENTIFIER":" type ",")* IDENTIFIER":" type
-    function_def: IDENTIFIER "(" function_params? ")" (":" IDENTIFIER)? code_block
+    function_def: IDENTIFIER "(" function_params? ")" (":" type)? code_block
 
     enum_entry: IDENTIFIER","
     enum_def: "enum" IDENTIFIER "{" enum_entry+ "}"
@@ -18,7 +18,7 @@ def main():
     struct_def: "struct" IDENTIFIER "{" struct_entry+ "}"
 
     IDENTIFIER: /[a-zA-Z_][a-zA-Z_0-9]*/
-    INTEGER: /[1-9][0-9]*/
+    INTEGER: (/[1-9][0-9]*/ | "0" )
     array_access: "[" compare_expr "]"
     var_access: IDENTIFIER array_access? ("." IDENTIFIER array_access?)*
 
@@ -38,17 +38,18 @@ def main():
 
     !?mul_div_expr: primary_expression | (mul_div_expr "*" primary_expression) | (mul_div_expr "/" primary_expression)
     !?add_sub_expr: mul_div_expr | (add_sub_expr "+" mul_div_expr) | (add_sub_expr "-" mul_div_expr)
+                    | (add_sub_expr "%" mul_div_expr)
     !?compare_expr: add_sub_expr | (compare_expr compare_operator add_sub_expr)
 
     !compare_operator: "==" | "!=" | ">=" | ">" | "<" "<="
 
-    type: IDENTIFIER
+    type: IDENTIFIER "[]"?
 
     %import common.WS
     %ignore WS
     '''
 
-    with open('hello.xl') as f:
+    with open('int_to_str.xl') as f:
         code = f.read()
 
     lark = Lark(grammar, parser='lalr')

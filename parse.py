@@ -2,6 +2,8 @@ import sys
 
 from lark import Lark
 
+from transformer import ASTTransformer
+
 
 def main():
     if len(sys.argv) != 2:
@@ -16,6 +18,10 @@ def main():
     lark = Lark(grammar, parser='lalr')
     tree = lark.parse(source_code)
     print(tree.pretty())
+
+    transformer = ASTTransformer()
+    ast = transformer.transform(tree)
+    print(ast)
 
 
 if __name__ == '__main__':

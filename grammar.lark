@@ -18,7 +18,7 @@ var_access: IDENTIFIER array_access? ("." IDENTIFIER array_access?)*
 
 code_block: "{" statement* "}"
 
-statement: loop | if | (function_call ";") | variable_dec | variable_def | variable_assign | control ";"
+?statement: loop | if | (function_call ";") | variable_dec | variable_def | variable_assign | control ";"
 loop: "loop" code_block
 if: "if" "(" compare_expr ")" code_block
 
@@ -28,7 +28,8 @@ variable_assign: var_access "=" compare_expr ";"
 !control: ("break" | "continue" | "return" compare_expr?)
 
 function_call: IDENTIFIER "(" (compare_expr? | compare_expr ("," compare_expr)*) ")"
-primary_expression: var_access | function_call | INTEGER
+integer_constant: INTEGER
+?primary_expression: var_access | function_call | integer_constant
 
 !?mul_div_expr: primary_expression | (mul_div_expr "*" primary_expression) | (mul_div_expr "/" primary_expression)
 !?add_sub_expr: mul_div_expr | (add_sub_expr "+" mul_div_expr) | (add_sub_expr "-" mul_div_expr)
@@ -37,7 +38,7 @@ primary_expression: var_access | function_call | INTEGER
 
 !compare_operator: "==" | "!=" | ">=" | ">" | "<" "<="
 
-type: IDENTIFIER "[]"?
+!type: IDENTIFIER "[]"?
 
 %import common.WS
 %ignore WS

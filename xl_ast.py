@@ -119,6 +119,18 @@ class CompareExpr(BaseExpression):
             raise ValueError(f'Unknown operator: {self.operator}')
 
 
+@dataclass
+class VariableAccess(BaseExpression):
+    variable_name: str
+
+    def generate_code(self, scope: Scope, global_scope: GlobalScope) -> int:
+        try:
+            variable = scope.variables[self.variable_name]
+        except KeyError:
+            raise ValueError(f'Unknown variable: {self.variable_name}')
+        return variable.register
+
+
 class Statement:
     def generate_code(self, scope: Scope, global_scope: GlobalScope):
         raise NotImplementedError()

@@ -1,6 +1,6 @@
 from lark import Transformer, v_args
 
-from xl_ast import Constant, ConstantType, FunctionCall, Function, GlobalScope, VariableDefinition
+from xl_ast import Constant, ConstantType, FunctionCall, Function, GlobalScope, VariableDefinition, VariableAccess
 
 
 class ASTTransformer(Transformer):
@@ -25,3 +25,10 @@ class ASTTransformer(Transformer):
     @v_args(inline=True)
     def variable_def(self, name, var_type, value):
         return VariableDefinition(name.value, ''.join([t.value for t in var_type.children]), value)
+
+    def var_access(self, params):
+        if len(params) != 1:
+            # TODO: implement array and struct access
+            raise NotImplementedError('struct and array access not implemented')
+        print(params[0].value)
+        return VariableAccess(params[0].value)

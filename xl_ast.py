@@ -44,7 +44,7 @@ class Variable:
 @dataclass
 class Scope:
     code: str = ''
-    register_number: int = 0
+    register_number: int = 1
     variables: Dict[str, Variable] = field(default_factory=dict)
 
     def add_code(self, new_code: str):
@@ -95,9 +95,12 @@ class Constant(BaseExpression):
 
     def generate_code(self, scope: Scope, global_scope: GlobalScope) -> int:
         if self.type == ConstantType.INTEGER:
-            reg = scope.next_register()
-            scope.add_code(f'store i64 {self.value}, i64* %{reg}, align 4')
-            return reg
+            reg1 = scope.next_register()
+            reg2 = scope.next_register()
+            scope.add_code(f'%{reg1} = alloca i64, align 4')
+            scope.add_code(f'store i64 5, i64* %{reg1}, align 4')
+            scope.add_code(f'%{reg2} = load i64, i64* %{reg1}, align 4')
+            return reg2
         else:
             raise ValueError('Unknown constant type')
 
@@ -143,7 +146,7 @@ class FunctionCall(Statement, BaseExpression):
 
     def generate_code(self, scope: Scope, global_scope: GlobalScope):
         param_regs = [param.generate_code(scope, global_scope) for param in self.params]
-        params = ','.join([f'i32 %{reg}' for reg in param_regs])
+        params = ','.join([f'i64 %{reg}' for reg in param_regs])
         scope.add_code(f'call void @{self.function_name}({params})')
 
 

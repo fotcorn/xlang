@@ -1,6 +1,6 @@
 from lark import Transformer, v_args
 
-from xl_ast import Constant, ConstantType, FunctionCall, Function, GlobalScope, VariableDefinition, VariableAccess
+from xlang.xl_ast import Constant, ConstantType, FunctionCall, Function, GlobalScope, VariableDefinition, VariableAccess
 
 
 class ASTTransformer(Transformer):

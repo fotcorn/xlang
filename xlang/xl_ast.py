@@ -64,8 +64,6 @@ class GlobalScope:
     enums: Dict[str, EnumType] = field(default_factory=dict)
     functions: Dict[str, Type['Function']] = field(default_factory=dict)
 
-    pass
-
 
 class BaseExpression:
     pass

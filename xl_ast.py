@@ -47,14 +47,6 @@ class Scope:
     register_number: int = 1
     variables: Dict[str, Variable] = field(default_factory=dict)
 
-    def add_code(self, new_code: str):
-        self.code += new_code + '\n'
-
-    def next_register(self):
-        reg = self.register_number
-        self.register_number += 1
-        return reg
-
 
 @dataclass
 class StructType:
@@ -72,16 +64,11 @@ class GlobalScope:
     enums: Dict[str, EnumType] = field(default_factory=dict)
     functions: Dict[str, Type['Function']] = field(default_factory=dict)
 
-    def generate_code(self):
-        code = ''
-        for function in self.functions.values():
-            code += function.generate_code(self)
-        return code
+    pass
 
 
 class BaseExpression:
-    def generate_code(self, scope: Scope, global_scope: GlobalScope) -> int:
-        raise NotImplementedError()
+    pass
 
 
 class ConstantType(Enum):
@@ -93,17 +80,6 @@ class Constant(BaseExpression):
     type: ConstantType
     value: Union[int, str]
 
-    def generate_code(self, scope: Scope, global_scope: GlobalScope) -> int:
-        if self.type == ConstantType.INTEGER:
-            reg1 = scope.next_register()
-            reg2 = scope.next_register()
-            scope.add_code(f'%{reg1} = alloca i64, align 4')
-            scope.add_code(f'store i64 5, i64* %{reg1}, align 4')
-            scope.add_code(f'%{reg2} = load i64, i64* %{reg1}, align 4')
-            return reg2
-        else:
-            raise ValueError('Unknown constant type')
-
 
 @dataclass
 class CompareExpr(BaseExpression):
@@ -111,43 +87,20 @@ class CompareExpr(BaseExpression):
     expr2: BaseExpression
     operator: str
 
-    def generate_code(self, scope: Scope, global_scope: GlobalScope) -> int:
-        var1 = self.expr1.generate_code(scope, global_scope)
-        var2 = self.expr2.generate_code(scope, global_scope)
-        if self.operator == '==':
-            reg = scope.next_register()
-            scope.add_code(f'{reg} = icmp eq i64 {var1.register}, {var2.register}')
-            return reg
-        else:
-            raise ValueError(f'Unknown operator: {self.operator}')
-
 
 @dataclass
 class VariableAccess(BaseExpression):
     variable_name: str
 
-    def generate_code(self, scope: Scope, global_scope: GlobalScope) -> int:
-        try:
-            variable = scope.variables[self.variable_name]
-        except KeyError:
-            raise ValueError(f'Unknown variable: {self.variable_name}')
-        return variable.register
-
 
 class Statement:
-    def generate_code(self, scope: Scope, global_scope: GlobalScope):
-        raise NotImplementedError()
+    pass
 
 
 @dataclass
 class FunctionCall(Statement, BaseExpression):
     function_name: str
     params: List[BaseExpression]
-
-    def generate_code(self, scope: Scope, global_scope: GlobalScope):
-        param_regs = [param.generate_code(scope, global_scope) for param in self.params]
-        params = ','.join([f'i64 %{reg}' for reg in param_regs])
-        scope.add_code(f'call void @{self.function_name}({params})')
 
 
 @dataclass
@@ -156,25 +109,8 @@ class VariableDefinition(Statement):
     variable_type: str
     value: BaseExpression
 
-    def generate_code(self, scope: Scope, global_scope: GlobalScope):
-        if self.name in scope.variables:
-            raise ValueError(f'Variable with name {self.name} is already defined.')
-        reg = self.value.generate_code(scope, global_scope)
-        scope.variables[self.name] = Variable(VariableType.from_string(self.variable_type), reg)
-
 
 @dataclass
 class Function:
     name: str
     statements: List[Statement]
-
-    def generate_code(self, global_scope: GlobalScope):
-        code = f'define dso_local i32 @{self.name}() #0 {{\n'
-
-        scope = Scope()
-        for statement in self.statements:
-            statement.generate_code(scope, global_scope)
-        code += scope.code
-
-        code += 'ret i32 0\n}\n\n'
-        return code

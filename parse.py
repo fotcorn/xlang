@@ -27,20 +27,5 @@ def main():
     ast = transformer.transform(tree)
     print(ast)
 
-    code = ast.generate_code()
-
-    with open('stdlib/io.ll') as f:
-        stdlib = f.read()
-
-    code = stdlib + '\n\n' + code
-
-    output_file = sys.argv[1][:-2] + 'll'
-    with open(output_file, 'w') as f:
-        f.write(code)
-
-    executable = sys.argv[1][:-2] + 'elf'
-    os.system(f'clang-8 {output_file} stdlib/io.c -o {executable}')
-
-
 if __name__ == '__main__':
     main()

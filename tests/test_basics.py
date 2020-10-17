@@ -1,7 +1,8 @@
 from xlang.xl_ast import GlobalScope
+from xlang.parser import Parser
 
 
-def test_hello(parser):
+def test_hello(parser: Parser):
     ast: GlobalScope = parser.parse('''
         main() {
             a: int = 5;

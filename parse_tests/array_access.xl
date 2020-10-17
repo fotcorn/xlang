@@ -1,6 +1,0 @@
-
-main() {
-    a: int = u[5];
-    test: array;
-    test[5] = 12;
-}

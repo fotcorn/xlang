@@ -8,6 +8,7 @@ from xlang.xl_ast import (
     GlobalScope,
     VariableDefinition,
     VariableAccess,
+    OperatorExpression,
 )
 
 
@@ -36,9 +37,36 @@ class ASTTransformer(Transformer):
             name.value, "".join([t.value for t in var_type.children]), value
         )
 
-    def var_access(self, params):
-        if len(params) != 1:
-            # TODO: implement array and struct access
-            raise NotImplementedError("struct and array access not implemented")
-        print(params[0].value)
-        return VariableAccess(params[0].value)
+    @v_args(inline=True)
+    def compare_expr(self, op1, operator, op2):
+        return OperatorExpression(op1, op2, operator.value)
+
+    @v_args(inline=True)
+    def add_sub_expr(self, op1, operator, op2):
+        return OperatorExpression(op1, op2, operator.value)
+
+    @v_args(inline=True)
+    def mul_div_expr(self, op1, operator, op2):
+        return OperatorExpression(op1, op2, operator.value)
+
+    @v_args(inline=True)
+    def var_access(self, variable, *args):
+        assert len(args) in range(0, 3)
+        if len(args) == 2:
+            array_access, variable_access = args
+        elif len(args) == 0:
+            array_access, variable_access = None, None
+        elif isinstance(args[0], VariableAccess):
+            array_access, variable_access = None, args[0]
+        else:
+            array_access, variable_access = args[0], None
+
+        if array_access:
+            array_access = array_access.children[0]
+        # if len(params) != 1:
+        #    print(params)
+        ##    # TODO: implement array and struct access
+        #    raise NotImplementedError("struct and array access not implemented")
+        # print(params[0].value)
+        # raise Exception("bla
+        return VariableAccess(variable.value, array_access, variable_access)

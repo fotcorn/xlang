@@ -80,15 +80,17 @@ class Constant(BaseExpression):
 
 
 @dataclass
-class CompareExpr(BaseExpression):
-    expr1: BaseExpression
-    expr2: BaseExpression
+class OperatorExpression(BaseExpression):
+    operand1: BaseExpression
+    operand2: BaseExpression
     operator: str
 
 
 @dataclass
 class VariableAccess(BaseExpression):
     variable_name: str
+    array_access: OperatorExpression = None
+    variable_access: Type["VariableAccess"] = None
 
 
 class Statement:

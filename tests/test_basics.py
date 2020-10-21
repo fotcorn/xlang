@@ -48,3 +48,24 @@ def test_compare(parser: Parser):
         }
         """
     )
+
+def test_variables(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        main() {
+            a: int;
+            b: int = 5;
+            a = 1 + 2;
+            b = a + b;
+            a = 1 * 2;
+            b = a * b;
+            a = a * b + c;
+            a = a + b * c;
+            a = a == b;
+            a = a * 2 != 2 + 5;
+            a = print(a);
+        }
+        """
+    )
+    assert 'main' in ast.functions
+    assert len(ast.functions['main'].statements) == 11

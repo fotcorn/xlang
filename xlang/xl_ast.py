@@ -38,7 +38,7 @@ class VariableType:
 @dataclass
 class Variable:
     variable_type: VariableType
-    register: int
+    name: str
 
 
 @dataclass

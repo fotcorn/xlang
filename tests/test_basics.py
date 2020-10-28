@@ -69,3 +69,19 @@ def test_variables(parser: Parser):
     )
     assert 'main' in ast.functions
     assert len(ast.functions['main'].statements) == 11
+
+def test_loop(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        main() {
+            i: int = 0;
+            loop {
+                i = i + 1;
+                if (i == 5) {
+                    break;
+                }
+            }
+            print(i);
+        }
+        """
+    )

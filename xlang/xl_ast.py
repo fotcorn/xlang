@@ -1,7 +1,9 @@
-from dataclasses import dataclass, field
-from enum import Enum, auto
-from typing import List, Dict, Union, Type
+from __future__ import annotations
 
+from dataclasses import field
+from pydantic.dataclasses import dataclass
+from enum import Enum, auto
+from typing import List, Dict, Union
 
 class VariableTypeEnum(Enum):
     PRIMITIVE = auto()
@@ -16,10 +18,10 @@ class VariableType:
     primitive_type: str = None
     struct_type: str = None
     enum_type: str = None
-    array_type: Type["Variable"] = None
+    array_type: VariableType = None
 
     @staticmethod
-    def from_string(t: str) -> Type["VariableType"]:
+    def from_string(t: str) -> VariableType:
         if t.endswith("[]"):
             raise NotImplementedError("arrays not implemented")
         if t == "int":
@@ -33,6 +35,7 @@ class VariableType:
         else:
             # TODO: implement arrays, structs, enums
             raise NotImplementedError("unknown type")
+
 
 
 @dataclass
@@ -62,9 +65,10 @@ class EnumType:
 class GlobalScope:
     structs: Dict[str, StructType] = field(default_factory=dict)
     enums: Dict[str, EnumType] = field(default_factory=dict)
-    functions: Dict[str, Type["Function"]] = field(default_factory=dict)
+    functions: Dict[str, Function] = field(default_factory=dict)
 
 
+@dataclass
 class BaseExpression:
     pass
 
@@ -90,9 +94,10 @@ class OperatorExpression(BaseExpression):
 class VariableAccess(BaseExpression):
     variable_name: str
     array_access: OperatorExpression = None
-    variable_access: Type["VariableAccess"] = None
+    variable_access: VariableAccess = None
 
 
+@dataclass
 class Statement:
     pass
 
@@ -111,6 +116,17 @@ class VariableDefinition(Statement):
 
 
 @dataclass
+class VariableDefinition(Statement):
+    name: str
+    variable_type: str
+    value: BaseExpression
+
+
+@dataclass
 class Function:
     name: str
     statements: List[Statement]
+
+
+VariableAccess.__pydantic_model__.update_forward_refs()
+GlobalScope.__pydantic_model__.update_forward_refs()

@@ -146,6 +146,7 @@ class Break(Statement):
     pass
 
 
+@dataclass
 class Return(Statement):
     value: BaseExpression = None
 

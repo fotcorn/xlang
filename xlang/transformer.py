@@ -14,6 +14,7 @@ from xlang.xl_ast import (
     VariableAccess,
     VariableAssign,
     OperatorExpression,
+    Return,
 )
 
 
@@ -72,8 +73,10 @@ class ASTTransformer(Transformer):
             return Break()
         elif keyword == 'continue':
             return Continue()
+        elif keyword == 'return':
+            return Return(return_value)
         else:
-            raise Exception('Not implemented')
+            raise Exception('Unknown control keyword')
 
     @v_args(inline=True)
     def var_access(self, variable, *args):

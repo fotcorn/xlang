@@ -49,6 +49,18 @@ def test_compare(parser: Parser):
         """
     )
 
+def test_return(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        a() {
+            return;
+        }
+        b() {
+            return 5;
+        }
+        """
+    )
+
 def test_variables(parser: Parser):
     ast: GlobalScope = parser.parse(
         """

@@ -18,11 +18,10 @@ var_access: IDENTIFIER array_access? ("." var_access)?
 
 code_block: "{" statement* "}"
 
-?statement: loop | if | (function_call ";") | variable_dec | variable_def | variable_assign | control ";"
+?statement: loop | if | (function_call ";") | variable_def | variable_assign | control ";"
 loop: "loop" code_block
 if: "if" "(" compare_expr ")" code_block
 
-variable_dec: IDENTIFIER ":" type ";"
 variable_def: IDENTIFIER ":" type "=" compare_expr ";"
 variable_assign: var_access "=" compare_expr ";"
 !control: ("break" | "continue" | "return" compare_expr?)

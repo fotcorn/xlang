@@ -8,6 +8,7 @@ from xlang.xl_ast import (
     GlobalScope,
     VariableDefinition,
     VariableAccess,
+    VariableAssign,
     OperatorExpression,
 )
 
@@ -36,6 +37,10 @@ class ASTTransformer(Transformer):
         return VariableDefinition(
             name.value, "".join([t.value for t in var_type.children]), value
         )
+
+    @v_args(inline=True)
+    def variable_assign(self, name, value):
+        return VariableAssign(name, value)
 
     @v_args(inline=True)
     def compare_expr(self, op1, operator, op2):

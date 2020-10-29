@@ -53,7 +53,6 @@ def test_variables(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
         main() {
-            a: int;
             b: int = 5;
             a = 1 + 2;
             b = a + b;
@@ -68,7 +67,7 @@ def test_variables(parser: Parser):
         """
     )
     assert 'main' in ast.functions
-    assert len(ast.functions['main'].statements) == 11
+    assert len(ast.functions['main'].statements) == 10
 
 def test_loop(parser: Parser):
     ast: GlobalScope = parser.parse(

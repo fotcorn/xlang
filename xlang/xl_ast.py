@@ -116,9 +116,8 @@ class VariableDefinition(Statement):
 
 
 @dataclass
-class VariableDefinition(Statement):
-    name: str
-    variable_type: str
+class VariableAssign(Statement):
+    name: VariableAccess
     value: BaseExpression
 
 

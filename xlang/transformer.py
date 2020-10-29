@@ -1,11 +1,15 @@
 from lark import Transformer, v_args
 
 from xlang.xl_ast import (
+    Break,
+    Continue,
     Constant,
     ConstantType,
     FunctionCall,
     Function,
     GlobalScope,
+    Loop,
+    If,
     VariableDefinition,
     VariableAccess,
     VariableAssign,
@@ -24,6 +28,10 @@ class ASTTransformer(Transformer):
     @v_args(inline=True)
     def function_def(self, name, code_block):
         return Function(name.value, code_block.children)
+
+    @v_args(inline=True)
+    def loop(self, code_block):
+        return Loop(code_block.children)
 
     def translation_unit(self, entries):
         global_scope = GlobalScope()
@@ -53,6 +61,19 @@ class ASTTransformer(Transformer):
     @v_args(inline=True)
     def mul_div_expr(self, op1, operator, op2):
         return OperatorExpression(op1, op2, operator.value)
+
+    @v_args(inline=True)
+    def if_statement(self, compare_expr, code_block):
+        return If(compare_expr, code_block.children)
+
+    @v_args(inline=True)
+    def control(self, keyword, return_value=None):
+        if keyword == 'break':
+            return Break()
+        elif keyword == 'continue':
+            return Continue()
+        else:
+            raise Exception('Not implemented')
 
     @v_args(inline=True)
     def var_access(self, variable, *args):

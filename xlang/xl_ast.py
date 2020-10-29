@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import field
 from pydantic.dataclasses import dataclass
 from enum import Enum, auto
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Optional
 
 class VariableTypeEnum(Enum):
     PRIMITIVE = auto()
@@ -125,6 +125,29 @@ class VariableAssign(Statement):
 class Function:
     name: str
     statements: List[Statement]
+
+
+@dataclass
+class Loop(Statement):
+    statements: List[Statement]
+
+
+@dataclass
+class If(Statement):
+    condition: BaseExpression
+    statements: List[Statement]
+
+
+class Continue(Statement):
+    pass
+
+
+class Break(Statement):
+    pass
+
+
+class Return(Statement):
+    value: BaseExpression = None
 
 
 VariableAccess.__pydantic_model__.update_forward_refs()

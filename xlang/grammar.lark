@@ -18,9 +18,9 @@ var_access: IDENTIFIER array_access? ("." var_access)?
 
 code_block: "{" statement* "}"
 
-?statement: loop | if | (function_call ";") | variable_def | variable_assign | control ";"
+?statement: loop | if_statement | (function_call ";") | variable_def | variable_assign | control ";"
 loop: "loop" code_block
-if: "if" "(" compare_expr ")" code_block
+if_statement: "if" "(" compare_expr ")" code_block
 
 variable_def: IDENTIFIER ":" type "=" compare_expr ";"
 variable_assign: var_access "=" compare_expr ";"

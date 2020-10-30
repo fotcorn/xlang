@@ -124,12 +124,4 @@ class ASTTransformer(Transformer):
         else:
             array_access, variable_access = args[0], None
 
-        if array_access:
-            array_access = array_access.children[0]
-        # if len(params) != 1:
-        #    print(params)
-        ##    # TODO: implement array and struct access
-        #    raise NotImplementedError("struct and array access not implemented")
-        # print(params[0].value)
-        # raise Exception("bla
         return VariableAccess(variable.value, array_access, variable_access)

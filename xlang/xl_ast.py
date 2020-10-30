@@ -93,7 +93,7 @@ class OperatorExpression(BaseExpression):
 @dataclass
 class VariableAccess(BaseExpression):
     variable_name: str
-    array_access: OperatorExpression = None
+    array_access: BaseExpression = None
     variable_access: VariableAccess = None
 
 

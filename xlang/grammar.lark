@@ -38,7 +38,7 @@ integer_constant: INTEGER
 
 !?compare_operator: "==" | "!=" | ">=" | ">" | "<" "<="
 
-!type: IDENTIFIER "[]"?
+!type: IDENTIFIER | "[" IDENTIFIER "]"
 
 %import common.WS
 %ignore WS

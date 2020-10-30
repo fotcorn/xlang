@@ -109,6 +109,12 @@ class FunctionCall(Statement, BaseExpression):
 
 
 @dataclass
+class VariableDeclaration(Statement):
+    name: str
+    variable_type: str
+
+
+@dataclass
 class VariableDefinition(Statement):
     name: str
     variable_type: str

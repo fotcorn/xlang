@@ -19,7 +19,7 @@ def test_access(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
         main() {
-            array: [int] = 5;
+            array: [int];
             print(array[0]);
             print(array[a]);
             print(array[a + 5]);

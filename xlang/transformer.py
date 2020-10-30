@@ -12,6 +12,7 @@ from xlang.xl_ast import (
     Loop,
     If,
     VariableDefinition,
+    VariableDeclaration,
     VariableAccess,
     VariableAssign,
     OperatorExpression,
@@ -79,6 +80,12 @@ class ASTTransformer(Transformer):
     def variable_def(self, name, var_type, value):
         return VariableDefinition(
             name.value, "".join([t.value for t in var_type.children]), value
+        )
+
+    @v_args(inline=True)
+    def variable_dec(self, name, var_type):
+        return VariableDeclaration(
+            name.value, "".join([t.value for t in var_type.children])
         )
 
     @v_args(inline=True)

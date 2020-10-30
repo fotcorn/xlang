@@ -6,6 +6,7 @@ from xlang.xl_ast import (
     Constant,
     ConstantType,
     FunctionCall,
+    FunctionParam,
     Function,
     GlobalScope,
     Loop,
@@ -27,8 +28,41 @@ class ASTTransformer(Transformer):
         return FunctionCall(param[0].value, param[1:])
 
     @v_args(inline=True)
-    def function_def(self, name, code_block):
-        return Function(name.value, code_block.children)
+    def function_param(self, identifier, param_type):
+        return FunctionParam(identifier.value, param_type.children[0].value)
+
+    def function_params(self, params):
+        assert len(params) in [1, 2]
+        if len(params) == 1:
+            return params
+        else:
+            return [params[0][0], params[1]]
+
+    def function_def(self, params):
+        # function_def: IDENTIFIER "(" function_params? ")" (":" type)? code_block
+        name = params[0]
+        code_block = params[-1]
+        return_type = None
+        function_params = None
+        if len(params) == 3:
+            a = params[1]
+            if isinstance(params[1], list):
+                function_params = params[1]
+            else:
+                return_type = params[1]
+        elif len(params) == 4:
+            function_params = params[1]
+            return_type = params[2]
+
+        if return_type is None:
+            return_type = 'void'
+        else:
+            return_type = return_type.children[0].value
+
+        if function_params is None:
+            function_params = []
+
+        return Function(name.value, return_type, function_params, code_block.children)
 
     @v_args(inline=True)
     def loop(self, code_block):

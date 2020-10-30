@@ -61,6 +61,25 @@ def test_return(parser: Parser):
         """
     )
 
+def test_function(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        a() {
+        }
+        b(): int {
+        }
+        c(p1: int) {
+        }
+        d(p1: int): int {
+        }
+        c(p1: int, p2: int) {
+        }
+        d(p1: int, p2: int): int {
+        }
+        """
+    )
+
+
 def test_variables(parser: Parser):
     ast: GlobalScope = parser.parse(
         """

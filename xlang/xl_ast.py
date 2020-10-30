@@ -122,9 +122,17 @@ class VariableAssign(Statement):
 
 
 @dataclass
+class FunctionParam:
+    name: str
+    param_type: str
+
+
+@dataclass
 class Function:
     name: str
-    statements: List[Statement]
+    return_type: str
+    function_params: List[FunctionParam]
+    statements: List[Statement] = None
 
 
 @dataclass

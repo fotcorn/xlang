@@ -14,6 +14,7 @@ struct_def: "struct" IDENTIFIER "{" struct_entry+ "}"
 
 IDENTIFIER: /[a-zA-Z_][a-zA-Z_0-9]*/
 INTEGER: (/[1-9][0-9]*/ | "0" )
+STRING_LITERAL: /"[^"]*"/
 ?array_access: "[" compare_expr "]"
 var_access: IDENTIFIER array_access? ("." var_access)?
 
@@ -30,7 +31,8 @@ variable_assign: var_access "=" compare_expr ";"
 
 function_call: IDENTIFIER "(" (compare_expr? | compare_expr ("," compare_expr)*) ")"
 integer_constant: INTEGER
-?primary_expression: var_access | function_call | integer_constant
+string_literal: STRING_LITERAL
+?primary_expression: var_access | function_call | integer_constant | string_literal
 
 !?mul_div_expr: primary_expression | (mul_div_expr "*" primary_expression) | (mul_div_expr "/" primary_expression)
 !?add_sub_expr: mul_div_expr | (add_sub_expr "+" mul_div_expr) | (add_sub_expr "-" mul_div_expr)

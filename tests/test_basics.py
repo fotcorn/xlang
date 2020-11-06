@@ -19,6 +19,16 @@ def test_hello(parser: Parser):
 
     assert len(func.statements) == 2
 
+def test_string(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        main() {
+            print("Hello World!");
+            a: string = "Hello World!";
+        }
+        """
+    )
+
 
 def test_add(parser: Parser):
     ast: GlobalScope = parser.parse(

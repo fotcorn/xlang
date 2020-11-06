@@ -24,6 +24,10 @@ class ASTTransformer(Transformer):
     @v_args(inline=True)
     def integer_constant(self, value):
         return Constant(ConstantType.INTEGER, int(value))
+    
+    @v_args(inline=True)
+    def string_literal(self, value):
+        return Constant(ConstantType.STRING, value[1:-1])
 
     def function_call(self, param):
         return FunctionCall(param[0].value, param[1:])

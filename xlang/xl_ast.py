@@ -75,6 +75,7 @@ class BaseExpression:
 
 class ConstantType(Enum):
     INTEGER = auto()
+    STRING = auto()
 
 
 @dataclass

@@ -12,48 +12,30 @@ class VariableTypeEnum(Enum):
     ENUM = auto()
 
 
+class PrimitiveType(Enum):
+    I64 = auto()
+    I32 = auto()
+    I16 = auto()
+    I8 = auto()
+    U64 = auto()
+    U32 = auto()
+    U16 = auto()
+    U8 = auto()
+    STRING = auto()
+    FLOAT = auto()
+
 @dataclass
 class VariableType:
     variable_type: VariableTypeEnum
-    primitive_type: str = None
+    primitive_type: PrimitiveType = None
     struct_type: str = None
     enum_type: str = None
     array_type: VariableType = None
 
-    @staticmethod
-    def from_string(t: str) -> VariableType:
-        if t.endswith("[]"):
-            raise NotImplementedError("arrays not implemented")
-        if t == "int":
-            t = "i64"
-        elif t == "uint":
-            t = "u64"
-        if t in ["i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64"]:
-            variable_type = VariableType(VariableTypeEnum.PRIMITIVE)
-            variable_type.primitive_type = t
-            return variable_type
-        else:
-            # TODO: implement arrays, structs, enums
-            raise NotImplementedError("unknown type")
-
-
-
-@dataclass
-class Variable:
-    variable_type: VariableType
-    name: str
-
-
-@dataclass
-class Scope:
-    code: str = ""
-    register_number: int = 1
-    variables: Dict[str, Variable] = field(default_factory=dict)
-
 
 @dataclass
 class StructType:
-    pass
+    members: List[IdentifierAndType]
 
 
 @dataclass
@@ -70,18 +52,24 @@ class GlobalScope:
 
 @dataclass
 class BaseExpression:
-    pass
+    type: Optional[VariableType]
 
 
 class ConstantType(Enum):
     INTEGER = auto()
+    FLOAT = auto()
     STRING = auto()
 
 
 @dataclass
 class Constant(BaseExpression):
-    type: ConstantType
+    constant_type: ConstantType
     value: Union[int, str]
+
+    def __init__(self, constant_type, value):
+        self.type = None
+        self.constant_type = constant_type
+        self.value = value
 
 
 @dataclass
@@ -90,12 +78,24 @@ class OperatorExpression(BaseExpression):
     operand2: BaseExpression
     operator: str
 
+    def __init__(self, operand1, operand2, operator):
+        self.type = None
+        self.operand1 = operand1
+        self.operand2 = operator
+        self.operator = operator
+
 
 @dataclass
 class VariableAccess(BaseExpression):
     variable_name: str
     array_access: BaseExpression = None
     variable_access: VariableAccess = None
+
+    def __init__(self, variable_name, array_access, variable_access):
+        self.type = None
+        self.variable_name = variable_name
+        self.array_access = array_access
+        self.variable_access = variable_access
 
 
 @dataclass
@@ -107,6 +107,11 @@ class Statement:
 class FunctionCall(Statement, BaseExpression):
     function_name: str
     params: List[BaseExpression]
+
+    def __init__(self, function_name, params):
+        self.type = None
+        self.function_name = function_name
+        self.params = params
 
 
 @dataclass
@@ -129,17 +134,19 @@ class VariableAssign(Statement):
 
 
 @dataclass
-class FunctionParam:
+class IdentifierAndType:
     name: str
-    param_type: str
+    param_type_str: str
+    param_type: VariableType = None
 
 
 @dataclass
 class Function:
     name: str
-    return_type: str
-    function_params: List[FunctionParam]
-    statements: List[Statement] = None
+    return_type_str: str
+    function_params: List[IdentifierAndType]
+    statements: List[Statement]
+    return_type: VariableType = None
 
 
 @dataclass

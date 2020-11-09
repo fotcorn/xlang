@@ -6,7 +6,7 @@ from xlang.xl_ast import (
     Constant,
     ConstantType,
     FunctionCall,
-    FunctionParam,
+    IdentifierAndType,
     Function,
     GlobalScope,
     Loop,
@@ -34,7 +34,7 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def function_param(self, identifier, param_type):
-        return FunctionParam(identifier.value, param_type.children[0].value)
+        return IdentifierAndType(identifier.value, param_type.children[0].value)
 
     def function_params(self, params):
         assert len(params) in [1, 2]

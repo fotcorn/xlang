@@ -6,6 +6,7 @@ from enum import Enum, auto
 from typing import List, Dict, Union, Optional
 
 class VariableTypeEnum(Enum):
+    UNKNOWN = auto()  # in the first parsing phase, we do not know the exact type yet
     PRIMITIVE = auto()
     ARRAY = auto()
     STRUCT = auto()
@@ -24,17 +25,18 @@ class PrimitiveType(Enum):
     STRING = auto()
     FLOAT = auto()
 
+
 @dataclass
 class VariableType:
     variable_type: VariableTypeEnum
+    type_name: str = None
     primitive_type: PrimitiveType = None
-    struct_type: str = None
-    enum_type: str = None
     array_type: VariableType = None
 
 
 @dataclass
 class StructType:
+    name: str
     members: List[IdentifierAndType]
 
 
@@ -52,7 +54,7 @@ class GlobalScope:
 
 @dataclass
 class BaseExpression:
-    type: Optional[VariableType]
+    type: VariableType
 
 
 class ConstantType(Enum):
@@ -66,11 +68,6 @@ class Constant(BaseExpression):
     constant_type: ConstantType
     value: Union[int, str]
 
-    def __init__(self, constant_type, value):
-        self.type = None
-        self.constant_type = constant_type
-        self.value = value
-
 
 @dataclass
 class OperatorExpression(BaseExpression):
@@ -78,24 +75,12 @@ class OperatorExpression(BaseExpression):
     operand2: BaseExpression
     operator: str
 
-    def __init__(self, operand1, operand2, operator):
-        self.type = None
-        self.operand1 = operand1
-        self.operand2 = operator
-        self.operator = operator
-
 
 @dataclass
 class VariableAccess(BaseExpression):
     variable_name: str
     array_access: BaseExpression = None
     variable_access: VariableAccess = None
-
-    def __init__(self, variable_name, array_access, variable_access):
-        self.type = None
-        self.variable_name = variable_name
-        self.array_access = array_access
-        self.variable_access = variable_access
 
 
 @dataclass
@@ -117,13 +102,13 @@ class FunctionCall(Statement, BaseExpression):
 @dataclass
 class VariableDeclaration(Statement):
     name: str
-    variable_type: str
+    variable_type: VariableType
 
 
 @dataclass
 class VariableDefinition(Statement):
     name: str
-    variable_type: str
+    variable_type: VariableType
     value: BaseExpression
 
 
@@ -136,17 +121,15 @@ class VariableAssign(Statement):
 @dataclass
 class IdentifierAndType:
     name: str
-    param_type_str: str
-    param_type: VariableType = None
+    param_type: VariableType
 
 
 @dataclass
 class Function:
     name: str
-    return_type_str: str
+    return_type: Optional[VariableType]
     function_params: List[IdentifierAndType]
     statements: List[Statement]
-    return_type: VariableType = None
 
 
 @dataclass
@@ -174,4 +157,6 @@ class Return(Statement):
 
 
 VariableAccess.__pydantic_model__.update_forward_refs()
+VariableType.__pydantic_model__.update_forward_refs()
+StructType.__pydantic_model__.update_forward_refs()
 GlobalScope.__pydantic_model__.update_forward_refs()

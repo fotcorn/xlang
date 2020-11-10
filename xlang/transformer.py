@@ -9,12 +9,16 @@ from xlang.xl_ast import (
     IdentifierAndType,
     Function,
     GlobalScope,
+    EnumType,
+    StructType,
     Loop,
     If,
     VariableDefinition,
     VariableDeclaration,
     VariableAccess,
     VariableAssign,
+    VariableType,
+    VariableTypeEnum,
     OperatorExpression,
     Return,
 )
@@ -23,18 +27,18 @@ from xlang.xl_ast import (
 class ASTTransformer(Transformer):
     @v_args(inline=True)
     def integer_constant(self, value):
-        return Constant(ConstantType.INTEGER, int(value))
-    
+        return Constant(VariableType(VariableTypeEnum.UNKNOWN), ConstantType.INTEGER, int(value))
+
     @v_args(inline=True)
     def string_literal(self, value):
-        return Constant(ConstantType.STRING, value[1:-1])
+        return Constant(VariableType(VariableTypeEnum.UNKNOWN), ConstantType.STRING, value[1:-1])
 
     def function_call(self, param):
         return FunctionCall(param[0].value, param[1:])
 
     @v_args(inline=True)
     def function_param(self, identifier, param_type):
-        return IdentifierAndType(identifier.value, param_type.children[0].value)
+        return IdentifierAndType(identifier.value, param_type)
 
     def function_params(self, params):
         assert len(params) in [1, 2]
@@ -59,15 +63,30 @@ class ASTTransformer(Transformer):
             function_params = params[1]
             return_type = params[2]
 
-        if return_type is None:
-            return_type = 'void'
-        else:
-            return_type = return_type.children[0].value
+        #if return_type is None:
+        #    return_type = Non
+        #else:
+        #    return_type = return_type.children[0].value
 
         if function_params is None:
             function_params = []
 
         return Function(name.value, return_type, function_params, code_block.children)
+
+    def type(self, params):
+        if len(params) == 1:
+            return VariableType(VariableTypeEnum.UNKNOWN, params[0].value)
+        elif len(params) == 3:
+            assert params[0].value == '[' and params[2].value == ']'
+            return VariableType(VariableTypeEnum.ARRAY, params[1].value, array_type=VariableType(VariableTypeEnum.UNKNOWN))
+
+    @v_args(inline=True)
+    def struct_entry(self, identifier, type):
+        return IdentifierAndType(identifier.value, type)
+
+    @v_args(inline=True)
+    def struct_def(self, name, *entries):
+        return StructType(name.value, entries)
 
     @v_args(inline=True)
     def loop(self, code_block):
@@ -78,19 +97,19 @@ class ASTTransformer(Transformer):
         for entry in entries:
             if isinstance(entry, Function):
                 global_scope.functions[entry.name] = entry
+            if isinstance(entry, EnumType):
+                global_scope.enums[entry.name] = entry
+            if isinstance(entry, StructType):
+                global_scope.structs[entry.name] = entry
         return global_scope
 
     @v_args(inline=True)
     def variable_def(self, name, var_type, value):
-        return VariableDefinition(
-            name.value, "".join([t.value for t in var_type.children]), value
-        )
+        return VariableDefinition(name.value, var_type, value)
 
     @v_args(inline=True)
     def variable_dec(self, name, var_type):
-        return VariableDeclaration(
-            name.value, "".join([t.value for t in var_type.children])
-        )
+        return VariableDeclaration(name.value, var_type)
 
     @v_args(inline=True)
     def variable_assign(self, name, value):
@@ -98,15 +117,15 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def compare_expr(self, op1, operator, op2):
-        return OperatorExpression(op1, op2, operator.value)
+        return OperatorExpression(VariableType(VariableTypeEnum.UNKNOWN), op1, op2, operator.value)
 
     @v_args(inline=True)
     def add_sub_expr(self, op1, operator, op2):
-        return OperatorExpression(op1, op2, operator.value)
+        return OperatorExpression(VariableType(VariableTypeEnum.UNKNOWN), op1, op2, operator.value)
 
     @v_args(inline=True)
     def mul_div_expr(self, op1, operator, op2):
-        return OperatorExpression(op1, op2, operator.value)
+        return OperatorExpression(VariableType(VariableTypeEnum.UNKNOWN), op1, op2, operator.value)
 
     @v_args(inline=True)
     def if_statement(self, compare_expr, code_block):
@@ -135,4 +154,4 @@ class ASTTransformer(Transformer):
         else:
             array_access, variable_access = args[0], None
 
-        return VariableAccess(variable.value, array_access, variable_access)
+        return VariableAccess(VariableType(VariableTypeEnum.UNKNOWN), variable.value, array_access, variable_access)

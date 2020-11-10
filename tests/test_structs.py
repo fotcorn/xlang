@@ -2,11 +2,11 @@ from xlang.xl_ast import GlobalScope
 from xlang.parser import Parser
 
 
-def test_hello(parser: Parser):
+def test_struct(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
         struct Test {
-            a: int,
+            a: [int],
             b: int,
             c: int,
         }
@@ -21,5 +21,5 @@ def test_hello(parser: Parser):
     )
 
     assert len(ast.functions) == 1
-    # assert len(ast.structs) == 1
+    assert len(ast.structs) == 1
     assert "main" in ast.functions

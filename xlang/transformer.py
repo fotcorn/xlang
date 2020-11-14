@@ -9,7 +9,6 @@ from xlang.xl_ast import (
     IdentifierAndType,
     Function,
     GlobalScope,
-    EnumType,
     StructType,
     Loop,
     If,
@@ -48,7 +47,6 @@ class ASTTransformer(Transformer):
             return [params[0][0], params[1]]
 
     def function_def(self, params):
-        # function_def: IDENTIFIER "(" function_params? ")" (":" type)? code_block
         name = params[0]
         code_block = params[-1]
         return_type = None
@@ -62,11 +60,6 @@ class ASTTransformer(Transformer):
         elif len(params) == 4:
             function_params = params[1]
             return_type = params[2]
-
-        #if return_type is None:
-        #    return_type = Non
-        #else:
-        #    return_type = return_type.children[0].value
 
         if function_params is None:
             function_params = []
@@ -97,8 +90,6 @@ class ASTTransformer(Transformer):
         for entry in entries:
             if isinstance(entry, Function):
                 global_scope.functions[entry.name] = entry
-            if isinstance(entry, EnumType):
-                global_scope.enums[entry.name] = entry
             if isinstance(entry, StructType):
                 global_scope.structs[entry.name] = entry
         return global_scope

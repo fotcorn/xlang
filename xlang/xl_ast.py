@@ -41,14 +41,8 @@ class StructType:
 
 
 @dataclass
-class EnumType:
-    pass
-
-
-@dataclass
 class GlobalScope:
     structs: Dict[str, StructType] = field(default_factory=dict)
-    enums: Dict[str, EnumType] = field(default_factory=dict)
     functions: Dict[str, Function] = field(default_factory=dict)
 
 

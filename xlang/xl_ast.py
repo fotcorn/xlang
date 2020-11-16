@@ -5,6 +5,7 @@ from pydantic.dataclasses import dataclass
 from enum import Enum, auto
 from typing import List, Dict, Union, Optional
 
+
 class VariableTypeEnum(Enum):
     UNKNOWN = auto()  # in the first parsing phase, we do not know the exact type yet
     PRIMITIVE = auto()

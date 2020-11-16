@@ -26,11 +26,15 @@ from xlang.xl_ast import (
 class ASTTransformer(Transformer):
     @v_args(inline=True)
     def integer_constant(self, value):
-        return Constant(VariableType(VariableTypeEnum.UNKNOWN), ConstantType.INTEGER, int(value))
+        return Constant(
+            VariableType(VariableTypeEnum.UNKNOWN), ConstantType.INTEGER, int(value)
+        )
 
     @v_args(inline=True)
     def string_literal(self, value):
-        return Constant(VariableType(VariableTypeEnum.UNKNOWN), ConstantType.STRING, value[1:-1])
+        return Constant(
+            VariableType(VariableTypeEnum.UNKNOWN), ConstantType.STRING, value[1:-1]
+        )
 
     def function_call(self, param):
         return FunctionCall(param[0].value, param[1:])
@@ -70,8 +74,12 @@ class ASTTransformer(Transformer):
         if len(params) == 1:
             return VariableType(VariableTypeEnum.UNKNOWN, params[0].value)
         elif len(params) == 3:
-            assert params[0].value == '[' and params[2].value == ']'
-            return VariableType(VariableTypeEnum.ARRAY, params[1].value, array_type=VariableType(VariableTypeEnum.UNKNOWN))
+            assert params[0].value == "[" and params[2].value == "]"
+            return VariableType(
+                VariableTypeEnum.ARRAY,
+                params[1].value,
+                array_type=VariableType(VariableTypeEnum.UNKNOWN),
+            )
 
     @v_args(inline=True)
     def struct_entry(self, identifier, type):
@@ -108,15 +116,21 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def compare_expr(self, op1, operator, op2):
-        return OperatorExpression(VariableType(VariableTypeEnum.UNKNOWN), op1, op2, operator.value)
+        return OperatorExpression(
+            VariableType(VariableTypeEnum.UNKNOWN), op1, op2, operator.value
+        )
 
     @v_args(inline=True)
     def add_sub_expr(self, op1, operator, op2):
-        return OperatorExpression(VariableType(VariableTypeEnum.UNKNOWN), op1, op2, operator.value)
+        return OperatorExpression(
+            VariableType(VariableTypeEnum.UNKNOWN), op1, op2, operator.value
+        )
 
     @v_args(inline=True)
     def mul_div_expr(self, op1, operator, op2):
-        return OperatorExpression(VariableType(VariableTypeEnum.UNKNOWN), op1, op2, operator.value)
+        return OperatorExpression(
+            VariableType(VariableTypeEnum.UNKNOWN), op1, op2, operator.value
+        )
 
     @v_args(inline=True)
     def if_statement(self, compare_expr, code_block):
@@ -124,14 +138,14 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def control(self, keyword, return_value=None):
-        if keyword == 'break':
+        if keyword == "break":
             return Break()
-        elif keyword == 'continue':
+        elif keyword == "continue":
             return Continue()
-        elif keyword == 'return':
+        elif keyword == "return":
             return Return(return_value)
         else:
-            raise Exception('Unknown control keyword')
+            raise Exception("Unknown control keyword")
 
     @v_args(inline=True)
     def var_access(self, variable, *args):
@@ -145,4 +159,9 @@ class ASTTransformer(Transformer):
         else:
             array_access, variable_access = args[0], None
 
-        return VariableAccess(VariableType(VariableTypeEnum.UNKNOWN), variable.value, array_access, variable_access)
+        return VariableAccess(
+            VariableType(VariableTypeEnum.UNKNOWN),
+            variable.value,
+            array_access,
+            variable_access,
+        )

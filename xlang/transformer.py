@@ -77,8 +77,7 @@ class ASTTransformer(Transformer):
             assert params[0].value == "[" and params[2].value == "]"
             return VariableType(
                 VariableTypeEnum.ARRAY,
-                params[1].value,
-                array_type=VariableType(VariableTypeEnum.UNKNOWN),
+                array_type=VariableType(VariableTypeEnum.UNKNOWN, type_name=params[1].value),
             )
 
     @v_args(inline=True)

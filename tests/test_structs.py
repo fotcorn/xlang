@@ -1,5 +1,6 @@
 from xlang.xl_ast import GlobalScope
 from xlang.parser import Parser
+from xlang.validation_pass import validation_pass
 
 
 def test_struct(parser: Parser):
@@ -44,6 +45,10 @@ def test_struct(parser: Parser):
         """
     )
 
+    validation_pass(ast)
+
     assert len(ast.functions) == 1
     assert len(ast.structs) == 2
     assert "main" in ast.functions
+
+    import ipdb; ipdb.set_trace()

@@ -50,5 +50,3 @@ def test_struct(parser: Parser):
     assert len(ast.functions) == 1
     assert len(ast.structs) == 2
     assert "main" in ast.functions
-
-    import ipdb; ipdb.set_trace()

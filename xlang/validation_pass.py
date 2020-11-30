@@ -1,6 +1,7 @@
 from xlang.xl_ast import VariableType, GlobalScope, VariableTypeEnum, PrimitiveType
 from typing import Optional
 
+
 class ScopeStack:
     def def_variable(name: str, type: VariableType):
         pass
@@ -18,22 +19,33 @@ class ScopeStack:
         pass
 
 
+def typeify(base_type: VariableType, global_scope: GlobalScope):
+    if base_type.variable_type == VariableTypeEnum.ARRAY:
+        assert base_type.array_type.variable_type == VariableTypeEnum.UNKNOWN
+        base_type.array_type = get_type_from_string(
+            global_scope, base_type.array_type.type_name
+        )
+    elif base_type.variable_type == VariableTypeEnum.UNKNOWN:
+        base_type = get_type_from_string(global_scope, base_type.type_name)
+    else:
+        raise Exception("Unhandled type in struct validation pass")
+    return base_type
+
+
 def validation_pass(global_scope: GlobalScope):
     for struct in global_scope.structs.values():
         for member in struct.members:
-            if member.param_type.variable_type == VariableTypeEnum.ARRAY:
-                assert member.param_type.array_type.variable_type == VariableTypeEnum.UNKNOWN
-                member.param_type.array_type = get_type_from_string(global_scope, member.param_type.array_type.type_name)
-            elif member.param_type.variable_type == VariableTypeEnum.UNKNOWN:
-                member.param_type = get_type_from_string(global_scope, member.param_type.type_name)
-            else:
-                raise Exception("Unhandled type in struct validation pass")
+            member.param_type = typeify(member.param_type, global_scope)
+
+    for function in global_scope.functions.values():
+        if function.return_type:
+            function.return_type = typeify(function.return_type, global_scope)
+        for parameter in function.function_params:
+            parameter.param_type = typeify(parameter.param_type, global_scope)
 
 
 def primitive(primitive_type: PrimitiveType) -> VariableType:
-    return VariableType(
-        VariableTypeEnum.PRIMITIVE, primitive_type=primitive_type
-    )
+    return VariableType(VariableTypeEnum.PRIMITIVE, primitive_type=primitive_type)
 
 
 def get_type_from_string(global_scope: GlobalScope, type_name: str) -> VariableType:

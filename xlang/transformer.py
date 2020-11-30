@@ -48,7 +48,7 @@ class ASTTransformer(Transformer):
         if len(params) == 1:
             return params
         else:
-            return [params[0][0], params[1]]
+            return params[0] + [params[1]]
 
     def function_def(self, params):
         name = params[0]
@@ -77,7 +77,9 @@ class ASTTransformer(Transformer):
             assert params[0].value == "[" and params[2].value == "]"
             return VariableType(
                 VariableTypeEnum.ARRAY,
-                array_type=VariableType(VariableTypeEnum.UNKNOWN, type_name=params[1].value),
+                array_type=VariableType(
+                    VariableTypeEnum.UNKNOWN, type_name=params[1].value
+                ),
             )
 
     @v_args(inline=True)

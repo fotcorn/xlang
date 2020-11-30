@@ -1,3 +1,5 @@
+import pytest
+
 from xlang.xl_ast import GlobalScope, VariableTypeEnum, PrimitiveType
 from xlang.parser import Parser
 from xlang.validation_pass import validation_pass
@@ -57,3 +59,15 @@ def test_validation_pass(parser: Parser):
     assert params[1].name == "b"
     assert params[2].name == "c"
     assert params[3].name == "d"
+
+
+def test_non_existing_type(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        func(): NonExistingType {
+            return 5;
+        }
+        """
+    )
+    with pytest.raises(Exception):
+        validation_pass(ast)

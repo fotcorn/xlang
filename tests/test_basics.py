@@ -19,6 +19,7 @@ def test_hello(parser: Parser):
 
     assert len(func.statements) == 2
 
+
 def test_string(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
@@ -59,6 +60,7 @@ def test_compare(parser: Parser):
         """
     )
 
+
 def test_return(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
@@ -70,6 +72,7 @@ def test_return(parser: Parser):
         }
         """
     )
+
 
 def test_function(parser: Parser):
     ast: GlobalScope = parser.parse(
@@ -109,6 +112,7 @@ def test_variables(parser: Parser):
     )
     assert 'main' in ast.functions
     assert len(ast.functions['main'].statements) == 10
+
 
 def test_loop(parser: Parser):
     ast: GlobalScope = parser.parse(

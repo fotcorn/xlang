@@ -32,7 +32,7 @@ def test_validation_pass(parser: Parser):
     assert "param_func" in ast.functions
 
     # main
-    assert ast.functions["main"].return_type == None
+    assert ast.functions["main"].return_type is None
 
     # int_func
     assert (

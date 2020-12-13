@@ -89,7 +89,6 @@ class FunctionCall(Statement, BaseExpression):
     params: List[BaseExpression]
 
     def __init__(self, function_name, params):
-        self.type = None
         self.function_name = function_name
         self.params = params
 

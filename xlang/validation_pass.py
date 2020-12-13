@@ -3,19 +3,19 @@ from typing import Optional
 
 
 class ScopeStack:
-    def def_variable(name: str, type: VariableType):
+    def def_variable(self, name: str, variable_type: VariableType):
         pass
 
-    def variable_exists(name: str) -> bool:
+    def variable_exists(self, name: str) -> bool:
         pass
 
-    def get_variable_type(name: str) -> Optional[VariableType]:
+    def get_variable_type(self, name: str) -> Optional[VariableType]:
         pass
 
-    def push_scope():
+    def push_scope(self):
         pass
 
-    def pop_scope():
+    def pop_scope(self):
         pass
 
 

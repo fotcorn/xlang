@@ -55,21 +55,19 @@ def get_type_from_string(global_scope: GlobalScope, type_name: str) -> VariableT
     if type_name == "i64":
         return primitive(PrimitiveType.I64)
     elif type_name == "i32":
-        return primitive(PrimitiveType.I64)
+        return primitive(PrimitiveType.I32)
     elif type_name == "i16":
-        return primitive(PrimitiveType.I64)
+        return primitive(PrimitiveType.I16)
     elif type_name == "i8":
-        return primitive(PrimitiveType.I64)
-    elif type_name == "i8":
-        return primitive(PrimitiveType.I64)
+        return primitive(PrimitiveType.I8)
     elif type_name == "u64":
-        return primitive(PrimitiveType.I64)
+        return primitive(PrimitiveType.U64)
     elif type_name == "u32":
-        return primitive(PrimitiveType.I64)
+        return primitive(PrimitiveType.U32)
     elif type_name == "u16":
-        return primitive(PrimitiveType.I64)
+        return primitive(PrimitiveType.U16)
     elif type_name == "u8":
-        return primitive(PrimitiveType.I64)
+        return primitive(PrimitiveType.U8)
     elif type_name == "float":
         return primitive(PrimitiveType.FLOAT)
     elif type_name == "string":

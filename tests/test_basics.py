@@ -85,9 +85,9 @@ def test_function(parser: Parser):
         }
         d(p1: int): int {
         }
-        c(p1: int, p2: int) {
+        e(p1: int, p2: int) {
         }
-        d(p1: int, p2: int): int {
+        f(p1: int, p2: int): int {
         }
         """
     )

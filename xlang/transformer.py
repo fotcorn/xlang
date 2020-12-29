@@ -98,9 +98,15 @@ class ASTTransformer(Transformer):
         global_scope = GlobalScope()
         for entry in entries:
             if isinstance(entry, Function):
+                if entry.name in global_scope.functions:
+                    raise Exception(f"function with name {entry.name} is already defined")
                 global_scope.functions[entry.name] = entry
-            if isinstance(entry, StructType):
+            elif isinstance(entry, StructType):
+                if entry.name in global_scope.structs:
+                    raise Exception(f"struct with name {entry.name} is already defined")
                 global_scope.structs[entry.name] = entry
+            else:
+                raise Exception("Internal compiler error: unknown entry in global scope")
         return global_scope
 
     @v_args(inline=True)

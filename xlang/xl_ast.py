@@ -61,7 +61,7 @@ class ConstantType(Enum):
 @dataclass
 class Constant(BaseExpression):
     constant_type: ConstantType
-    value: Union[int, str]
+    value: Union[int, str, float]
 
 
 @dataclass

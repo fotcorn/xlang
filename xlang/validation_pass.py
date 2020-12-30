@@ -1,4 +1,10 @@
-from xlang.xl_ast import VariableType, GlobalScope, VariableTypeEnum, PrimitiveType
+from xlang.xl_ast import (
+    VariableType,
+    GlobalScope,
+    VariableTypeEnum,
+    PrimitiveType,
+    VariableDeclaration,
+)
 from typing import Optional
 
 
@@ -42,6 +48,12 @@ def validation_pass(global_scope: GlobalScope):
             function.return_type = typeify(function.return_type, global_scope)
         for parameter in function.function_params:
             parameter.param_type = typeify(parameter.param_type, global_scope)
+
+        scope_stack = ScopeStack()
+
+        for statement in function.statements:
+            if isinstance(statement, VariableDeclaration):
+                pass
 
 
 def primitive(primitive_type: PrimitiveType) -> VariableType:

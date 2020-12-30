@@ -118,8 +118,8 @@ class ASTTransformer(Transformer):
         return VariableDeclaration(name.value, var_type)
 
     @v_args(inline=True)
-    def variable_assign(self, name, value):
-        return VariableAssign(name, value)
+    def variable_assign(self, variable_access, value):
+        return VariableAssign(variable_access, value)
 
     @v_args(inline=True)
     def compare_expr(self, op1, operator, op2):

@@ -91,6 +91,7 @@ class FunctionCall(Statement, BaseExpression):
     def __init__(self, function_name, params):
         self.function_name = function_name
         self.params = params
+        self.type = None
 
 
 @dataclass

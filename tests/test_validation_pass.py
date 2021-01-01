@@ -12,7 +12,7 @@ def test_validation_pass(parser: Parser):
             a: int,
         }
 
-        intfunc(): int {
+        intfunc(a: int): int {
             return 5;
         }
 
@@ -20,10 +20,11 @@ def test_validation_pass(parser: Parser):
 
         main() {
             a: int = 5;
-            print(a);
+            intfunc(a);
         }
         """
     )
+
     validation_pass(ast)
 
     assert len(ast.functions) == 3

@@ -4,38 +4,168 @@ from xlang.xl_ast import (
     VariableTypeEnum,
     PrimitiveType,
     VariableDeclaration,
+    VariableDefinition,
+    BaseExpression,
+    FunctionCall,
+    VariableAccess,
+    Constant,
+    ConstantType,
+    OperatorExpression,
+    VariableAssign,
+    Function,
+    Loop,
+    If,
+    Return,
+    Continue,
+    Break,
 )
+from xlang.xl_types import typeify, is_type_compatible
 from typing import Optional
 
 
 class ScopeStack:
-    def def_variable(self, name: str, variable_type: VariableType):
-        pass
+    def __init__(self):
+        self.stack = [{}]
 
-    def variable_exists(self, name: str) -> bool:
-        pass
+    def def_variable(self, name: str, variable_type: VariableType):
+        if name in self.stack[-1]:
+            raise Exception(f"Variable {name} already defined")
+        self.stack[-1][name] = variable_type
 
     def get_variable_type(self, name: str) -> Optional[VariableType]:
-        pass
+        for stack in reversed(self.stack):
+            if name in stack:
+                return stack[name]
+        return None  # variable not found
 
     def push_scope(self):
-        pass
+        self.stack.append({})
 
     def pop_scope(self):
-        pass
+        self.stack.pop()
 
 
-def typeify(base_type: VariableType, global_scope: GlobalScope):
-    if base_type.variable_type == VariableTypeEnum.ARRAY:
-        assert base_type.array_type.variable_type == VariableTypeEnum.UNKNOWN
-        base_type.array_type = get_type_from_string(
-            global_scope, base_type.array_type.type_name
-        )
-    elif base_type.variable_type == VariableTypeEnum.UNKNOWN:
-        base_type = get_type_from_string(global_scope, base_type.type_name)
-    else:
-        raise Exception("Unhandled type in struct validation pass")
-    return base_type
+class Typeifier:
+    def __init__(self, global_scope: GlobalScope, function: Function):
+        self.global_scope = global_scope
+        self.scope_stack = ScopeStack()
+        self.function = function
+
+    def statements(self, statements):
+        for statement in statements:
+            self.statement(statement)
+
+    def statement(self, statement):
+        if isinstance(statement, VariableDeclaration):
+            statement.variable_type = typeify(
+                statement.variable_type, self.global_scope
+            )
+            self.scope_stack.def_variable(statement.name, statement.variable_type)
+        elif isinstance(statement, VariableDefinition):
+            statement.variable_type = typeify(
+                statement.variable_type, self.global_scope
+            )
+            self.scope_stack.def_variable(statement.name, statement.variable_type)
+            value_type = self.expression(statement.value)
+            if not is_type_compatible(statement.variable_type, value_type):
+                raise Exception("Incompatible value type")
+        elif isinstance(statement, VariableAssign):
+            value_type = self.expression(statement.value)
+            variable_type = self.scope_stack.get_variable_type(
+                statement.variable_access.variable_name
+            )
+            if not variable_type:
+                raise Exception(f"Unknown variable {statement.name}")
+            if not is_type_compatible(value_type, variable_type):
+                raise Exception("Incompatible value type")
+        elif isinstance(statement, FunctionCall):
+            self.function_call(statement)
+        elif isinstance(statement, Loop):
+            self.statements(statement.statements)
+        elif isinstance(statement, If):
+            value_type = self.expression(statement.condition)
+            # todo: check if value_type is bool or convertable to bool
+            self.statements(statement.statements)
+        elif isinstance(statement, Return):
+            if statement.value:
+                if not self.function.return_type:
+                    raise Exception(
+                        f"Function has no return type: {self.function.name}"
+                    )
+                value_type = self.expression(statement.value)
+                if not is_type_compatible(self.function.return_type, value_type):
+                    raise Exception(
+                        "Returned value is incompatible with function return type"
+                    )
+        elif isinstance(statement, Continue):
+            pass  # todo: check if inside loop
+        elif isinstance(statement, Break):
+            pass  # todo: check if inside loop
+        else:
+            raise Exception("Unhandled statement")
+
+    def expression(self, expression: BaseExpression):
+        if isinstance(expression, FunctionCall):
+            expression.type = self.function_call(expression)
+        elif isinstance(expression, VariableAccess):
+            if expression.variable_access is not None:
+                raise NotImplementedError("Recursive variable access not implemented")
+            if expression.array_access is not None:
+                raise NotImplementedError("Array access not implemented")
+
+            variable_type = self.scope_stack.get_variable_type(expression.variable_name)
+            if not variable_type:
+                raise Exception(f"Unknown variable {expression.variable_name}")
+            expression.type = variable_type
+
+        elif isinstance(expression, Constant):
+            if expression.constant_type == ConstantType.STRING:
+                expression.type = VariableType(
+                    VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.STRING
+                )
+            elif expression.constant_type == ConstantType.FLOAT:
+                expression.type = VariableType(
+                    VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.FLOAT
+                )
+            elif expression.constant_type == ConstantType.INTEGER:
+                # TODO: use finer graded primitive type
+                expression.type = VariableType(
+                    VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.I64
+                )
+            else:
+                raise Exception("Internal compiler error: Unknown constant type")
+
+        elif isinstance(expression, OperatorExpression):
+            operand1_type = self.expression(expression.operand1)
+            operand2_type = self.expression(expression.operand2)
+            if not is_type_compatible(operand1_type, operand2_type):
+                raise Exception("Incompatible type in operator expressions")
+            expression.type = operand1_type
+        else:
+            raise Exception("Unknown expression")
+        return expression.type
+
+    def function_call(self, expression):
+        # check if function actually exists
+        if not expression.function_name in self.global_scope.functions:
+            raise Exception(f"Unknown function called: {expression.function_name}")
+        function = self.global_scope.functions[expression.function_name]
+
+        # check correct count of params given in call
+        if len(expression.params) != len(function.function_params):
+            raise Exception(
+                f"function {expression.function_name} takes {len(function.function_params)} params,"
+                f"{len(expression.params)} given"
+            )
+
+        # evaluate parameters and check if type matches
+        for (param, param_type_name) in zip(
+            expression.params, function.function_params
+        ):
+            expression_type = self.expression(param)
+            if not is_type_compatible(expression_type, param_type_name.param_type):
+                raise Exception("Invalid function parameter type")
+        return function.return_type
 
 
 def validation_pass(global_scope: GlobalScope):
@@ -49,42 +179,6 @@ def validation_pass(global_scope: GlobalScope):
         for parameter in function.function_params:
             parameter.param_type = typeify(parameter.param_type, global_scope)
 
-        scope_stack = ScopeStack()
-
-        for statement in function.statements:
-            if isinstance(statement, VariableDeclaration):
-                pass
-
-
-def primitive(primitive_type: PrimitiveType) -> VariableType:
-    return VariableType(VariableTypeEnum.PRIMITIVE, primitive_type=primitive_type)
-
-
-def get_type_from_string(global_scope: GlobalScope, type_name: str) -> VariableType:
-    # int is just an alias for i64
-    if type_name == "int":
-        type_name = "i64"
-    if type_name == "i64":
-        return primitive(PrimitiveType.I64)
-    elif type_name == "i32":
-        return primitive(PrimitiveType.I32)
-    elif type_name == "i16":
-        return primitive(PrimitiveType.I16)
-    elif type_name == "i8":
-        return primitive(PrimitiveType.I8)
-    elif type_name == "u64":
-        return primitive(PrimitiveType.U64)
-    elif type_name == "u32":
-        return primitive(PrimitiveType.U32)
-    elif type_name == "u16":
-        return primitive(PrimitiveType.U16)
-    elif type_name == "u8":
-        return primitive(PrimitiveType.U8)
-    elif type_name == "float":
-        return primitive(PrimitiveType.FLOAT)
-    elif type_name == "string":
-        return primitive(PrimitiveType.STRING)
-    elif type_name in global_scope.structs:
-        return VariableType(VariableTypeEnum.STRUCT, type_name=type_name)
-    else:
-        raise Exception(f"Unknown type: {type_name}")
+    for function in global_scope.functions.values():
+        typeifier = Typeifier(global_scope, function)
+        typeifier.statements(function.statements)

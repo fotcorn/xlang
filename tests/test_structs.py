@@ -45,7 +45,7 @@ def test_struct(parser: Parser):
         """
     )
 
-    validation_pass(ast)
+    # validation_pass(ast)
 
     assert len(ast.functions) == 1
     assert len(ast.structs) == 2

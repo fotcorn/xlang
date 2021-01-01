@@ -82,16 +82,19 @@ class Typeifier:
         elif isinstance(statement, FunctionCall):
             self.function_call(statement)
         elif isinstance(statement, Loop):
-            print(self.inside_loop)
             inner_loop = self.inside_loop
             self.inside_loop = True
+            self.scope_stack.push_scope()
             self.statements(statement.statements)
+            self.scope_stack.pop_scope()
             if not inner_loop:
                 self.inside_loop = False
         elif isinstance(statement, If):
             value_type = self.expression(statement.condition)
             # todo: check if value_type is bool or convertable to bool
+            self.scope_stack.push_scope()
             self.statements(statement.statements)
+            self.scope_stack.pop_scope()
         elif isinstance(statement, Return):
             if statement.value:
                 if not self.function.return_type:

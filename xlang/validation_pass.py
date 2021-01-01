@@ -50,6 +50,7 @@ class Typeifier:
         self.global_scope = global_scope
         self.scope_stack = ScopeStack()
         self.function = function
+        self.inside_loop = False
 
     def statements(self, statements):
         for statement in statements:
@@ -81,7 +82,12 @@ class Typeifier:
         elif isinstance(statement, FunctionCall):
             self.function_call(statement)
         elif isinstance(statement, Loop):
+            print(self.inside_loop)
+            inner_loop = self.inside_loop
+            self.inside_loop = True
             self.statements(statement.statements)
+            if not inner_loop:
+                self.inside_loop = False
         elif isinstance(statement, If):
             value_type = self.expression(statement.condition)
             # todo: check if value_type is bool or convertable to bool
@@ -98,9 +104,11 @@ class Typeifier:
                         "Returned value is incompatible with function return type"
                     )
         elif isinstance(statement, Continue):
-            pass  # todo: check if inside loop
+            if not self.inside_loop:
+                raise Exception("Continue outside loop")
         elif isinstance(statement, Break):
-            pass  # todo: check if inside loop
+            if not self.inside_loop:
+                raise Exception("Break outside loop")
         else:
             raise Exception("Unhandled statement")
 

@@ -72,3 +72,65 @@ def test_non_existing_type(parser: Parser):
     )
     with pytest.raises(Exception):
         validation_pass(ast)
+
+
+def test_inside_loop_continue(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        func() {
+            loop {
+                continue;
+            }
+            loop {
+                loop {
+                    continue;
+                }
+                continue;
+            }
+        }
+        """
+    )
+    validation_pass(ast)
+
+
+def test_inside_loop_break(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        func() {
+            loop {
+                break;
+            }
+             loop {
+                loop {
+                    break;
+                }
+                break;
+            }
+        }
+        """
+    )
+    validation_pass(ast)
+
+
+def test_inside_loop_continue_fail(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        func() {
+            continue;
+        }
+        """
+    )
+    with pytest.raises(Exception):
+        validation_pass(ast)
+
+
+def test_inside_loop_break_fail(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        func() {
+            break;
+        }
+        """
+    )
+    with pytest.raises(Exception):
+        validation_pass(ast)

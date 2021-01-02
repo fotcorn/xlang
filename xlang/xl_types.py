@@ -48,6 +48,57 @@ def get_type_from_string(global_scope: GlobalScope, type_name: str) -> VariableT
         raise Exception(f"Unknown type: {type_name}")
 
 
+
+SIGNED = (
+    -128,
+    -32768,
+    -2147483648,
+    -9223372036854775808,
+)
+
+UNSIGNED = (
+    255,
+    65535,
+    4294967295,
+    18446744073709551615,
+)
+
+def primitive_type_from_constant(constant):
+    if constant < 0:
+        if constant >= SIGNED[0]:
+            return primitive(PrimitiveType.I8)
+        elif constant >= SIGNED[1]:
+            return primitive(PrimitiveType.I16)
+        elif constant >= SIGNED[2]:
+            return primitive(PrimitiveType.I32)
+        elif constant >= SIGNED[3]:
+            return primitive(PrimitiveType.I64)
+        else:
+            raise Exception("Constant out of range")
+    else:
+        if constant <= UNSIGNED[0]:
+            return primitive(PrimitiveType.U8)
+        elif constant <= UNSIGNED[1]:
+            return primitive(PrimitiveType.U16)
+        elif constant <= UNSIGNED[2]:
+            return primitive(PrimitiveType.U32)
+        elif constant <= UNSIGNED[3]:
+            return primitive(PrimitiveType.U64)
+        else:
+            raise Exception("Constant out of range")
+
+
+PRIMITIVE_AUTO_CONVERSION = {
+    PrimitiveType.U8:  (PrimitiveType.U8),
+    PrimitiveType.I8:  (PrimitiveType.I8),
+    PrimitiveType.U16: (PrimitiveType.U8, PrimitiveType.U16),
+    PrimitiveType.I16: (PrimitiveType.U8, PrimitiveType.I8,  PrimitiveType.I16),
+    PrimitiveType.U32: (PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.U32),
+    PrimitiveType.I32: (PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.I8,  PrimitiveType.I16, PrimitiveType.I32),
+    PrimitiveType.U64: (PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.U32, PrimitiveType.U64),
+    PrimitiveType.I64: (PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.U32, PrimitiveType.I8,  PrimitiveType.I16, PrimitiveType.I32, PrimitiveType.I64),
+}
+
 def is_type_compatible(
     variable_type_a: VariableType, variable_type_b: VariableType
 ) -> bool:
@@ -60,7 +111,6 @@ def is_type_compatible(
     elif variable_type_a.variable_type == VariableTypeEnum.STRUCT:
         return variable_type_a.type_name == variable_type_b.type_name
     elif variable_type_a.variable_type == VariableTypeEnum.PRIMITIVE:
-        # todo i32 is also compatible to i64, i32 is compatible with u64 etc.
-        return variable_type_a.primitive_type == variable_type_b.primitive_type
+        return variable_type_b.primitive_type in PRIMITIVE_AUTO_CONVERSION[variable_type_a.primitive_type]
     else:
         raise Exception("Unhandled type in is_type_compatible")

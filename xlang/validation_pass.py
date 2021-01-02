@@ -19,7 +19,7 @@ from xlang.xl_ast import (
     Continue,
     Break,
 )
-from xlang.xl_types import typeify, is_type_compatible
+from xlang.xl_types import typeify, is_type_compatible, primitive_type_from_constant
 from typing import Optional
 
 
@@ -139,10 +139,7 @@ class Typeifier:
                     VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.FLOAT
                 )
             elif expression.constant_type == ConstantType.INTEGER:
-                # TODO: use finer graded primitive type
-                expression.type = VariableType(
-                    VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.I64
-                )
+                expression.type = primitive_type_from_constant(expression.value)
             else:
                 raise Exception("Internal compiler error: Unknown constant type")
 

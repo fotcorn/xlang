@@ -25,6 +25,7 @@ class PrimitiveType(Enum):
     U8 = auto()
     STRING = auto()
     FLOAT = auto()
+    BOOL = auto()
 
 
 @dataclass
@@ -56,12 +57,13 @@ class ConstantType(Enum):
     INTEGER = auto()
     FLOAT = auto()
     STRING = auto()
+    BOOL = auto()
 
 
 @dataclass
 class Constant(BaseExpression):
     constant_type: ConstantType
-    value: Union[int, str, float]
+    value: Union[int, str, float, bool]
 
 
 @dataclass

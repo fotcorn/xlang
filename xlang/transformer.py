@@ -36,6 +36,12 @@ class ASTTransformer(Transformer):
             VariableType(VariableTypeEnum.UNKNOWN), ConstantType.STRING, value[1:-1]
         )
 
+    @v_args(inline=True)
+    def boolean_literal(self, value):
+        return Constant(
+            VariableType(VariableTypeEnum.UNKNOWN), ConstantType.BOOL, bool(value)
+        )
+
     def function_call(self, param):
         return FunctionCall(param[0].value, param[1:])
 

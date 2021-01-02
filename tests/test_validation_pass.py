@@ -134,3 +134,14 @@ def test_inside_loop_break_fail(parser: Parser):
     )
     with pytest.raises(Exception):
         validation_pass(ast)
+
+
+def test_bool(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        main() {
+            b: bool = false;
+        }
+        """
+    )
+    validation_pass(ast)

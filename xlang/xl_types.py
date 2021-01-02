@@ -42,6 +42,8 @@ def get_type_from_string(global_scope: GlobalScope, type_name: str) -> VariableT
         return primitive(PrimitiveType.FLOAT)
     elif type_name == "string":
         return primitive(PrimitiveType.STRING)
+    elif type_name == "bool":
+        return primitive(PrimitiveType.BOOL)
     elif type_name in global_scope.structs:
         return VariableType(VariableTypeEnum.STRUCT, type_name=type_name)
     else:
@@ -111,6 +113,9 @@ def is_type_compatible(
     elif variable_type_a.variable_type == VariableTypeEnum.STRUCT:
         return variable_type_a.type_name == variable_type_b.type_name
     elif variable_type_a.variable_type == VariableTypeEnum.PRIMITIVE:
-        return variable_type_b.primitive_type in PRIMITIVE_AUTO_CONVERSION[variable_type_a.primitive_type]
+        if variable_type_b.primitive_type in PRIMITIVE_AUTO_CONVERSION:
+            return variable_type_b.primitive_type in PRIMITIVE_AUTO_CONVERSION[variable_type_a.primitive_type]
+        else:
+            return variable_type_a.primitive_type == variable_type_b.primitive_type
     else:
         raise Exception("Unhandled type in is_type_compatible")

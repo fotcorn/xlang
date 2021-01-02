@@ -138,6 +138,10 @@ class Typeifier:
                 expression.type = VariableType(
                     VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.FLOAT
                 )
+            elif expression.constant_type == ConstantType.BOOL:
+                expression.type = VariableType(
+                    VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.BOOL
+                )
             elif expression.constant_type == ConstantType.INTEGER:
                 expression.type = primitive_type_from_constant(expression.value)
             else:

@@ -91,14 +91,14 @@ def primitive_type_from_constant(constant):
 
 
 PRIMITIVE_AUTO_CONVERSION = {
-    PrimitiveType.U8:  (PrimitiveType.U8),
-    PrimitiveType.I8:  (PrimitiveType.I8),
-    PrimitiveType.U16: (PrimitiveType.U8, PrimitiveType.U16),
-    PrimitiveType.I16: (PrimitiveType.U8, PrimitiveType.I8,  PrimitiveType.I16),
-    PrimitiveType.U32: (PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.U32),
-    PrimitiveType.I32: (PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.I8,  PrimitiveType.I16, PrimitiveType.I32),
-    PrimitiveType.U64: (PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.U32, PrimitiveType.U64),
-    PrimitiveType.I64: (PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.U32, PrimitiveType.I8,  PrimitiveType.I16, PrimitiveType.I32, PrimitiveType.I64),
+    PrimitiveType.U8:  [PrimitiveType.U8],
+    PrimitiveType.I8:  [PrimitiveType.I8],
+    PrimitiveType.U16: [PrimitiveType.U8, PrimitiveType.U16],
+    PrimitiveType.I16: [PrimitiveType.U8, PrimitiveType.I8,  PrimitiveType.I16],
+    PrimitiveType.U32: [PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.U32],
+    PrimitiveType.I32: [PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.I8,  PrimitiveType.I16, PrimitiveType.I32],
+    PrimitiveType.U64: [PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.U32, PrimitiveType.U64],
+    PrimitiveType.I64: [PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.U32, PrimitiveType.I8,  PrimitiveType.I16, PrimitiveType.I32, PrimitiveType.I64],
 }
 
 def is_type_compatible(

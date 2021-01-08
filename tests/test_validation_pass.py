@@ -145,3 +145,18 @@ def test_bool(parser: Parser):
         """
     )
     validation_pass(ast)
+
+
+def test_array_access(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        print(value: int) {}
+        append(array: [int], value: int) {}
+
+        main() {
+            b: [int];
+            append(b, 5);
+        }
+        """
+    )
+    validation_pass(ast)

@@ -175,7 +175,7 @@ class Typeifier:
             expression.params, function.function_params
         ):
             expression_type = self.expression(param)
-            if not is_type_compatible(expression_type, param_type_name.param_type):
+            if not is_type_compatible(param_type_name.param_type, expression_type):
                 raise Exception("Invalid function parameter type")
         return function.return_type
 

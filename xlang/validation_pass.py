@@ -3,6 +3,7 @@ from xlang.xl_ast import (
     GlobalScope,
     VariableTypeEnum,
     PrimitiveType,
+    INTEGER_TYPES,
     VariableDeclaration,
     VariableDefinition,
     BaseExpression,
@@ -122,12 +123,21 @@ class Typeifier:
             if expression.variable_access is not None:
                 raise NotImplementedError("Recursive variable access not implemented")
             if expression.array_access is not None:
-                raise NotImplementedError("Array access not implemented")
+                access_type = self.expression(expression.array_access)
+                if access_type.variable_type != VariableTypeEnum.PRIMITIVE or \
+                        access_type.primitive_type not in INTEGER_TYPES:
+                    raise Exception("Invalid type for array access")
 
             variable_type = self.scope_stack.get_variable_type(expression.variable_name)
             if not variable_type:
                 raise Exception(f"Unknown variable {expression.variable_name}")
-            expression.type = variable_type
+
+            if expression.array_access is not None:
+                if variable_type.variable_type != VariableTypeEnum.ARRAY:
+                    raise Exception("Array access on non-array type")
+                expression.type = variable_type.array_type
+            else:
+                expression.type = variable_type
 
         elif isinstance(expression, Constant):
             if expression.constant_type == ConstantType.STRING:

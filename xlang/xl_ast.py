@@ -28,6 +28,17 @@ class PrimitiveType(Enum):
     BOOL = auto()
 
 
+INTEGER_TYPES = (
+    PrimitiveType.I64,
+    PrimitiveType.I32,
+    PrimitiveType.I16,
+    PrimitiveType.I8,
+    PrimitiveType.U64,
+    PrimitiveType.U32,
+    PrimitiveType.U16,
+    PrimitiveType.U8,
+)
+
 @dataclass
 class VariableType:
     variable_type: VariableTypeEnum

@@ -156,6 +156,7 @@ def test_array_access(parser: Parser):
         main() {
             b: [int];
             append(b, 5);
+            print(b[0]);
         }
         """
     )

@@ -116,28 +116,56 @@ class Typeifier:
         else:
             raise Exception("Unhandled statement")
 
+    def struct_access(self, variable: VariableType, struct_access: VariableAccess):
+        if variable.variable_type != VariableTypeEnum.STRUCT:
+            raise Exception("Struct access on non-variable type")
+        struct_type = self.global_scope.structs[variable.type_name]
+
+        for member in struct_type.members:
+            if struct_access.variable_name == member.name:
+                break
+        else:
+            raise Exception(f"Unknown struct field: {struct_access.variable_name}")
+        
+
+        if struct_access.array_access is not None:
+            expression_type = self.array_access(member.param_type, struct_access.array_access)
+        else:
+            expression_type = member.param_type
+
+        if struct_access.variable_access:
+            expression_type = self.struct_access(expression_type, struct_access.variable_access)
+
+        return expression_type
+
+    def array_access(self, variable_type, array_access):
+        access_type = self.expression(array_access)
+        if variable_type.variable_type != VariableTypeEnum.ARRAY:
+            raise Exception("Array access on non-array type")
+        if access_type.variable_type != VariableTypeEnum.PRIMITIVE or \
+                access_type.primitive_type not in INTEGER_TYPES:
+            raise Exception("Invalid type for array access")
+        return variable_type.array_type
+
     def expression(self, expression: BaseExpression):
         if isinstance(expression, FunctionCall):
             expression.type = self.function_call(expression)
         elif isinstance(expression, VariableAccess):
-            if expression.variable_access is not None:
-                raise NotImplementedError("Recursive variable access not implemented")
-            if expression.array_access is not None:
-                access_type = self.expression(expression.array_access)
-                if access_type.variable_type != VariableTypeEnum.PRIMITIVE or \
-                        access_type.primitive_type not in INTEGER_TYPES:
-                    raise Exception("Invalid type for array access")
-
             variable_type = self.scope_stack.get_variable_type(expression.variable_name)
             if not variable_type:
                 raise Exception(f"Unknown variable {expression.variable_name}")
 
+            # handle array access
             if expression.array_access is not None:
-                if variable_type.variable_type != VariableTypeEnum.ARRAY:
-                    raise Exception("Array access on non-array type")
-                expression.type = variable_type.array_type
+                expression_type = self.array_access(variable_type, expression.array_access)
             else:
-                expression.type = variable_type
+                expression_type = variable_type
+            
+            # handle struct access
+            if expression.variable_access is not None:                
+                expression_type = self.struct_access(expression_type, expression.variable_access)
+
+            expression.type = expression_type
 
         elif isinstance(expression, Constant):
             if expression.constant_type == ConstantType.STRING:

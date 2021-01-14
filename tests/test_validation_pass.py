@@ -161,3 +161,37 @@ def test_array_access(parser: Parser):
         """
     )
     validation_pass(ast)
+
+
+def test_struct_access(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        printInt(value: int) {}
+        printFloat(value: float) {}
+
+        struct B {
+            c: float,
+            d: [float],
+        }
+
+        struct A {
+            a: int,
+            b: [int],
+            subStruct: B,
+            subStructArray: [B],
+        }
+
+        main() {
+            s: A;
+            printInt(s.a);
+            printInt(s.b[0]);
+
+            printFloat(s.subStruct.c);
+            printFloat(s.subStruct.d[0]);
+
+            printFloat(s.subStructArray[0].c);
+            printFloat(s.subStructArray[0].d[0]);
+        }
+        """
+    )
+    validation_pass(ast)

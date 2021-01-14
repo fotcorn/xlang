@@ -77,7 +77,7 @@ class Typeifier:
                 statement.variable_access.variable_name
             )
             if not variable_type:
-                raise Exception(f"Unknown variable {statement.name}")
+                raise Exception(f"Unknown variable {statement.variable_access.variable_name}")
             if not is_type_compatible(value_type, variable_type):
                 raise Exception("Incompatible value type")
         elif isinstance(statement, FunctionCall):

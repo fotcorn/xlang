@@ -20,7 +20,12 @@ from xlang.xl_ast import (
     VariableTypeEnum,
     OperatorExpression,
     Return,
+    BaseExpression,
 )
+
+
+class ArrayAccess:
+    expression: BaseExpression
 
 
 class ASTTransformer(Transformer):
@@ -161,16 +166,22 @@ class ASTTransformer(Transformer):
             raise Exception("Unknown control keyword")
 
     @v_args(inline=True)
+    def array_access(self, expression):
+        aa = ArrayAccess()
+        aa.expression = expression
+        return aa
+
+    @v_args(inline=True)
     def var_access(self, variable, *args):
         assert len(args) in range(0, 3)
         if len(args) == 2:
-            array_access, variable_access = args
+            array_access, variable_access = args[0].expression, args[1]
         elif len(args) == 0:
             array_access, variable_access = None, None
         elif isinstance(args[0], VariableAccess):
             array_access, variable_access = None, args[0]
         else:
-            array_access, variable_access = args[0], None
+            array_access, variable_access = args[0].expression, None
 
         return VariableAccess(
             VariableType(VariableTypeEnum.UNKNOWN),

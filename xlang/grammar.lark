@@ -15,7 +15,7 @@ struct_def: "struct" IDENTIFIER "{" struct_entry+ "}"
 IDENTIFIER: /[a-zA-Z_][a-zA-Z_0-9]*/
 INTEGER: (/[1-9][0-9]*/ | "0" )
 STRING_LITERAL: /"[^"]*"/
-?array_access: "[" compare_expr "]"
+array_access: "[" compare_expr "]"
 var_access: IDENTIFIER array_access? ("." var_access)?
 
 code_block: "{" statement* "}"

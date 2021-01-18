@@ -73,9 +73,7 @@ class Typeifier:
                 raise Exception("Incompatible value type")
         elif isinstance(statement, VariableAssign):
             value_type = self.expression(statement.value)
-            variable_type = self.scope_stack.get_variable_type(
-                statement.variable_access.variable_name
-            )
+            variable_type = self.expression(statement.variable_access)
             if not variable_type:
                 raise Exception(f"Unknown variable {statement.variable_access.variable_name}")
             if not is_type_compatible(variable_type, value_type):

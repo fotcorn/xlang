@@ -38,6 +38,8 @@ def test_struct(parser: Parser):
 
         main() {
             test: Test;
+            test.a = 5;
+            a: int = test.a + test.b[0];
         }
         """
     )

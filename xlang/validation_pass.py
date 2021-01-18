@@ -188,9 +188,12 @@ class Typeifier:
         elif isinstance(expression, OperatorExpression):
             operand1_type = self.expression(expression.operand1)
             operand2_type = self.expression(expression.operand2)
-            if not is_type_compatible(operand1_type, operand2_type):
+            if is_type_compatible(operand1_type, operand2_type):
+                expression.type = operand1_type
+            elif is_type_compatible(operand2_type, operand1_type):
+                expression.type = operand2_type
+            else:
                 raise Exception("Incompatible type in operator expressions")
-            expression.type = operand1_type
         else:
             raise Exception("Unknown expression")
         return expression.type

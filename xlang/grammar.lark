@@ -45,4 +45,9 @@ string_literal: STRING_LITERAL
 !type: IDENTIFIER | "[" IDENTIFIER "]"
 
 %import common.WS
+%import common.CPP_COMMENT
+%import common.C_COMMENT
+
 %ignore WS
+%ignore CPP_COMMENT
+%ignore C_COMMENT

@@ -6,17 +6,15 @@ from xlang.validation_pass import validation_pass
 def test_hello(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
-        print(value: int) {}
         main() {
             a: int = 5;
-            print(a);
+            printi(a);
         }
         """
     )
 
     validation_pass(ast)
 
-    assert len(ast.functions) == 2
     assert "main" in ast.functions
 
     func = ast.functions["main"]
@@ -27,9 +25,8 @@ def test_hello(parser: Parser):
 def test_string(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
-        print(value: string) {}
         main() {
-            print("Hello World!");
+            prints("Hello World!");
             a: string = "Hello World!";
         }
         """
@@ -40,9 +37,8 @@ def test_string(parser: Parser):
 def test_add(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
-        print(value: int) {}
         main() {
-            print(5 + 3);
+            printi(5 + 3);
         }
         """
     )
@@ -52,9 +48,8 @@ def test_add(parser: Parser):
 def test_mul(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
-        print(value: int) {}
         main() {
-            print(5 * 3);
+            printi(5 * 3);
         }
         """
     )
@@ -64,9 +59,8 @@ def test_mul(parser: Parser):
 def test_compare(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
-        print(value: int) {}
         main() {
-            print(5 != 3);
+            printi(5 != 3);
         }
         """
     )
@@ -110,7 +104,6 @@ def test_function(parser: Parser):
 def test_variables(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
-        print(value: int) {}
         test(): int {
             return 5;
         }
@@ -136,7 +129,6 @@ def test_variables(parser: Parser):
 def test_loop(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
-        print(value: int) {}
         main() {
             i: int = 0;
             loop {
@@ -145,8 +137,9 @@ def test_loop(parser: Parser):
                     break;
                 }
             }
-            print(i);
+            printi(i);
         }
         """
     )
     validation_pass(ast)
+    print(ast)

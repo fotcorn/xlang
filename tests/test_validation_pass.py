@@ -27,7 +27,6 @@ def test_validation_pass(parser: Parser):
 
     validation_pass(ast)
 
-    assert len(ast.functions) == 3
     assert "intfunc" in ast.functions
     assert "main" in ast.functions
     assert "param_func" in ast.functions
@@ -150,13 +149,12 @@ def test_bool(parser: Parser):
 def test_array_access(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
-        print(value: int) {}
         append(array: [int], value: int) {}
 
         main() {
             b: [int];
             append(b, 5);
-            print(b[0]);
+            printi(b[0]);
         }
         """
     )
@@ -166,9 +164,6 @@ def test_array_access(parser: Parser):
 def test_struct_access(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
-        printInt(value: int) {}
-        printFloat(value: float) {}
-
         struct B {
             c: float,
             d: [float],
@@ -183,14 +178,14 @@ def test_struct_access(parser: Parser):
 
         main() {
             s: A;
-            printInt(s.a);
-            printInt(s.b[0]);
+            printi(s.a);
+            printi(s.b[0]);
 
-            printFloat(s.subStruct.c);
-            printFloat(s.subStruct.d[0]);
+            printf(s.subStruct.c);
+            printf(s.subStruct.d[0]);
 
-            printFloat(s.subStructArray[0].c);
-            printFloat(s.subStructArray[0].d[0]);
+            printf(s.subStructArray[0].c);
+            printf(s.subStructArray[0].d[0]);
         }
         """
     )

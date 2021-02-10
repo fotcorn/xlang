@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import field
 from pydantic.dataclasses import dataclass
 from enum import Enum, auto
-from typing import List, Dict, Union, Optional
+from typing import List, Dict, Union, Optional, Callable
 
 
 class VariableTypeEnum(Enum):
@@ -56,7 +56,7 @@ class StructType:
 @dataclass
 class GlobalScope:
     structs: Dict[str, StructType] = field(default_factory=dict)
-    functions: Dict[str, Function] = field(default_factory=dict)
+    functions: Dict[str, BaseFunction] = field(default_factory=dict)
 
 
 @dataclass
@@ -133,11 +133,20 @@ class IdentifierAndType:
 
 
 @dataclass
-class Function:
+class BaseFunction:
     name: str
     return_type: Optional[VariableType]
     function_params: List[IdentifierAndType]
+
+
+@dataclass
+class Function(BaseFunction):
     statements: List[Statement]
+
+
+@dataclass
+class BuiltinFunction(BaseFunction):
+    function_ptr: Callable
 
 
 @dataclass

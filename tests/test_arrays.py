@@ -13,14 +13,10 @@ def test_definition(parser: Parser):
     )
     validation_pass(ast)
 
-    assert len(ast.functions) == 1
-    assert "main" in ast.functions
-
 
 def test_access(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
-        print(value: int) {}
         struct MyStruct {
             a: int,
         }
@@ -28,9 +24,9 @@ def test_access(parser: Parser):
             array: [int];
             struct_array: [MyStruct];
             my_struct: MyStruct;
-            print(my_struct.a);
-            print(array[0]);
-            print(struct_array[0].a);
+            printi(my_struct.a);
+            printi(array[0]);
+            printi(struct_array[0].a);
         }
         """
     )

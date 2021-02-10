@@ -22,7 +22,7 @@ from xlang.xl_ast import (
     Return,
     BaseExpression,
 )
-
+from xlang.xl_builtins import get_builtins
 
 class ArrayAccess:
     expression: BaseExpression
@@ -107,6 +107,8 @@ class ASTTransformer(Transformer):
 
     def translation_unit(self, entries):
         global_scope = GlobalScope()
+        for builtin in get_builtins():
+            global_scope.functions[builtin.name] = builtin
         for entry in entries:
             if isinstance(entry, Function):
                 if entry.name in global_scope.functions:

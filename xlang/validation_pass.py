@@ -19,6 +19,7 @@ from xlang.xl_ast import (
     Return,
     Continue,
     Break,
+    BuiltinFunction,
 )
 from xlang.xl_types import typeify, is_type_compatible, primitive_type_from_constant
 from typing import Optional
@@ -225,11 +226,15 @@ def validation_pass(global_scope: GlobalScope):
             member.param_type = typeify(member.param_type, global_scope)
 
     for function in global_scope.functions.values():
+        if isinstance(function, BuiltinFunction):
+            continue
         if function.return_type:
             function.return_type = typeify(function.return_type, global_scope)
         for parameter in function.function_params:
             parameter.param_type = typeify(parameter.param_type, global_scope)
 
     for function in global_scope.functions.values():
+        if isinstance(function, BuiltinFunction):
+            continue
         typeifier = Typeifier(global_scope, function)
         typeifier.statements(function.statements)

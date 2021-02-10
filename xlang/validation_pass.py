@@ -51,6 +51,8 @@ class Typeifier:
     def __init__(self, global_scope: GlobalScope, function: Function):
         self.global_scope = global_scope
         self.scope_stack = ScopeStack()
+        for param in function.function_params:
+            self.scope_stack.def_variable(param.name, param.param_type)
         self.function = function
         self.inside_loop = False
 

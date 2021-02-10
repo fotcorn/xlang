@@ -190,3 +190,26 @@ def test_struct_access(parser: Parser):
         """
     )
     validation_pass(ast)
+
+
+def test_function_param_access(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        main(a: int) {
+            printi(a);
+        }
+        """
+    )
+    validation_pass(ast)
+
+
+def test_function_param_override_error(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        main(a: int) {
+            a: int = 5;
+        }
+        """
+    )
+    with pytest.raises(Exception):
+        validation_pass(ast)

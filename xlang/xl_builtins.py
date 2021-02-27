@@ -4,8 +4,8 @@ from xlang.xl_ast import IdentifierAndType, VariableType, VariableTypeEnum, Prim
 class Value:
     pass
 
-def print_builtin(value: Value):
-    print(value.value)
+def print_builtin(values: List[Value]):
+    print(values[0].value)
 
 
 def get_builtins() -> List[BuiltinFunction]:

@@ -9,6 +9,7 @@ def test_hello(parser: Parser):
         """
         main() {
             printi(5);
+            printi(5 + 1024);
         }
         """
     )

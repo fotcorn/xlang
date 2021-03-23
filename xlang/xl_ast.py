@@ -39,6 +39,10 @@ INTEGER_TYPES = (
     PrimitiveType.U8,
 )
 
+
+NUMBER_TYPES = INTEGER_TYPES + (PrimitiveType.FLOAT,)
+
+
 @dataclass
 class VariableType:
     variable_type: VariableTypeEnum

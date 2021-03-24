@@ -20,6 +20,9 @@ def test_hello(parser: Parser):
             printi(a);
             printi(a + 3);
             printi(7 + a);
+            str: string = "Hello World!";
+            prints(str);
+            prints("Hello World");
         }
         """
     )

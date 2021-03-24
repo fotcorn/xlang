@@ -18,6 +18,8 @@ def test_hello(parser: Parser):
             b: int;
             c: A;
             printi(a);
+            printi(a + 3);
+            printi(7 + a);
         }
         """
     )

@@ -14,14 +14,21 @@ class Value:
     value: Any
     primitive_type: PrimitiveType = None
     is_array: bool = False
+    type_name: str = None # for structs and enums
 
 
 class ScopeStack:
     def __init__(self):
         self.stack = [{}]
 
-    def set_variable(self, name: str, variable_type: VariableType):
-        self.stack[-1][name] = variable_type
+    def set_variable(self, name: str, value):
+        self.stack[-1][name] = value
+
+    def get_variable(self, name: str):
+        for stack in reversed(self.stack):
+            if name in stack:
+                return stack[name]
+        return None
 
     def push_scope(self):
         self.stack.append({})
@@ -45,11 +52,11 @@ class Interpreter:
 
     def statement(self, statement):
         if isinstance(statement, VariableDeclaration):
-            raise Exception("not implemented")
-        elif isinstance(statement, VariableDefinition):
-            raise Exception("not implemented")
-        elif isinstance(statement, VariableAssign):
-            raise Exception("not implemented")
+            value = self.default_variable_value(statement.variable_type)
+            self.scope_stack.set_variable(statement.name, None)
+        elif isinstance(statement, VariableDefinition) or isinstance(statement, VariableAssign):
+            value = self.expression(statement.value)
+            self.scope_stack.set_variable(statement.name, value)
         elif isinstance(statement, FunctionCall):
             params = [self.expression(param) for param in statement.params]
             function = self.global_scope.functions[statement.function_name]
@@ -74,11 +81,45 @@ class Interpreter:
         else:
             raise Exception("Unhandled statement")
 
+    def default_variable_value(self, variable_type):
+        base_type = variable_type.variable_type
+        if base_type == VariableTypeEnum.PRIMITIVE:
+            primitive_type = variable_type.primitive_type
+            if primitive_type in INTEGER_TYPES:
+                return Value(type=ValueType.PRIMITIVE, value=0, primitive_type=primitive_type)
+            elif primitive_type == PrimitiveType.FLOAT:
+                return Value(type=ValueType.PRIMITIVE, value=0.0, primitive_type=primitive_type)
+            elif primitive_type == PrimitiveType.STRING:
+                return Value(type=ValueType.PRIMITIVE, value="", primitive_type=primitive_type)
+            elif primitive_type == PrimitiveType.BOOL:
+                return Value(type=ValueType.PRIMITIVE, value=False, primitive_type=primitive_type)
+            else:
+                raise Exception("internal compiler error: primitive type not handled")
+        elif base_type == VariableTypeEnum.ARRAY:
+            if statement.variable_type.array_type.variable_type == VariableTypeEnum.PRIMITIVE:
+                return Value(type=ValueType.PRIMITIVE, value=[], primitive_type=statement.variable_type.array_type.primitive_type, is_array=True)
+            elif statement.variable_type.array_type.variable_type == VariableTypeEnum.STRUCT:
+                return Value(type=ValueType.STRUCT, value=[], type_name=statement.variable_type.array_type.type_name, is_array=True)
+            else:
+                raise Exception("array type not implemented")  # multidimensional arrays
+        elif base_type == VariableTypeEnum.STRUCT:
+            struct_def = self.global_scope.structs[variable_type.type_name]
+            struct_data = {}
+            for member in struct_def.members:
+                struct_data[member.name] = self.default_variable_value(member.param_type)
+            return struct_data
+        else:
+            raise Exception("internal compiler error: unknown variable type")
+
     def expression(self, expression: BaseExpression):
         if isinstance(expression, FunctionCall):
             raise Exception("not implemented")
         elif isinstance(expression, VariableAccess):
-            raise Exception("not implemented")
+            if expression.variable_access:
+                raise Exception("struct access not implemented")
+            if expression.array_access:
+                raise Exception("array access not implemented")
+            return self.scope_stack.get_variable(expression.variable_name)
         elif isinstance(expression, Constant):
             return self.value_from_constant(expression)
         elif isinstance(expression, OperatorExpression):
@@ -103,9 +144,9 @@ class Interpreter:
                     value = operand1_value.value % operand2_value.value
                 return Value(type=ValueType.PRIMITIVE, value=value, primitive_type=expression.type.primitive_type)
             else:
-                raise Exception(f'unimplemented operator: {expression.operator}')
+                raise Exception(f'not implemented operator: {expression.operator}')
         else:
-            raise Exception("Unknown expression")
-    
+            raise Exception("internal compiler error: Unknown expression")
+
     def value_from_constant(self, constant: Constant) -> Value:
         return Value(type=ValueType.PRIMITIVE, value=constant.value, primitive_type=constant.type.primitive_type)

@@ -7,9 +7,17 @@ from xlang.validation_pass import validation_pass
 def test_hello(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
+        struct A {
+            a: int,
+            b: int,
+        }
         main() {
             printi(5);
             printi(5 + 1024);
+            a: int = 5;
+            b: int;
+            c: A;
+            printi(a);
         }
         """
     )

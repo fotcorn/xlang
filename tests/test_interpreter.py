@@ -14,6 +14,9 @@ def test_hello(parser: Parser):
         test() {
             prints("Hello from function");
         }
+        add(a: int, b: int): int {
+            return a + b;
+        }
         main() {
             printi(5);
             printi(5 + 1024);
@@ -43,6 +46,7 @@ def test_hello(parser: Parser):
             if (a > 2) {
                 prints("a is bigger than 2!");
             }
+            printi(add(3, 4));
         }
         """
     )

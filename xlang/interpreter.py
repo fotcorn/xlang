@@ -66,11 +66,15 @@ class Interpreter:
             raise Exception("No main function found")
         main_function = ast.functions['main']
         self.scope_stack = ScopeStack()
-        self.statements(main_function.statements)
 
-    def statements(self, statements):
-        for statement in statements:
-            self.statement(statement)
+        for statement in main_function.statements:
+            execution_change = self.statement(statement)
+            if execution_change:
+                change_type, value = execution_change
+                if change_type == "return":
+                    break
+                else:
+                    raise Exception(f"invalid execution change type in main function: {change_type}")
 
     def statement(self, statement):
         if isinstance(statement, VariableDeclaration):
@@ -86,17 +90,26 @@ class Interpreter:
         elif isinstance(statement, If):
             value = self.expression(statement.condition)
             if value.is_truthy():
+                execution_change = None
                 self.scope_stack.push_scope()
-                self.statements(statement.statements)
+                for statement in statement.statements:
+                    execution_change = self.statement(statement)
+                    if execution_change:  # break, continue or return
+                        break
                 self.scope_stack.pop_scope()
+                return execution_change
         elif isinstance(statement, Return):
-            raise Exception("not implemented")
+            if statement.value:
+                value = self.expression(statement.value)
+            else:
+                value = None
+            return ("return", value)
         elif isinstance(statement, Continue):
-            raise Exception("not implemented")
+            return ("continue", None)
         elif isinstance(statement, Break):
-            raise Exception("not implemented")
+            return ("break", None)
         else:
-            raise Exception("Unhandled statement")
+            raise Exception("internal compiler error: unhandled statement")
 
     def expression(self, expression: BaseExpression):
         if isinstance(expression, FunctionCall):
@@ -169,8 +182,20 @@ class Interpreter:
             self.scope_stack = ScopeStack()
             for i, param_type in enumerate(function.function_params):
                 self.scope_stack.set_variable(param_type.name, params_copy[i])
-            self.statements(function.statements)
+
+            return_value = None
+            for statement in function.statements:
+                execution_change = self.statement(statement)
+                if execution_change:
+                    change_type, value = execution_change
+                    if change_type == "return":
+                        return_value = value
+                        break
+                    else:
+                        raise Exception(f"invalid execution change type in function: {change_type}")
+
             self.scope_stack = old_scope_stack
+            return return_value
 
     def default_variable_value(self, variable_type):
         base_type = variable_type.variable_type

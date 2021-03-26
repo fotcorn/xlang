@@ -114,11 +114,11 @@ class Interpreter:
             operand2_value = self.expression(expression.operand2)
             if expression.operator in ('+', '-', '*', '/', '%'):
                 if not operand1_value.type == ValueType.PRIMITIVE or operand1_value.primitive_type not in NUMBER_TYPES or operand1_value.is_array:
-                    raise Exception(f'+ operator not supported on type: {operand1_value}')
+                    raise Exception(f'{expression.operator} operator not supported on type: {operand1_value}')
                 if not operand2_value.type == ValueType.PRIMITIVE or operand2_value.primitive_type not in NUMBER_TYPES or operand2_value.is_array:
-                    raise Exception(f'+ operator not supported on type: {operand1_value}')
+                    raise Exception(f'{expression.operator} operator not supported on type: {operand2_value}')
                 if operand1_value.primitive_type == PrimitiveType.FLOAT or operand2_value.primitive_type == PrimitiveType.FLOAT and not operand1_value.primitive_type == operand2_value.primitive_type:
-                    raise Exception(f'+ operator only works beween int types or float, not float and int.')
+                    raise Exception(f'{expression.operator} operator only works beween int types or float, not float and int.')
                 if expression.operator == '+':
                     value = operand1_value.value + operand2_value.value
                 elif expression.operator == '-':
@@ -130,10 +130,33 @@ class Interpreter:
                 elif expression.operator == '%':
                     value = operand1_value.value % operand2_value.value
                 return Value(type=ValueType.PRIMITIVE, value=value, primitive_type=expression.type.primitive_type)
+            elif expression.operator in ("==", "!=", ">=", ">", "<", "<="):
+                if not operand1_value.type == ValueType.PRIMITIVE or operand1_value.is_array:
+                    raise Exception(f'{expression.operator} operator not supported on type: {operand1_value}')
+                if not operand2_value.type == ValueType.PRIMITIVE or operand2_value.is_array:
+                    raise Exception(f'{expression.operator} operator not supported on type: {operand1_value}')
+                if not (operand1_value.primitive_type in INTEGER_TYPES and operand2_value.primitive_type in INTEGER_TYPES or operand1_value.primitive_type == operand2_value.primitive_type):
+                    # integer types can be compared to all other integer types, but string, float and bool can only compare to itself
+                    raise Exception(f'comparision operator between two incompatible primitive types: {operand1_value.primitive_type}, {operand2_value.primitive_type}')
+                if operand1_value.primitive_type in (PrimitiveType.STRING, PrimitiveType.BOOL) and expression.operator not in ("==", "!="):
+                    raise Exception(f'invalid operator for type {operand1_value.primitive_type}')
+                if expression.operator == "==":
+                    value = operand1_value.value == operand2_value.value
+                elif expression.operator == "!=":
+                    value = operand1_value.value != operand2_value.value
+                elif expression.operator == ">=":
+                    value = operand1_value.value >= operand2_value.value
+                elif expression.operator == ">":
+                    value = operand1_value.value > operand2_value.value
+                elif expression.operator == "<":
+                    value = operand1_value.value < operand2_value.value
+                elif expression.operator == "<=":
+                    value = operand1_value.value <= operand2_value.value
+                return Value(type=ValueType.PRIMITIVE, value=value, primitive_type=PrimitiveType.BOOL)
             else:
-                raise Exception(f'not implemented operator: {expression.operator}')
+                raise Exception("internal compile error: unknown operator")
         else:
-            raise Exception("internal compiler error: Unknown expression")
+            raise Exception("internal compiler error: unknown expression")
 
     def function_call(self, func_call):
         params = [self.expression(param) for param in func_call.params]

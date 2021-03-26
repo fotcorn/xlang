@@ -34,6 +34,15 @@ def test_hello(parser: Parser):
             if (false) {
                 prints("false is false");
             }
+            if (a == 5) {
+                prints("a is 5!");
+            }
+            if (a != 4) {
+                prints("a is not 4!");
+            }
+            if (a > 2) {
+                prints("a is bigger than 2!");
+            }
         }
         """
     )

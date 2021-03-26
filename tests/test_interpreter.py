@@ -27,6 +27,13 @@ def test_hello(parser: Parser):
             prints(str);
             test();
             prints("Hello from main");
+
+            if (true) {
+                prints("true is true");
+            }
+            if (false) {
+                prints("false is false");
+            }
         }
         """
     )

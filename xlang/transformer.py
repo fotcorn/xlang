@@ -32,19 +32,19 @@ class ASTTransformer(Transformer):
     @v_args(inline=True)
     def integer_constant(self, value):
         return Constant(
-            VariableType(VariableTypeEnum.UNKNOWN), ConstantType.INTEGER, int(value)
+            VariableType(VariableTypeEnum.UNKNOWN), ConstantType.INTEGER, int(value.value)
         )
 
     @v_args(inline=True)
     def string_literal(self, value):
         return Constant(
-            VariableType(VariableTypeEnum.UNKNOWN), ConstantType.STRING, value[1:-1]
+            VariableType(VariableTypeEnum.UNKNOWN), ConstantType.STRING, value.value[1:-1]
         )
 
     @v_args(inline=True)
     def boolean_literal(self, value):
         return Constant(
-            VariableType(VariableTypeEnum.UNKNOWN), ConstantType.BOOL, bool(value)
+            VariableType(VariableTypeEnum.UNKNOWN), ConstantType.BOOL, value.value == 'true'
         )
 
     def function_call(self, param):

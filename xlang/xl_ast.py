@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import field
 from pydantic.dataclasses import dataclass
 from enum import Enum, auto
-from typing import List, Dict, Union, Optional, Callable
+from typing import List, Dict, Union, Optional, Callable, Any
 
 
 class VariableTypeEnum(Enum):
@@ -78,7 +78,7 @@ class ConstantType(Enum):
 @dataclass
 class Constant(BaseExpression):
     constant_type: ConstantType
-    value: Union[int, str, float, bool]
+    value: Any
 
 
 @dataclass
@@ -180,4 +180,5 @@ class Return(Statement):
 VariableAccess.__pydantic_model__.update_forward_refs()
 VariableType.__pydantic_model__.update_forward_refs()
 StructType.__pydantic_model__.update_forward_refs()
+Constant.__pydantic_model__.update_forward_refs()
 GlobalScope.__pydantic_model__.update_forward_refs()

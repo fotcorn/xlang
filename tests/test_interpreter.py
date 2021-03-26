@@ -11,6 +11,9 @@ def test_hello(parser: Parser):
             a: int,
             b: int,
         }
+        test() {
+            prints("Hello from function");
+        }
         main() {
             printi(5);
             printi(5 + 1024);
@@ -22,7 +25,8 @@ def test_hello(parser: Parser):
             printi(7 + a);
             str: string = "Hello World!";
             prints(str);
-            prints("Hello World");
+            test();
+            prints("Hello from main");
         }
         """
     )

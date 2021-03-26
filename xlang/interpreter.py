@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from typing import List, Dict, Union, Optional, Any
 from pydantic.dataclasses import dataclass
+import copy
 
 from xlang.xl_ast import *
 
@@ -58,16 +59,7 @@ class Interpreter:
             value = self.expression(statement.value)
             self.scope_stack.set_variable(statement.name, value)
         elif isinstance(statement, FunctionCall):
-            params = [self.expression(param) for param in statement.params]
-            function = self.global_scope.functions[statement.function_name]
-            if isinstance(function, BuiltinFunction):
-                function.function_ptr(params)
-            else:
-                old_scope_stack = self.scope_stack
-                self.scope_stack = ScopeStack()
-                # todo: add params to scope stack
-                self.statements(function.statements)
-                self.scope_stack = old_scope_stack
+            self.function_call(statement)
         elif isinstance(statement, Loop):
             raise Exception("not implemented")
         elif isinstance(statement, If):
@@ -81,39 +73,9 @@ class Interpreter:
         else:
             raise Exception("Unhandled statement")
 
-    def default_variable_value(self, variable_type):
-        base_type = variable_type.variable_type
-        if base_type == VariableTypeEnum.PRIMITIVE:
-            primitive_type = variable_type.primitive_type
-            if primitive_type in INTEGER_TYPES:
-                return Value(type=ValueType.PRIMITIVE, value=0, primitive_type=primitive_type)
-            elif primitive_type == PrimitiveType.FLOAT:
-                return Value(type=ValueType.PRIMITIVE, value=0.0, primitive_type=primitive_type)
-            elif primitive_type == PrimitiveType.STRING:
-                return Value(type=ValueType.PRIMITIVE, value="", primitive_type=primitive_type)
-            elif primitive_type == PrimitiveType.BOOL:
-                return Value(type=ValueType.PRIMITIVE, value=False, primitive_type=primitive_type)
-            else:
-                raise Exception("internal compiler error: primitive type not handled")
-        elif base_type == VariableTypeEnum.ARRAY:
-            if statement.variable_type.array_type.variable_type == VariableTypeEnum.PRIMITIVE:
-                return Value(type=ValueType.PRIMITIVE, value=[], primitive_type=statement.variable_type.array_type.primitive_type, is_array=True)
-            elif statement.variable_type.array_type.variable_type == VariableTypeEnum.STRUCT:
-                return Value(type=ValueType.STRUCT, value=[], type_name=statement.variable_type.array_type.type_name, is_array=True)
-            else:
-                raise Exception("array type not implemented")  # multidimensional arrays
-        elif base_type == VariableTypeEnum.STRUCT:
-            struct_def = self.global_scope.structs[variable_type.type_name]
-            struct_data = {}
-            for member in struct_def.members:
-                struct_data[member.name] = self.default_variable_value(member.param_type)
-            return struct_data
-        else:
-            raise Exception("internal compiler error: unknown variable type")
-
     def expression(self, expression: BaseExpression):
         if isinstance(expression, FunctionCall):
-            raise Exception("not implemented")
+            return self.function_call(expression)
         elif isinstance(expression, VariableAccess):
             if expression.variable_access:
                 raise Exception("struct access not implemented")
@@ -147,6 +109,50 @@ class Interpreter:
                 raise Exception(f'not implemented operator: {expression.operator}')
         else:
             raise Exception("internal compiler error: Unknown expression")
+
+    def function_call(self, func_call):
+        params = [self.expression(param) for param in func_call.params]
+        params_copy = copy.deepcopy(params) # call by value
+        function = self.global_scope.functions[func_call.function_name]
+        if isinstance(function, BuiltinFunction):
+            function.function_ptr(params_copy)
+        else:
+            old_scope_stack = self.scope_stack
+            self.scope_stack = ScopeStack()
+            for i, param_type in enumerate(function.function_params):
+                self.scope_stack.set_variable(param_type.name, params_copy[i])
+            self.statements(function.statements)
+            self.scope_stack = old_scope_stack
+
+    def default_variable_value(self, variable_type):
+        base_type = variable_type.variable_type
+        if base_type == VariableTypeEnum.PRIMITIVE:
+            primitive_type = variable_type.primitive_type
+            if primitive_type in INTEGER_TYPES:
+                return Value(type=ValueType.PRIMITIVE, value=0, primitive_type=primitive_type)
+            elif primitive_type == PrimitiveType.FLOAT:
+                return Value(type=ValueType.PRIMITIVE, value=0.0, primitive_type=primitive_type)
+            elif primitive_type == PrimitiveType.STRING:
+                return Value(type=ValueType.PRIMITIVE, value="", primitive_type=primitive_type)
+            elif primitive_type == PrimitiveType.BOOL:
+                return Value(type=ValueType.PRIMITIVE, value=False, primitive_type=primitive_type)
+            else:
+                raise Exception("internal compiler error: primitive type not handled")
+        elif base_type == VariableTypeEnum.ARRAY:
+            if statement.variable_type.array_type.variable_type == VariableTypeEnum.PRIMITIVE:
+                return Value(type=ValueType.PRIMITIVE, value=[], primitive_type=statement.variable_type.array_type.primitive_type, is_array=True)
+            elif statement.variable_type.array_type.variable_type == VariableTypeEnum.STRUCT:
+                return Value(type=ValueType.STRUCT, value=[], type_name=statement.variable_type.array_type.type_name, is_array=True)
+            else:
+                raise Exception("array type not implemented")  # multidimensional arrays
+        elif base_type == VariableTypeEnum.STRUCT:
+            struct_def = self.global_scope.structs[variable_type.type_name]
+            struct_data = {}
+            for member in struct_def.members:
+                struct_data[member.name] = self.default_variable_value(member.param_type)
+            return struct_data
+        else:
+            raise Exception("internal compiler error: unknown variable type")
 
     def value_from_constant(self, constant: Constant) -> Value:
         return Value(type=ValueType.PRIMITIVE, value=constant.value, primitive_type=constant.type.primitive_type)

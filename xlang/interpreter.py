@@ -93,7 +93,29 @@ class Interpreter:
         elif isinstance(statement, FunctionCall):
             self.function_call(statement)
         elif isinstance(statement, Loop):
-            raise Exception("not implemented")
+            execution_change = None
+            self.scope_stack.push_scope()
+
+            counter = 0
+            while True:
+                execution_change = self.statement(statement.statements[counter])
+                if execution_change:  # break, continue or return
+                    change_type, value = execution_change
+                    if change_type == "break":
+                        execution_change = None
+                        break
+                    elif change_type == 'continue':
+                        counter = 0
+                        execution_change = None
+                        continue
+                    else:  # return
+                        break
+                counter += 1
+                if counter == len(statement.statements):
+                    counter = 0
+
+            self.scope_stack.pop_scope()
+            return execution_change
         elif isinstance(statement, If):
             value = self.expression(statement.condition)
             if value.is_truthy():

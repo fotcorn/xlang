@@ -47,6 +47,18 @@ def test_hello(parser: Parser):
                 prints("a is bigger than 2!");
             }
             printi(add(3, 4));
+
+            i: int = 0;
+            loop {
+                i = i + 1;
+                if (i == 5) {
+                    break;
+                }
+                if (i == 3) {
+                    continue;
+                }
+                printi(i);
+            }
         }
         """
     )

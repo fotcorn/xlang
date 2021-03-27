@@ -80,9 +80,16 @@ class Interpreter:
         if isinstance(statement, VariableDeclaration):
             value = self.default_variable_value(statement.variable_type)
             self.scope_stack.set_variable(statement.name, None)
-        elif isinstance(statement, VariableDefinition) or isinstance(statement, VariableAssign):
+        elif isinstance(statement, VariableDefinition):
             value = self.expression(statement.value)
             self.scope_stack.set_variable(statement.name, value)
+        elif isinstance(statement, VariableAssign):
+            value = self.expression(statement.value)
+            if statement.variable_access.array_access:
+                raise Exception('assigning array element not implemented')
+            if statement.variable_access.variable_access:
+                raise Exception('assigning struct members not implemented')
+            self.scope_stack.set_variable(statement.variable_access.variable_name, value)
         elif isinstance(statement, FunctionCall):
             self.function_call(statement)
         elif isinstance(statement, Loop):

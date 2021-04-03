@@ -4,9 +4,16 @@ from xlang.interpreter import Interpreter
 from xlang.validation_pass import validation_pass
 
 
-def test_hello(parser: Parser):
-    ast: GlobalScope = parser.parse(
-        """
+def run(code):
+    parser = Parser()
+    ast: GlobalScope = parser.parse(code)
+    validation_pass(ast)
+    interpreter = Interpreter()
+    interpreter.run(ast)
+
+
+def test_hello():
+    run("""
         struct A {
             a: int,
             b: int,
@@ -60,9 +67,12 @@ def test_hello(parser: Parser):
                 printi(i);
             }
         }
-        """
-    )
+    """)
 
-    validation_pass(ast)
-    interpreter = Interpreter()
-    interpreter.run(ast)
+
+def test_array():
+    run("""
+        main() {
+            array: [int];
+        }
+    """)

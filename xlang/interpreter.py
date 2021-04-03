@@ -241,10 +241,10 @@ class Interpreter:
             else:
                 raise Exception("internal compiler error: primitive type not handled")
         elif base_type == VariableTypeEnum.ARRAY:
-            if statement.variable_type.array_type.variable_type == VariableTypeEnum.PRIMITIVE:
-                return Value(type=ValueType.PRIMITIVE, value=[], primitive_type=statement.variable_type.array_type.primitive_type, is_array=True)
-            elif statement.variable_type.array_type.variable_type == VariableTypeEnum.STRUCT:
-                return Value(type=ValueType.STRUCT, value=[], type_name=statement.variable_type.array_type.type_name, is_array=True)
+            if variable_type.array_type.variable_type == VariableTypeEnum.PRIMITIVE:
+                return Value(type=ValueType.PRIMITIVE, value=[], primitive_type=variable_type.array_type.primitive_type, is_array=True)
+            elif variable_type.array_type.variable_type == VariableTypeEnum.STRUCT:
+                return Value(type=ValueType.STRUCT, value=[], type_name=variable_type.array_type.type_name, is_array=True)
             else:
                 raise Exception("array type not implemented")  # multidimensional arrays
         elif base_type == VariableTypeEnum.STRUCT:

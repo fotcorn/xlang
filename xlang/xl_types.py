@@ -114,7 +114,7 @@ def is_type_compatible(
         return variable_type_a.type_name == variable_type_b.type_name
     elif variable_type_a.variable_type == VariableTypeEnum.PRIMITIVE:
         if variable_type_b.primitive_type in PRIMITIVE_AUTO_CONVERSION:
-            return variable_type_b.primitive_type in PRIMITIVE_AUTO_CONVERSION[variable_type_a.primitive_type]
+            return variable_type_b.primitive_type in PRIMITIVE_AUTO_CONVERSION[variable_type_b.primitive_type]
         else:
             return variable_type_a.primitive_type == variable_type_b.primitive_type
     else:

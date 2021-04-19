@@ -50,7 +50,7 @@ class ScopeStack:
         for stack in reversed(self.stack):
             if name in stack:
                 return stack[name]
-        return None
+        raise Exception(f"Unknown variable: {name}")
 
     def push_scope(self):
         self.stack.append({})
@@ -79,7 +79,7 @@ class Interpreter:
     def statement(self, statement):
         if isinstance(statement, VariableDeclaration):
             value = self.default_variable_value(statement.variable_type)
-            self.scope_stack.set_variable(statement.name, None)
+            self.scope_stack.set_variable(statement.name, value)
         elif isinstance(statement, VariableDefinition):
             value = self.expression(statement.value)
             self.scope_stack.set_variable(statement.name, value)

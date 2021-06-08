@@ -74,5 +74,9 @@ def test_array():
     run("""
         main() {
             array: [int];
+            appendi(array, 42);
+            appendi(array, 1337);
+            printi(array[0]);
+            printi(array[1]);
         }
     """)

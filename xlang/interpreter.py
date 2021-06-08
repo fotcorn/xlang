@@ -147,7 +147,12 @@ class Interpreter:
             if expression.variable_access:
                 raise Exception("struct access not implemented")
             if expression.array_access:
-                raise Exception("array access not implemented")
+                index = self.expression(expression.array_access)
+                array = self.scope_stack.get_variable(expression.variable_name)
+                assert array.is_array is True
+                if index.value < 0 or index.value >= len(array.value):
+                    raise Exception("Index array out of bounds")
+                return array.value[index.value]
             return self.scope_stack.get_variable(expression.variable_name)
         elif isinstance(expression, Constant):
             return self.value_from_constant(expression)

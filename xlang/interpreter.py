@@ -132,11 +132,11 @@ class Interpreter:
                 value = self.expression(statement.value)
             else:
                 value = None
-            return ("return", value)
+            return "return", value
         elif isinstance(statement, Continue):
-            return ("continue", None)
+            return "continue", None
         elif isinstance(statement, Break):
-            return ("break", None)
+            return "break", None
         else:
             raise Exception("internal compiler error: unhandled statement")
 

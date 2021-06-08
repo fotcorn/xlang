@@ -201,16 +201,21 @@ class Interpreter:
             raise Exception("internal compiler error: unknown expression")
 
     def function_call(self, func_call):
-        params = [self.expression(param) for param in func_call.params]
-        params_copy = copy.deepcopy(params) # call by value
         function = self.global_scope.functions[func_call.function_name]
+        evaluated_params = []
+        for i, param in enumerate(func_call.params):
+            evaluated_param = self.expression(param)
+            if function.function_params[i].inout is False:
+                evaluated_param = copy.deepcopy(evaluated_param)
+            evaluated_params.append(evaluated_param)
+
         if isinstance(function, BuiltinFunction):
-            function.function_ptr(params_copy)
+            function.function_ptr(evaluated_params)
         else:
             old_scope_stack = self.scope_stack
             self.scope_stack = ScopeStack()
             for i, param_type in enumerate(function.function_params):
-                self.scope_stack.set_variable(param_type.name, params_copy[i])
+                self.scope_stack.set_variable(param_type.name, evaluated_params[i])
 
             return_value = None
             for statement in function.statements:

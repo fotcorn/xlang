@@ -137,10 +137,15 @@ class IdentifierAndType:
 
 
 @dataclass
+class FunctionParameter(IdentifierAndType):
+    inout: bool = False
+
+
+@dataclass
 class BaseFunction:
     name: str
     return_type: Optional[VariableType]
-    function_params: List[IdentifierAndType]
+    function_params: List[FunctionParameter]
 
 
 @dataclass

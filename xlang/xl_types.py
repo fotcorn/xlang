@@ -50,7 +50,6 @@ def get_type_from_string(global_scope: GlobalScope, type_name: str) -> VariableT
         raise Exception(f"Unknown type: {type_name}")
 
 
-
 SIGNED = (
     -128,
     -32768,
@@ -64,6 +63,7 @@ UNSIGNED = (
     4294967295,
     18446744073709551615,
 )
+
 
 def primitive_type_from_constant(constant):
     if constant < 0:
@@ -91,15 +91,35 @@ def primitive_type_from_constant(constant):
 
 
 PRIMITIVE_AUTO_CONVERSION = {
-    PrimitiveType.U8:  [PrimitiveType.U8],
-    PrimitiveType.I8:  [PrimitiveType.I8],
+    PrimitiveType.U8: [PrimitiveType.U8],
+    PrimitiveType.I8: [PrimitiveType.I8],
     PrimitiveType.U16: [PrimitiveType.U8, PrimitiveType.U16],
-    PrimitiveType.I16: [PrimitiveType.U8, PrimitiveType.I8,  PrimitiveType.I16],
+    PrimitiveType.I16: [PrimitiveType.U8, PrimitiveType.I8, PrimitiveType.I16],
     PrimitiveType.U32: [PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.U32],
-    PrimitiveType.I32: [PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.I8,  PrimitiveType.I16, PrimitiveType.I32],
-    PrimitiveType.U64: [PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.U32, PrimitiveType.U64],
-    PrimitiveType.I64: [PrimitiveType.U8, PrimitiveType.U16, PrimitiveType.U32, PrimitiveType.I8,  PrimitiveType.I16, PrimitiveType.I32, PrimitiveType.I64],
+    PrimitiveType.I32: [
+        PrimitiveType.U8,
+        PrimitiveType.U16,
+        PrimitiveType.I8,
+        PrimitiveType.I16,
+        PrimitiveType.I32,
+    ],
+    PrimitiveType.U64: [
+        PrimitiveType.U8,
+        PrimitiveType.U16,
+        PrimitiveType.U32,
+        PrimitiveType.U64,
+    ],
+    PrimitiveType.I64: [
+        PrimitiveType.U8,
+        PrimitiveType.U16,
+        PrimitiveType.U32,
+        PrimitiveType.I8,
+        PrimitiveType.I16,
+        PrimitiveType.I32,
+        PrimitiveType.I64,
+    ],
 }
+
 
 def is_type_compatible(
     variable_type_a: VariableType, variable_type_b: VariableType
@@ -114,7 +134,10 @@ def is_type_compatible(
         return variable_type_a.type_name == variable_type_b.type_name
     elif variable_type_a.variable_type == VariableTypeEnum.PRIMITIVE:
         if variable_type_b.primitive_type in PRIMITIVE_AUTO_CONVERSION:
-            return variable_type_b.primitive_type in PRIMITIVE_AUTO_CONVERSION[variable_type_b.primitive_type]
+            return (
+                variable_type_b.primitive_type
+                in PRIMITIVE_AUTO_CONVERSION[variable_type_b.primitive_type]
+            )
         else:
             return variable_type_a.primitive_type == variable_type_b.primitive_type
     else:

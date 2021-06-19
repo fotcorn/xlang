@@ -5,9 +5,11 @@ import copy
 
 from xlang.xl_ast import *
 
+
 class ValueType(Enum):
     PRIMITIVE = auto()
     STRUCT = auto()
+
 
 @dataclass
 class Value:
@@ -15,7 +17,7 @@ class Value:
     value: Any
     primitive_type: PrimitiveType = None
     is_array: bool = False
-    type_name: str = None # for structs and enums
+    type_name: str = None  # for structs and enums
 
     def is_truthy(self):
         if self.is_array:
@@ -62,9 +64,9 @@ class ScopeStack:
 class Interpreter:
     def run(self, ast: GlobalScope):
         self.global_scope = ast
-        if not 'main' in ast.functions:
+        if not "main" in ast.functions:
             raise Exception("No main function found")
-        main_function = ast.functions['main']
+        main_function = ast.functions["main"]
         self.scope_stack = ScopeStack()
 
         for statement in main_function.statements:
@@ -74,7 +76,9 @@ class Interpreter:
                 if change_type == "return":
                     break
                 else:
-                    raise Exception(f"invalid execution change type in main function: {change_type}")
+                    raise Exception(
+                        f"invalid execution change type in main function: {change_type}"
+                    )
 
     def statement(self, statement):
         if isinstance(statement, VariableDeclaration):
@@ -86,10 +90,12 @@ class Interpreter:
         elif isinstance(statement, VariableAssign):
             value = self.expression(statement.value)
             if statement.variable_access.array_access:
-                raise Exception('assigning array element not implemented')
+                raise Exception("assigning array element not implemented")
             if statement.variable_access.variable_access:
-                raise Exception('assigning struct members not implemented')
-            self.scope_stack.set_variable(statement.variable_access.variable_name, value)
+                raise Exception("assigning struct members not implemented")
+            self.scope_stack.set_variable(
+                statement.variable_access.variable_name, value
+            )
         elif isinstance(statement, FunctionCall):
             self.function_call(statement)
         elif isinstance(statement, Loop):
@@ -104,7 +110,7 @@ class Interpreter:
                     if change_type == "break":
                         execution_change = None
                         break
-                    elif change_type == 'continue':
+                    elif change_type == "continue":
                         counter = 0
                         execution_change = None
                         continue
@@ -159,34 +165,82 @@ class Interpreter:
         elif isinstance(expression, OperatorExpression):
             operand1_value = self.expression(expression.operand1)
             operand2_value = self.expression(expression.operand2)
-            if expression.operator in ('+', '-', '*', '/', '%'):
-                if not operand1_value.type == ValueType.PRIMITIVE or operand1_value.primitive_type not in NUMBER_TYPES or operand1_value.is_array:
-                    raise Exception(f'{expression.operator} operator not supported on type: {operand1_value}')
-                if not operand2_value.type == ValueType.PRIMITIVE or operand2_value.primitive_type not in NUMBER_TYPES or operand2_value.is_array:
-                    raise Exception(f'{expression.operator} operator not supported on type: {operand2_value}')
-                if operand1_value.primitive_type == PrimitiveType.FLOAT or operand2_value.primitive_type == PrimitiveType.FLOAT and not operand1_value.primitive_type == operand2_value.primitive_type:
-                    raise Exception(f'{expression.operator} operator only works beween int types or float, not float and int.')
-                if expression.operator == '+':
+            if expression.operator in ("+", "-", "*", "/", "%"):
+                if (
+                    not operand1_value.type == ValueType.PRIMITIVE
+                    or operand1_value.primitive_type not in NUMBER_TYPES
+                    or operand1_value.is_array
+                ):
+                    raise Exception(
+                        f"{expression.operator} operator not supported on type: {operand1_value}"
+                    )
+                if (
+                    not operand2_value.type == ValueType.PRIMITIVE
+                    or operand2_value.primitive_type not in NUMBER_TYPES
+                    or operand2_value.is_array
+                ):
+                    raise Exception(
+                        f"{expression.operator} operator not supported on type: {operand2_value}"
+                    )
+                if (
+                    operand1_value.primitive_type == PrimitiveType.FLOAT
+                    or operand2_value.primitive_type == PrimitiveType.FLOAT
+                    and not operand1_value.primitive_type
+                    == operand2_value.primitive_type
+                ):
+                    raise Exception(
+                        f"{expression.operator} operator only works beween int types or float, not float and int."
+                    )
+                if expression.operator == "+":
                     value = operand1_value.value + operand2_value.value
-                elif expression.operator == '-':
+                elif expression.operator == "-":
                     value = operand1_value.value - operand2_value.value
-                elif expression.operator == '*':
+                elif expression.operator == "*":
                     value = operand1_value.value * operand2_value.value
-                elif expression.operator == '/':
+                elif expression.operator == "/":
                     value = operand1_value.value // operand2_value.value
-                elif expression.operator == '%':
+                elif expression.operator == "%":
                     value = operand1_value.value % operand2_value.value
-                return Value(type=ValueType.PRIMITIVE, value=value, primitive_type=expression.type.primitive_type)
+                return Value(
+                    type=ValueType.PRIMITIVE,
+                    value=value,
+                    primitive_type=expression.type.primitive_type,
+                )
             elif expression.operator in ("==", "!=", ">=", ">", "<", "<="):
-                if not operand1_value.type == ValueType.PRIMITIVE or operand1_value.is_array:
-                    raise Exception(f'{expression.operator} operator not supported on type: {operand1_value}')
-                if not operand2_value.type == ValueType.PRIMITIVE or operand2_value.is_array:
-                    raise Exception(f'{expression.operator} operator not supported on type: {operand1_value}')
-                if not (operand1_value.primitive_type in INTEGER_TYPES and operand2_value.primitive_type in INTEGER_TYPES or operand1_value.primitive_type == operand2_value.primitive_type):
+                if (
+                    not operand1_value.type == ValueType.PRIMITIVE
+                    or operand1_value.is_array
+                ):
+                    raise Exception(
+                        f"{expression.operator} operator not supported on type: {operand1_value}"
+                    )
+                if (
+                    not operand2_value.type == ValueType.PRIMITIVE
+                    or operand2_value.is_array
+                ):
+                    raise Exception(
+                        f"{expression.operator} operator not supported on type: {operand1_value}"
+                    )
+                if not (
+                    operand1_value.primitive_type in INTEGER_TYPES
+                    and operand2_value.primitive_type in INTEGER_TYPES
+                    or operand1_value.primitive_type == operand2_value.primitive_type
+                ):
                     # integer types can be compared to all other integer types, but string, float and bool can only compare to itself
-                    raise Exception(f'comparision operator between two incompatible primitive types: {operand1_value.primitive_type}, {operand2_value.primitive_type}')
-                if operand1_value.primitive_type in (PrimitiveType.STRING, PrimitiveType.BOOL) and expression.operator not in ("==", "!="):
-                    raise Exception(f'invalid operator for type {operand1_value.primitive_type}')
+                    raise Exception(
+                        f"comparision operator between two incompatible primitive types: {operand1_value.primitive_type}, {operand2_value.primitive_type}"
+                    )
+                if (
+                    operand1_value.primitive_type
+                    in (
+                        PrimitiveType.STRING,
+                        PrimitiveType.BOOL,
+                    )
+                    and expression.operator not in ("==", "!=")
+                ):
+                    raise Exception(
+                        f"invalid operator for type {operand1_value.primitive_type}"
+                    )
                 if expression.operator == "==":
                     value = operand1_value.value == operand2_value.value
                 elif expression.operator == "!=":
@@ -199,7 +253,11 @@ class Interpreter:
                     value = operand1_value.value < operand2_value.value
                 elif expression.operator == "<=":
                     value = operand1_value.value <= operand2_value.value
-                return Value(type=ValueType.PRIMITIVE, value=value, primitive_type=PrimitiveType.BOOL)
+                return Value(
+                    type=ValueType.PRIMITIVE,
+                    value=value,
+                    primitive_type=PrimitiveType.BOOL,
+                )
             else:
                 raise Exception("internal compile error: unknown operator")
         else:
@@ -231,7 +289,9 @@ class Interpreter:
                         return_value = value
                         break
                     else:
-                        raise Exception(f"invalid execution change type in function: {change_type}")
+                        raise Exception(
+                            f"invalid execution change type in function: {change_type}"
+                        )
 
             self.scope_stack = old_scope_stack
             return return_value
@@ -241,30 +301,54 @@ class Interpreter:
         if base_type == VariableTypeEnum.PRIMITIVE:
             primitive_type = variable_type.primitive_type
             if primitive_type in INTEGER_TYPES:
-                return Value(type=ValueType.PRIMITIVE, value=0, primitive_type=primitive_type)
+                return Value(
+                    type=ValueType.PRIMITIVE, value=0, primitive_type=primitive_type
+                )
             elif primitive_type == PrimitiveType.FLOAT:
-                return Value(type=ValueType.PRIMITIVE, value=0.0, primitive_type=primitive_type)
+                return Value(
+                    type=ValueType.PRIMITIVE, value=0.0, primitive_type=primitive_type
+                )
             elif primitive_type == PrimitiveType.STRING:
-                return Value(type=ValueType.PRIMITIVE, value="", primitive_type=primitive_type)
+                return Value(
+                    type=ValueType.PRIMITIVE, value="", primitive_type=primitive_type
+                )
             elif primitive_type == PrimitiveType.BOOL:
-                return Value(type=ValueType.PRIMITIVE, value=False, primitive_type=primitive_type)
+                return Value(
+                    type=ValueType.PRIMITIVE, value=False, primitive_type=primitive_type
+                )
             else:
                 raise Exception("internal compiler error: primitive type not handled")
         elif base_type == VariableTypeEnum.ARRAY:
             if variable_type.array_type.variable_type == VariableTypeEnum.PRIMITIVE:
-                return Value(type=ValueType.PRIMITIVE, value=[], primitive_type=variable_type.array_type.primitive_type, is_array=True)
+                return Value(
+                    type=ValueType.PRIMITIVE,
+                    value=[],
+                    primitive_type=variable_type.array_type.primitive_type,
+                    is_array=True,
+                )
             elif variable_type.array_type.variable_type == VariableTypeEnum.STRUCT:
-                return Value(type=ValueType.STRUCT, value=[], type_name=variable_type.array_type.type_name, is_array=True)
+                return Value(
+                    type=ValueType.STRUCT,
+                    value=[],
+                    type_name=variable_type.array_type.type_name,
+                    is_array=True,
+                )
             else:
                 raise Exception("array type not implemented")  # multidimensional arrays
         elif base_type == VariableTypeEnum.STRUCT:
             struct_def = self.global_scope.structs[variable_type.type_name]
             struct_data = {}
             for member in struct_def.members:
-                struct_data[member.name] = self.default_variable_value(member.param_type)
+                struct_data[member.name] = self.default_variable_value(
+                    member.param_type
+                )
             return struct_data
         else:
             raise Exception("internal compiler error: unknown variable type")
 
     def value_from_constant(self, constant: Constant) -> Value:
-        return Value(type=ValueType.PRIMITIVE, value=constant.value, primitive_type=constant.type.primitive_type)
+        return Value(
+            type=ValueType.PRIMITIVE,
+            value=constant.value,
+            primitive_type=constant.type.primitive_type,
+        )

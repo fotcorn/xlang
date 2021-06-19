@@ -78,7 +78,9 @@ class Typeifier:
             value_type = self.expression(statement.value)
             variable_type = self.expression(statement.variable_access)
             if not variable_type:
-                raise Exception(f"Unknown variable {statement.variable_access.variable_name}")
+                raise Exception(
+                    f"Unknown variable {statement.variable_access.variable_name}"
+                )
             if not is_type_compatible(variable_type, value_type):
                 raise Exception("Incompatible value type")
         elif isinstance(statement, FunctionCall):
@@ -127,15 +129,18 @@ class Typeifier:
                 break
         else:
             raise Exception(f"Unknown struct field: {struct_access.variable_name}")
-        
 
         if struct_access.array_access is not None:
-            expression_type = self.array_access(member.param_type, struct_access.array_access)
+            expression_type = self.array_access(
+                member.param_type, struct_access.array_access
+            )
         else:
             expression_type = member.param_type
 
         if struct_access.variable_access:
-            expression_type = self.struct_access(expression_type, struct_access.variable_access)
+            expression_type = self.struct_access(
+                expression_type, struct_access.variable_access
+            )
 
         return expression_type
 
@@ -143,8 +148,10 @@ class Typeifier:
         access_type = self.expression(array_access)
         if variable_type.variable_type != VariableTypeEnum.ARRAY:
             raise Exception("Array access on non-array type")
-        if access_type.variable_type != VariableTypeEnum.PRIMITIVE or \
-                access_type.primitive_type not in INTEGER_TYPES:
+        if (
+            access_type.variable_type != VariableTypeEnum.PRIMITIVE
+            or access_type.primitive_type not in INTEGER_TYPES
+        ):
             raise Exception("Invalid type for array access")
         return variable_type.array_type
 
@@ -158,13 +165,17 @@ class Typeifier:
 
             # handle array access
             if expression.array_access is not None:
-                expression_type = self.array_access(variable_type, expression.array_access)
+                expression_type = self.array_access(
+                    variable_type, expression.array_access
+                )
             else:
                 expression_type = variable_type
-            
+
             # handle struct access
-            if expression.variable_access is not None:                
-                expression_type = self.struct_access(expression_type, expression.variable_access)
+            if expression.variable_access is not None:
+                expression_type = self.struct_access(
+                    expression_type, expression.variable_access
+                )
 
             expression.type = expression_type
 

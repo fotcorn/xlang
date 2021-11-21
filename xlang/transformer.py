@@ -6,6 +6,7 @@ from xlang.xl_ast import (
     Constant,
     ConstantType,
     FunctionCall,
+    FunctionParameter,
     IdentifierAndType,
     Function,
     GlobalScope,
@@ -24,6 +25,7 @@ from xlang.xl_ast import (
 )
 from xlang.xl_builtins import get_builtins
 
+
 class ArrayAccess:
     expression: BaseExpression
 
@@ -32,19 +34,25 @@ class ASTTransformer(Transformer):
     @v_args(inline=True)
     def integer_constant(self, value):
         return Constant(
-            VariableType(VariableTypeEnum.UNKNOWN), ConstantType.INTEGER, int(value.value)
+            VariableType(VariableTypeEnum.UNKNOWN),
+            ConstantType.INTEGER,
+            int(value.value),
         )
 
     @v_args(inline=True)
     def string_literal(self, value):
         return Constant(
-            VariableType(VariableTypeEnum.UNKNOWN), ConstantType.STRING, value.value[1:-1]
+            VariableType(VariableTypeEnum.UNKNOWN),
+            ConstantType.STRING,
+            value.value[1:-1],
         )
 
     @v_args(inline=True)
     def boolean_literal(self, value):
         return Constant(
-            VariableType(VariableTypeEnum.UNKNOWN), ConstantType.BOOL, value.value == 'true'
+            VariableType(VariableTypeEnum.UNKNOWN),
+            ConstantType.BOOL,
+            value.value == "true",
         )
 
     def function_call(self, param):
@@ -52,7 +60,7 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def function_param(self, identifier, param_type):
-        return IdentifierAndType(identifier.value, param_type)
+        return FunctionParameter(identifier.value, param_type, False)
 
     def function_params(self, params):
         assert len(params) in [1, 2]
@@ -112,14 +120,18 @@ class ASTTransformer(Transformer):
         for entry in entries:
             if isinstance(entry, Function):
                 if entry.name in global_scope.functions:
-                    raise Exception(f"function with name {entry.name} is already defined")
+                    raise Exception(
+                        f"function with name {entry.name} is already defined"
+                    )
                 global_scope.functions[entry.name] = entry
             elif isinstance(entry, StructType):
                 if entry.name in global_scope.structs:
                     raise Exception(f"struct with name {entry.name} is already defined")
                 global_scope.structs[entry.name] = entry
             else:
-                raise Exception("Internal compiler error: unknown entry in global scope")
+                raise Exception(
+                    "Internal compiler error: unknown entry in global scope"
+                )
         return global_scope
 
     @v_args(inline=True)

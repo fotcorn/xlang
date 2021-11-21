@@ -13,7 +13,8 @@ def run(code):
 
 
 def test_hello():
-    run("""
+    run(
+        """
         struct A {
             a: int,
             b: int,
@@ -67,12 +68,19 @@ def test_hello():
                 printi(i);
             }
         }
-    """)
+    """
+    )
 
 
 def test_array():
-    run("""
+    run(
+        """
         main() {
             array: [int];
+            appendi(array, 42);
+            appendi(array, 1337);
+            printi(array[0]);
+            printi(array[1]);
         }
-    """)
+    """
+    )

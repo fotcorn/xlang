@@ -123,7 +123,7 @@ def test_variables(parser: Parser):
     )
 
     validation_pass(ast)
-    assert 'main' in ast.functions
+    assert "main" in ast.functions
 
 
 def test_loop(parser: Parser):

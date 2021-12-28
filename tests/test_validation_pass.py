@@ -213,3 +213,71 @@ def test_function_param_override_error(parser: Parser):
     )
     with pytest.raises(Exception):
         validation_pass(ast)
+
+
+def test_variable_type_declaration_mismatch(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        main(a: int) {
+            a: int = "test";
+        }
+        """
+    )
+    with pytest.raises(Exception):
+        validation_pass(ast)
+
+
+def test_variable_type_declaration_mismatch2(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        main(a: int) {
+            a: string = 1;
+        }
+        """
+    )
+    with pytest.raises(Exception):
+        validation_pass(ast)
+
+
+def test_variable_type_set_mismatch(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        main(a: int) {
+            a: int;
+            a = "string";
+        }
+        """
+    )
+    with pytest.raises(Exception):
+        validation_pass(ast)
+
+
+def test_variable_type_declaration_mismatch_func(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        func(): int {
+            return 5;
+        }
+        main(a: int) {
+            a: string = func();
+        }
+        """
+    )
+    with pytest.raises(Exception):
+        validation_pass(ast)
+
+
+def test_variable_type_set_mismatch_func(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        func(): int {
+            return 5;
+        }
+        main(a: int) {
+            a: string;
+            a = func();
+        }
+        """
+    )
+    with pytest.raises(Exception):
+        validation_pass(ast)

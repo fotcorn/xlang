@@ -22,7 +22,7 @@ class Value:
     def is_truthy(self):
         if self.is_array:
             # arrays with items are truthy
-            return len(value) > 0
+            return len(self.value) > 0
         elif self.type == ValueType.PRIMITIVE:
             if self.primitive_type in INTEGER_TYPES:
                 # all integers different from 0 are truthy
@@ -64,7 +64,7 @@ class ScopeStack:
 class Interpreter:
     def run(self, ast: GlobalScope):
         self.global_scope = ast
-        if not "main" in ast.functions:
+        if "main" not in ast.functions:
             raise Exception("No main function found")
         main_function = ast.functions["main"]
         self.scope_stack = ScopeStack()
@@ -89,13 +89,8 @@ class Interpreter:
             self.scope_stack.set_variable(statement.name, value)
         elif isinstance(statement, VariableAssign):
             value = self.expression(statement.value)
-            if statement.variable_access.array_access:
-                raise Exception("assigning array element not implemented")
-            if statement.variable_access.variable_access:
-                raise Exception("assigning struct members not implemented")
-            self.scope_stack.set_variable(
-                statement.variable_access.variable_name, value
-            )
+            variable = self.lookup_variable(statement.variable_access)
+            variable.__dict__.update(value.__dict__)
         elif isinstance(statement, FunctionCall):
             self.function_call(statement)
         elif isinstance(statement, Loop):
@@ -146,20 +141,42 @@ class Interpreter:
         else:
             raise Exception("internal compiler error: unhandled statement")
 
+    def array_lookup(
+        self,
+        array: Value,
+        array_access: BaseExpression,
+    ) -> Value:
+        index = self.expression(array_access)
+        assert array.is_array is True
+        if index.value < 0 or index.value >= len(array.value):
+            raise Exception("Index array out of bounds")
+        return array.value[index.value]
+
+    def struct_lookup(self, struct: Value, variable_access: VariableAccess) -> Value:
+        value = struct.value[variable_access.variable_name]
+        if variable_access.variable_access is not None:
+            value = self.struct_lookup(value, variable_access.variable_access)
+
+        if variable_access.array_access is not None:
+            value = self.array_lookup(value, variable_access.array_access)
+        return value
+
+    def lookup_variable(self, variable_access: VariableAccess) -> Value:
+        # value could be a primitive variable, a name of a struct or a name of an array
+        value = self.scope_stack.get_variable(variable_access.variable_name)
+        # handle struct access
+        if variable_access.variable_access is not None:
+            value = self.struct_lookup(value, variable_access.variable_access)
+
+        if variable_access.array_access is not None:
+            value = self.array_lookup(value, variable_access.array_access)
+        return value
+
     def expression(self, expression: BaseExpression):
         if isinstance(expression, FunctionCall):
             return self.function_call(expression)
         elif isinstance(expression, VariableAccess):
-            if expression.variable_access:
-                raise Exception("struct access not implemented")
-            if expression.array_access:
-                index = self.expression(expression.array_access)
-                array = self.scope_stack.get_variable(expression.variable_name)
-                assert array.is_array is True
-                if index.value < 0 or index.value >= len(array.value):
-                    raise Exception("Index array out of bounds")
-                return array.value[index.value]
-            return self.scope_stack.get_variable(expression.variable_name)
+            return self.lookup_variable(expression)
         elif isinstance(expression, Constant):
             return self.value_from_constant(expression)
         elif isinstance(expression, OperatorExpression):
@@ -342,7 +359,11 @@ class Interpreter:
                 struct_data[member.name] = self.default_variable_value(
                     member.param_type
                 )
-            return struct_data
+            return Value(
+                type=ValueType.STRUCT,
+                value=struct_data,
+                type_name=variable_type.type_name,
+            )
         else:
             raise Exception("internal compiler error: unknown variable type")
 

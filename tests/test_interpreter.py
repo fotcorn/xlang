@@ -84,3 +84,18 @@ def test_array():
         }
     """
     )
+
+
+def test_set_struct_member():
+    run(
+        """
+        struct MyStruct {
+            i: int,
+            s: string,
+        }
+        main() {
+            s: MyStruct;
+            printi(s.i);
+        }
+    """
+    )

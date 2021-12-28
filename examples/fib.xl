@@ -1,0 +1,19 @@
+main() {
+    t1: int = 0;
+    t2: int = 1;
+    tmp: int = 0;
+
+    i: int = 0;
+    loop {
+        printi(t1);
+
+        tmp = t1;
+        t1 = t2;
+        t2 = tmp + t2;
+
+        i = i + 1;
+        if (i == 20) {
+            break;
+        }
+    }
+}

@@ -1,0 +1,20 @@
+struct Vec3{
+    x: int,
+    y: int,
+    z: int,
+}
+
+length_squared(vec: Vec3): int {
+    square: int = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
+    return square;
+}
+
+main() {
+    vec: Vec3;
+
+    vec.x = 5;
+    vec.y = 7;
+    vec.z = 12;
+
+    printi(length_squared(vec));
+}

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from xlang.xl_ast import (
     VariableType,
     GlobalScope,
@@ -22,7 +24,7 @@ from xlang.xl_ast import (
     BuiltinFunction,
 )
 from xlang.xl_types import typeify, is_type_compatible, primitive_type_from_constant
-from typing import Optional
+from xlang.exceptions import InternalCompilerError
 
 
 class ScopeStack:
@@ -117,7 +119,7 @@ class Typeifier:
             if not self.inside_loop:
                 raise Exception("Break outside loop")
         else:
-            raise Exception("Unhandled statement")
+            raise InternalCompilerError("Unhandled statement")
 
     def struct_access(self, variable: VariableType, struct_access: VariableAccess):
         if variable.variable_type != VariableTypeEnum.STRUCT:
@@ -195,7 +197,7 @@ class Typeifier:
             elif expression.constant_type == ConstantType.INTEGER:
                 expression.type = primitive_type_from_constant(expression.value)
             else:
-                raise Exception("Internal compiler error: Unknown constant type")
+                raise InternalCompilerError("Unknown constant type")
 
         elif isinstance(expression, OperatorExpression):
             operand1_type = self.expression(expression.operand1)
@@ -207,7 +209,7 @@ class Typeifier:
             else:
                 raise Exception("Incompatible type in operator expressions")
         else:
-            raise Exception("Unknown expression")
+            raise InternalCompilerError("Unknown expression")
         return expression.type
 
     def function_call(self, expression):

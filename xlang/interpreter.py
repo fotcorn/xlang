@@ -3,6 +3,7 @@ from typing import List, Dict, Union, Optional, Any
 from pydantic.dataclasses import dataclass
 import copy
 
+from xlang.exceptions import InternalCompilerError
 from xlang.xl_ast import *
 
 
@@ -38,7 +39,7 @@ class Value:
         elif self.type == ValueType.STRUCT:
             raise Exception("Compiler error: structs do not have truthy/falsy value")
         else:
-            raise Exception("Compiler error: unhandled variable type")
+            raise InternalCompilerError("Compiler error: unhandled variable type")
 
 
 class ScopeStack:
@@ -139,7 +140,7 @@ class Interpreter:
         elif isinstance(statement, Break):
             return "break", None
         else:
-            raise Exception("internal compiler error: unhandled statement")
+            raise InternalCompilerError("unhandled statement")
 
     def array_lookup(
         self,
@@ -276,9 +277,9 @@ class Interpreter:
                     primitive_type=PrimitiveType.BOOL,
                 )
             else:
-                raise Exception("internal compile error: unknown operator")
+                raise InternalCompilerError("Unknown operator")
         else:
-            raise Exception("internal compiler error: unknown expression")
+            raise InternalCompilerError("Unknown expression")
 
     def function_call(self, func_call):
         function = self.global_scope.functions[func_call.function_name]
@@ -334,7 +335,7 @@ class Interpreter:
                     type=ValueType.PRIMITIVE, value=False, primitive_type=primitive_type
                 )
             else:
-                raise Exception("internal compiler error: primitive type not handled")
+                raise InternalCompilerError("primitive type not handled")
         elif base_type == VariableTypeEnum.ARRAY:
             if variable_type.array_type.variable_type == VariableTypeEnum.PRIMITIVE:
                 return Value(
@@ -351,7 +352,9 @@ class Interpreter:
                     is_array=True,
                 )
             else:
-                raise Exception("array type not implemented")  # multidimensional arrays
+                raise NotImplementedError(
+                    "array type not implemented"
+                )  # multidimensional arrays
         elif base_type == VariableTypeEnum.STRUCT:
             struct_def = self.global_scope.structs[variable_type.type_name]
             struct_data = {}
@@ -365,7 +368,7 @@ class Interpreter:
                 type_name=variable_type.type_name,
             )
         else:
-            raise Exception("internal compiler error: unknown variable type")
+            raise InternalCompilerError("Unknown variable type")
 
     def value_from_constant(self, constant: Constant) -> Value:
         return Value(

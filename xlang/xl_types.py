@@ -1,4 +1,5 @@
 from xlang.xl_ast import VariableType, GlobalScope, PrimitiveType, VariableTypeEnum
+from xlang.exceptions import InternalCompilerError
 
 
 def typeify(base_type: VariableType, global_scope: GlobalScope):
@@ -10,7 +11,7 @@ def typeify(base_type: VariableType, global_scope: GlobalScope):
     elif base_type.variable_type == VariableTypeEnum.UNKNOWN:
         base_type = get_type_from_string(global_scope, base_type.type_name)
     else:
-        raise Exception("Unhandled type in struct validation pass")
+        raise InternalCompilerError("Unhandled type in struct validation pass")
     return base_type
 
 
@@ -141,4 +142,4 @@ def is_type_compatible(
         else:
             return variable_type_a.primitive_type == variable_type_b.primitive_type
     else:
-        raise Exception("Unhandled type in is_type_compatible")
+        raise InternalCompilerError("Unhandled type in is_type_compatible")

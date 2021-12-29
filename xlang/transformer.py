@@ -24,6 +24,7 @@ from xlang.xl_ast import (
     BaseExpression,
 )
 from xlang.xl_builtins import get_builtins
+from xlang.exceptions import InternalCompilerError
 
 
 class ArrayAccess:
@@ -129,9 +130,7 @@ class ASTTransformer(Transformer):
                     raise Exception(f"struct with name {entry.name} is already defined")
                 global_scope.structs[entry.name] = entry
             else:
-                raise Exception(
-                    "Internal compiler error: unknown entry in global scope"
-                )
+                raise InternalCompilerError("Unknown entry in global scope")
         return global_scope
 
     @v_args(inline=True)
@@ -177,7 +176,7 @@ class ASTTransformer(Transformer):
         elif keyword == "return":
             return Return(return_value)
         else:
-            raise Exception("Unknown control keyword")
+            raise InternalCompilerError("Unknown control keyword")
 
     @v_args(inline=True)
     def array_access(self, expression):

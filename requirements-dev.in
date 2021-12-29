@@ -3,5 +3,5 @@
 pip-tools
 pytest
 coverage
-mypy
+mypy==0.910
 black

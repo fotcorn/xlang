@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, cast
 
 from xlang.xl_ast import (
     VariableType,
@@ -124,6 +124,7 @@ class Typeifier:
     def struct_access(self, variable: VariableType, struct_access: VariableAccess):
         if variable.variable_type != VariableTypeEnum.STRUCT:
             raise Exception("Struct access on non-variable type")
+        assert variable.type_name
         struct_type = self.global_scope.structs[variable.type_name]
 
         for member in struct_type.members:
@@ -251,5 +252,6 @@ def validation_pass(global_scope: GlobalScope):
     for function in global_scope.functions.values():
         if isinstance(function, BuiltinFunction):
             continue
+        assert isinstance(function, Function)
         typeifier = Typeifier(global_scope, function)
         typeifier.statements(function.statements)

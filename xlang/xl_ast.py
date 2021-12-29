@@ -46,9 +46,9 @@ NUMBER_TYPES = INTEGER_TYPES + (PrimitiveType.FLOAT,)
 @dataclass
 class VariableType:
     variable_type: VariableTypeEnum
-    type_name: str = None
-    primitive_type: PrimitiveType = None
-    array_type: VariableType = None
+    type_name: Optional[str] = None
+    primitive_type: Optional[PrimitiveType] = None
+    array_type: Optional[VariableType] = None
 
 
 @dataclass
@@ -91,8 +91,8 @@ class OperatorExpression(BaseExpression):
 @dataclass
 class VariableAccess(BaseExpression):
     variable_name: str
-    array_access: BaseExpression = None
-    variable_access: VariableAccess = None
+    array_access: Optional[BaseExpression] = None
+    variable_access: Optional[VariableAccess] = None
 
 
 @dataclass
@@ -179,11 +179,11 @@ class Break(Statement):
 
 @dataclass
 class Return(Statement):
-    value: BaseExpression = None
+    value: Optional[BaseExpression] = None
 
 
-VariableAccess.__pydantic_model__.update_forward_refs()
-VariableType.__pydantic_model__.update_forward_refs()
-StructType.__pydantic_model__.update_forward_refs()
-Constant.__pydantic_model__.update_forward_refs()
-GlobalScope.__pydantic_model__.update_forward_refs()
+VariableAccess.__pydantic_model__.update_forward_refs()  # type: ignore[attr-defined]
+VariableType.__pydantic_model__.update_forward_refs()  # type: ignore[attr-defined]
+StructType.__pydantic_model__.update_forward_refs()  # type: ignore[attr-defined]
+Constant.__pydantic_model__.update_forward_refs()  # type: ignore[attr-defined]
+GlobalScope.__pydantic_model__.update_forward_refs()  # type: ignore[attr-defined]

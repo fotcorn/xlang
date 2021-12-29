@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 from xlang.xl_ast import (
     FunctionParameter,
     VariableType,
@@ -9,7 +9,7 @@ from xlang.xl_ast import (
 
 
 class Value:
-    pass
+    value: Any
 
 
 def print_builtin(values: List[Value]):

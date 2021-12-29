@@ -16,9 +16,9 @@ class ValueType(Enum):
 class Value:
     type: ValueType
     value: Any
-    primitive_type: PrimitiveType = None
+    primitive_type: Optional[PrimitiveType] = None
     is_array: bool = False
-    type_name: str = None  # for structs and enums
+    type_name: Optional[str] = None  # for structs and enums
 
     def is_truthy(self):
         if self.is_array:
@@ -69,6 +69,8 @@ class Interpreter:
             raise Exception("No main function found")
         main_function = ast.functions["main"]
         self.scope_stack = ScopeStack()
+
+        assert isinstance(main_function, Function)
 
         for statement in main_function.statements:
             execution_change = self.statement(statement)

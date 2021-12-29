@@ -4,11 +4,14 @@ from xlang.exceptions import InternalCompilerError
 
 def typeify(base_type: VariableType, global_scope: GlobalScope):
     if base_type.variable_type == VariableTypeEnum.ARRAY:
+        assert base_type.array_type
+        assert base_type.array_type.type_name
         assert base_type.array_type.variable_type == VariableTypeEnum.UNKNOWN
         base_type.array_type = get_type_from_string(
             global_scope, base_type.array_type.type_name
         )
     elif base_type.variable_type == VariableTypeEnum.UNKNOWN:
+        assert base_type.type_name
         base_type = get_type_from_string(global_scope, base_type.type_name)
     else:
         raise InternalCompilerError("Unhandled type in struct validation pass")
@@ -128,6 +131,8 @@ def is_type_compatible(
     if variable_type_a.variable_type != variable_type_b.variable_type:
         return False
     if variable_type_a.variable_type == VariableTypeEnum.ARRAY:
+        assert variable_type_a.array_type
+        assert variable_type_b.array_type
         return is_type_compatible(
             variable_type_a.array_type, variable_type_b.array_type
         )

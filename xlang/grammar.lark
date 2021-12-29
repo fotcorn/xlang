@@ -22,7 +22,9 @@ code_block: "{" statement* "}"
 
 ?statement: loop | if_statement | (function_call ";") | variable_dec | variable_def | variable_assign | control ";"
 loop: "loop" code_block
-if_statement: "if" "(" compare_expr ")" code_block
+elif_statement: "elif" "(" compare_expr ")" code_block
+else_statement: "else" code_block
+if_statement: "if" "(" compare_expr ")" code_block elif_statement* else_statement?
 
 variable_dec: IDENTIFIER ":" type ";"
 variable_def: IDENTIFIER ":" type "=" compare_expr ";"

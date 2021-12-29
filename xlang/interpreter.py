@@ -152,6 +152,15 @@ class Interpreter:
                         break
                 self.scope_stack.pop_scope()
                 return execution_change
+            elif statement.else_statement:
+                execution_change = None
+                self.scope_stack.push_scope()
+                for statement in statement.else_statement.statements:
+                    execution_change = self.statement(statement)
+                    if execution_change:  # break, continue or return
+                        break
+                self.scope_stack.pop_scope()
+                return execution_change
         elif isinstance(statement, Return):
             if statement.value:
                 value = self.expression(statement.value)

@@ -101,6 +101,10 @@ class Typeifier:
             self.scope_stack.push_scope()
             self.statements(statement.statements)
             self.scope_stack.pop_scope()
+            if statement.else_statement:
+                self.scope_stack.push_scope()
+                self.statements(statement.else_statement.statements)
+                self.scope_stack.pop_scope()
         elif isinstance(statement, Return):
             if statement.value:
                 if not self.function.return_type:

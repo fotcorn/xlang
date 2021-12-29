@@ -5,6 +5,8 @@ from xlang.xl_ast import (
     Continue,
     Constant,
     ConstantType,
+    Elif,
+    Else,
     FunctionCall,
     FunctionParameter,
     IdentifierAndType,
@@ -163,8 +165,31 @@ class ASTTransformer(Transformer):
         )
 
     @v_args(inline=True)
-    def if_statement(self, compare_expr, code_block):
-        return If(compare_expr, code_block.children)
+    def if_statement(self, compare_expr, code_block, *elif_else):
+        if len(elif_else) > 0:
+            if isinstance(elif_else[-1], Else):
+                return If(
+                    compare_expr,
+                    code_block.children,
+                    else_statement=elif_else[-1],
+                    elif_statements=elif_else[:-1],
+                )
+            else:
+                return If(
+                    compare_expr,
+                    code_block.children,
+                    elif_statements=elif_else,
+                )
+        else:
+            return If(compare_expr, code_block.children)
+
+    @v_args(inline=True)
+    def elif_statement(self, compare_expr, code_block):
+        return Elif(compare_expr, code_block.children)
+
+    @v_args(inline=True)
+    def else_statement(self, code_block):
+        return Else(code_block.children)
 
     @v_args(inline=True)
     def control(self, keyword, return_value=None):

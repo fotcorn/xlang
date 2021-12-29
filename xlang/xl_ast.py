@@ -167,6 +167,19 @@ class Loop(Statement):
 class If(Statement):
     condition: BaseExpression
     statements: List[Statement]
+    elif_statements: List[Elif] = field(default_factory=list)
+    else_statement: Optional[Else] = None
+
+
+@dataclass
+class Elif(Statement):
+    condition: BaseExpression
+    statements: List[Statement]
+
+
+@dataclass
+class Else(Statement):
+    statements: List[Statement]
 
 
 class Continue(Statement):
@@ -187,3 +200,4 @@ VariableType.__pydantic_model__.update_forward_refs()  # type: ignore[attr-defin
 StructType.__pydantic_model__.update_forward_refs()  # type: ignore[attr-defined]
 Constant.__pydantic_model__.update_forward_refs()  # type: ignore[attr-defined]
 GlobalScope.__pydantic_model__.update_forward_refs()  # type: ignore[attr-defined]
+If.__pydantic_model__.update_forward_refs()  # type: ignore[attr-defined]

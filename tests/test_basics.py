@@ -144,3 +144,16 @@ def test_loop(parser: Parser):
     )
     validation_pass(ast)
     print(ast)
+
+
+def test_parens(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        main() {
+            printi(1 + 2 * 3);
+            printi((1 + 2) * 3);
+        }
+        """
+    )
+    validation_pass(ast)
+    print(ast)

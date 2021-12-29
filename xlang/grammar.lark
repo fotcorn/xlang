@@ -33,7 +33,7 @@ function_call: IDENTIFIER "(" (compare_expr? | compare_expr ("," compare_expr)*)
 integer_constant: INTEGER
 string_literal: STRING_LITERAL
 !boolean_literal: ("false" | "true")
-?primary_expression: var_access | function_call | integer_constant | string_literal | boolean_literal
+?primary_expression: var_access | function_call | integer_constant | string_literal | boolean_literal | "(" compare_expr ")"
 
 !?mul_div_expr: primary_expression | (mul_div_expr "*" primary_expression) | (mul_div_expr "/" primary_expression) | (mul_div_expr "%" primary_expression)
 !?add_sub_expr: mul_div_expr | (add_sub_expr "+" mul_div_expr) | (add_sub_expr "-" mul_div_expr)

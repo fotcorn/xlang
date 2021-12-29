@@ -121,3 +121,19 @@ def test_assert():
             }
         """
         )
+
+
+def test_parens():
+    run(
+        """
+        main() {
+            assert(1 + 2 * 3 == 7);
+            assert((1 + 2 * 3) == 7);
+            assert(1 + 2 * 3 == (7));
+            assert((1 + 2 * 3 == 7));
+            assert((1 + 2) * 3 == 9);
+            assert(1 + (2 * 3) == 7);
+            assert(1 + (2) * 3 == 7);
+        }
+    """
+    )

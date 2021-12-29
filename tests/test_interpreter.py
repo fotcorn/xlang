@@ -1,7 +1,10 @@
+from xlang.exceptions import InterpreterAssertionError
 from xlang.xl_ast import GlobalScope
 from xlang.parser import Parser
 from xlang.interpreter import Interpreter
 from xlang.validation_pass import validation_pass
+
+import pytest
 
 
 def run(code):
@@ -99,3 +102,22 @@ def test_set_struct_member():
         }
     """
     )
+
+
+def test_assert():
+    run(
+        """
+        main() {
+            assert(true);
+        }
+    """
+    )
+
+    with pytest.raises(InterpreterAssertionError):
+        run(
+            """
+            main() {
+                assert(false);
+            }
+        """
+        )

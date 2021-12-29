@@ -1,4 +1,5 @@
-from typing import Any, List
+from typing import List
+from xlang.exceptions import InterpreterAssertionError
 from xlang.xl_ast import (
     FunctionParameter,
     VariableType,
@@ -6,10 +7,7 @@ from xlang.xl_ast import (
     PrimitiveType,
     BuiltinFunction,
 )
-
-
-class Value:
-    value: Any
+from xlang.interpreter import Value
 
 
 def print_builtin(values: List[Value]):
@@ -19,6 +17,14 @@ def print_builtin(values: List[Value]):
 def append_builtin(values: List[Value]):
     array, value = values
     array.value.append(value)
+
+
+def assert_builtin(values: List[Value]):
+    assert len(values) == 1
+    if values[0].primitive_type != PrimitiveType.BOOL:
+        raise Exception("assert: expression is not a boolean")
+    if values[0].value is not True:
+        raise InterpreterAssertionError("assertion failed")
 
 
 def get_builtins() -> List[BuiltinFunction]:
@@ -139,5 +145,19 @@ def get_builtins() -> List[BuiltinFunction]:
                 ),
             ],
             append_builtin,
+        ),
+        BuiltinFunction(
+            "assert",
+            None,
+            [
+                FunctionParameter(
+                    name="test",
+                    param_type=VariableType(
+                        variable_type=VariableTypeEnum.PRIMITIVE,
+                        primitive_type=PrimitiveType.BOOL,
+                    ),
+                )
+            ],
+            assert_builtin,
         ),
     ]

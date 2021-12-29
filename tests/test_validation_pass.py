@@ -35,16 +35,19 @@ def test_validation_pass(parser: Parser):
     assert ast.functions["main"].return_type is None
 
     # int_func
+    assert ast.functions["intfunc"].return_type
     assert (
         ast.functions["intfunc"].return_type.variable_type == VariableTypeEnum.PRIMITIVE
     )
     assert ast.functions["intfunc"].return_type.primitive_type == PrimitiveType.I64
 
     # param_func return type
+    assert ast.functions["param_func"].return_type
     assert (
         ast.functions["param_func"].return_type.variable_type == VariableTypeEnum.ARRAY
     )
     assert ast.functions["param_func"].return_type.primitive_type is None
+    assert ast.functions["param_func"].return_type.array_type
     assert (
         ast.functions["param_func"].return_type.array_type.variable_type
         == VariableTypeEnum.STRUCT

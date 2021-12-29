@@ -1,4 +1,4 @@
-from xlang.xl_ast import GlobalScope
+from xlang.xl_ast import Function, GlobalScope
 from xlang.parser import Parser
 from xlang.validation_pass import validation_pass
 
@@ -19,6 +19,7 @@ def test_hello(parser: Parser):
 
     func = ast.functions["main"]
 
+    assert isinstance(func, Function)
     assert len(func.statements) == 2
 
 

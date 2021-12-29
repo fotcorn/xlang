@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import field
 from pydantic.dataclasses import dataclass
 from enum import Enum, auto
-from typing import List, Dict, Union, Optional, Callable, Any
+from typing import List, Dict, Optional, Callable, Any
 
 
 class VariableTypeEnum(Enum):

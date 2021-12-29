@@ -1,10 +1,31 @@
 from enum import Enum, auto
-from typing import List, Dict, Union, Optional, Any
+from typing import Optional, Any
 from pydantic.dataclasses import dataclass
 import copy
 
 from xlang.exceptions import InternalCompilerError
-from xlang.xl_ast import *
+from xlang.xl_ast import (
+    INTEGER_TYPES,
+    NUMBER_TYPES,
+    PrimitiveType,
+    GlobalScope,
+    VariableTypeEnum,
+    VariableAccess,
+    VariableDeclaration,
+    VariableAssign,
+    VariableDefinition,
+    Loop,
+    Function,
+    FunctionCall,
+    If,
+    Return,
+    Continue,
+    Break,
+    BaseExpression,
+    OperatorExpression,
+    Constant,
+    BuiltinFunction,
+)
 
 
 class ValueType(Enum):
@@ -209,7 +230,8 @@ class Interpreter:
                     == operand2_value.primitive_type
                 ):
                     raise Exception(
-                        f"{expression.operator} operator only works beween int types or float, not float and int."
+                        f"{expression.operator} operator only works beween int types"
+                        " or float types, not float and int."
                     )
                 if expression.operator == "+":
                     value = operand1_value.value + operand2_value.value
@@ -246,9 +268,11 @@ class Interpreter:
                     and operand2_value.primitive_type in INTEGER_TYPES
                     or operand1_value.primitive_type == operand2_value.primitive_type
                 ):
-                    # integer types can be compared to all other integer types, but string, float and bool can only compare to itself
+                    # integer types can be compared to all other integer types,
+                    # but string, float and bool can only compare to itself
                     raise Exception(
-                        f"comparision operator between two incompatible primitive types: {operand1_value.primitive_type}, {operand2_value.primitive_type}"
+                        "comparision operator between two incompatible primitive types: "
+                        f"{operand1_value.primitive_type}, {operand2_value.primitive_type}"
                     )
                 if (
                     operand1_value.primitive_type

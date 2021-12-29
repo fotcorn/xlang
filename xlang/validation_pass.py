@@ -1,4 +1,4 @@
-from typing import Optional, cast
+from typing import Optional
 
 from xlang.xl_ast import (
     VariableType,
@@ -215,14 +215,15 @@ class Typeifier:
 
     def function_call(self, expression):
         # check if function actually exists
-        if not expression.function_name in self.global_scope.functions:
+        if expression.function_name not in self.global_scope.functions:
             raise Exception(f"Unknown function called: {expression.function_name}")
         function = self.global_scope.functions[expression.function_name]
 
         # check correct count of params given in call
         if len(expression.params) != len(function.function_params):
             raise Exception(
-                f"function {expression.function_name} takes {len(function.function_params)} params,"
+                f"function {expression.function_name} takes "
+                f"{len(function.function_params)} params, "
                 f"{len(expression.params)} given"
             )
 

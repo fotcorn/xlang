@@ -76,7 +76,6 @@ class ASTTransformer(Transformer):
         return_type = None
         function_params = None
         if len(params) == 3:
-            a = params[1]
             if isinstance(params[1], list):
                 function_params = params[1]
             else:

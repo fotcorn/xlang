@@ -126,3 +126,37 @@ def test_parens():
         }
     """
     )
+
+
+def test_variable_declare():
+    run(
+        """
+        main() {
+            i: int;
+            assert(i == 0);
+        }
+        """
+    )
+
+
+def test_variable_define():
+    run(
+        """
+        main() {
+            i: int = 3;
+            assert(i == 3);
+        }
+        """
+    )
+
+
+def test_variable_assign():
+    run(
+        """
+        main() {
+            i: int;
+            i = 5;
+            assert(i == 5);
+        }
+        """
+    )

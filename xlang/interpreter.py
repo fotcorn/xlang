@@ -152,7 +152,20 @@ class Interpreter:
                         break
                 self.scope_stack.pop_scope()
                 return execution_change
-            elif statement.else_statement:
+
+            for elif_statement in statement.elif_statements:
+                value = self.expression(elif_statement.condition)
+                if value.is_truthy():
+                    execution_change = None
+                    self.scope_stack.push_scope()
+                    for statement in elif_statement.statements:
+                        execution_change = self.statement(statement)
+                        if execution_change:  # break, continue or return
+                            break
+                    self.scope_stack.pop_scope()
+                    return execution_change
+
+            if statement.else_statement:
                 execution_change = None
                 self.scope_stack.push_scope()
                 for statement in statement.else_statement.statements:

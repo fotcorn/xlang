@@ -74,7 +74,8 @@ class ScopeStack:
         for stack in reversed(self.stack):
             if name in stack:
                 return stack[name]
-        raise Exception(f"Unknown variable: {name}")
+        # this should have been detected by the validation pass
+        raise InternalCompilerError(f"Unknown variable: {name}")
 
     def push_scope(self):
         self.stack.append({})

@@ -5,6 +5,7 @@ from xlang.parser import Parser
 from xlang.interpreter import Interpreter
 from xlang.xl_ast import GlobalScope
 from xlang.validation_pass import validation_pass
+from xlang.exceptions import ContextException
 
 
 if __name__ == "__main__":
@@ -20,8 +21,15 @@ if __name__ == "__main__":
         print("Code file does not exist")
         sys.exit(1)
 
-    parser = Parser()
-    ast: GlobalScope = parser.parse(code)
-    validation_pass(ast)
-    interpreter = Interpreter()
-    interpreter.run(ast)
+    try:
+        parser = Parser()
+        ast: GlobalScope = parser.parse(code)
+        validation_pass(ast)
+        interpreter = Interpreter()
+        interpreter.run(ast)
+    except ContextException as ex:
+        ex.print(code, args.file)
+        sys.exit(1)
+    except Exception as ex:
+        print(ex)
+        sys.exit(1)

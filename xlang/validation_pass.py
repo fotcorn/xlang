@@ -24,7 +24,7 @@ from xlang.xl_ast import (
     BuiltinFunction,
 )
 from xlang.xl_types import typeify, is_type_compatible, primitive_type_from_constant
-from xlang.exceptions import InternalCompilerError
+from xlang.exceptions import ContextException, InternalCompilerError
 
 
 class ScopeStack:
@@ -173,7 +173,9 @@ class Typeifier:
         elif isinstance(expression, VariableAccess):
             variable_type = self.scope_stack.get_variable_type(expression.variable_name)
             if not variable_type:
-                raise Exception(f"Unknown variable {expression.variable_name}")
+                raise ContextException(
+                    f"Unknown variable: {expression.variable_name}", expression.context
+                )
 
             # handle array access
             if expression.array_access is not None:
@@ -263,5 +265,10 @@ def validation_pass(global_scope: GlobalScope):
         if isinstance(function, BuiltinFunction):
             continue
         assert isinstance(function, Function)
-        typeifier = Typeifier(global_scope, function)
-        typeifier.statements(function.statements)
+        try:
+            typeifier = Typeifier(global_scope, function)
+            typeifier.statements(function.statements)
+        except ContextException as ex:
+            ex.function_name = function.name
+            ex.function_parse_context = function.context
+            raise ex

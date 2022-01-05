@@ -97,7 +97,13 @@ class Typeifier:
                 self.inside_loop = False
         elif isinstance(statement, If):
             value_type = self.expression(statement.condition)
-            # todo: check if value_type is bool or convertable to bool
+            if (
+                value_type.variable_type != VariableTypeEnum.PRIMITIVE
+                or value_type.primitive_type != PrimitiveType.BOOL
+            ):
+                raise ContextException(
+                    "If statement expression is not bool", statement.condition.context
+                )
             self.scope_stack.push_scope()
             self.statements(statement.statements)
             self.scope_stack.pop_scope()

@@ -1,8 +1,12 @@
 import os
 
 from lark import Lark
-from lark.exceptions import VisitError
-from xlang.exceptions import ContextException
+from lark.exceptions import UnexpectedCharacters, UnexpectedToken, VisitError
+from xlang.exceptions import (
+    ContextException,
+    UnexpectedCharacterException,
+    UnexpectedTokenException,
+)
 
 from xlang.transformer import ASTTransformer
 
@@ -18,7 +22,14 @@ class Parser:
         self.transformer = ASTTransformer()
 
     def parse(self, source_code):
-        tree = self.lark_parser.parse(source_code)
+        try:
+            tree = self.lark_parser.parse(source_code)
+        except UnexpectedToken as ex:
+            raise UnexpectedTokenException(ex)
+        except UnexpectedCharacters as ex:
+            raise UnexpectedCharacterException(ex)
+
+        # transform into our own ast
         try:
             return self.transformer.transform(tree)
         except VisitError as ex:

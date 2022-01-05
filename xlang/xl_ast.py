@@ -51,10 +51,14 @@ class ParseContext:
     column: int = 0
     builtin: bool = False
 
-    def __init__(self, token):
+    def __init__(self, token, old_format=False):
         if token:
-            self.start_pos = token.start_pos
-            self.end_pos = token.end_pos
+            if old_format:
+                self.start_pos = token.pos_in_stream
+                self.end_pos = token.pos_in_stream
+            else:
+                self.start_pos = token.start_pos
+                self.end_pos = token.end_pos
             self.line = token.line
             self.column = token.column
         else:

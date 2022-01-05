@@ -143,7 +143,6 @@ def test_loop(parser: Parser):
         """
     )
     validation_pass(ast)
-    print(ast)
 
 
 def test_parens(parser: Parser):
@@ -156,4 +155,3 @@ def test_parens(parser: Parser):
         """
     )
     validation_pass(ast)
-    print(ast)

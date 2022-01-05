@@ -44,6 +44,24 @@ NUMBER_TYPES = INTEGER_TYPES + (PrimitiveType.FLOAT,)
 
 
 @dataclass
+class ParseContext:
+    start_pos: int
+    end_pos: int
+    line: int
+    column: int
+    builtin: bool = False
+
+    def __init__(self, token):
+        if token:
+            self.start_pos = token.start_pos
+            self.end_pos = token.end_pos
+            self.line = token.line
+            self.column = token.column
+        else:
+            self.builtin = True
+
+
+@dataclass
 class VariableType:
     variable_type: VariableTypeEnum
     type_name: Optional[str] = None
@@ -55,6 +73,7 @@ class VariableType:
 class StructType:
     name: str
     members: List[IdentifierAndType]
+    context: ParseContext
 
 
 @dataclass
@@ -66,6 +85,7 @@ class GlobalScope:
 @dataclass
 class BaseExpression:
     type: VariableType
+    context: ParseContext
 
 
 class ConstantType(Enum):
@@ -97,7 +117,7 @@ class VariableAccess(BaseExpression):
 
 @dataclass
 class Statement:
-    pass
+    context: ParseContext
 
 
 @dataclass
@@ -105,10 +125,11 @@ class FunctionCall(Statement, BaseExpression):
     function_name: str
     params: List[BaseExpression]
 
-    def __init__(self, function_name, params):
+    def __init__(self, function_name, params, context):
         self.function_name = function_name
         self.params = params
         self.type = None
+        self.context = context
 
 
 @dataclass
@@ -134,6 +155,7 @@ class VariableAssign(Statement):
 class IdentifierAndType:
     name: str
     param_type: VariableType
+    context: ParseContext
 
 
 @dataclass
@@ -151,6 +173,7 @@ class BaseFunction:
 @dataclass
 class Function(BaseFunction):
     statements: List[Statement]
+    context: ParseContext
 
 
 @dataclass

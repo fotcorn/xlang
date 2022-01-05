@@ -2,6 +2,7 @@ from typing import List
 from xlang.exceptions import InterpreterAssertionError
 from xlang.xl_ast import (
     FunctionParameter,
+    ParseContext,
     VariableType,
     VariableTypeEnum,
     PrimitiveType,
@@ -35,6 +36,7 @@ def get_builtins() -> List[BuiltinFunction]:
             [
                 FunctionParameter(
                     name="value",
+                    context=ParseContext(None),
                     param_type=VariableType(
                         variable_type=VariableTypeEnum.PRIMITIVE,
                         primitive_type=PrimitiveType.I64,
@@ -49,6 +51,7 @@ def get_builtins() -> List[BuiltinFunction]:
             [
                 FunctionParameter(
                     name="value",
+                    context=ParseContext(None),
                     param_type=VariableType(
                         variable_type=VariableTypeEnum.PRIMITIVE,
                         primitive_type=PrimitiveType.STRING,
@@ -63,6 +66,7 @@ def get_builtins() -> List[BuiltinFunction]:
             [
                 FunctionParameter(
                     name="value",
+                    context=ParseContext(None),
                     param_type=VariableType(
                         variable_type=VariableTypeEnum.PRIMITIVE,
                         primitive_type=PrimitiveType.FLOAT,
@@ -77,6 +81,7 @@ def get_builtins() -> List[BuiltinFunction]:
             [
                 FunctionParameter(
                     name="array",
+                    context=ParseContext(None),
                     param_type=VariableType(
                         variable_type=VariableTypeEnum.ARRAY,
                         array_type=VariableType(
@@ -88,6 +93,7 @@ def get_builtins() -> List[BuiltinFunction]:
                 ),
                 FunctionParameter(
                     name="value",
+                    context=ParseContext(None),
                     param_type=VariableType(
                         variable_type=VariableTypeEnum.PRIMITIVE,
                         primitive_type=PrimitiveType.I64,
@@ -102,6 +108,7 @@ def get_builtins() -> List[BuiltinFunction]:
             [
                 FunctionParameter(
                     name="array",
+                    context=ParseContext(None),
                     param_type=VariableType(
                         variable_type=VariableTypeEnum.ARRAY,
                         array_type=VariableType(
@@ -113,6 +120,7 @@ def get_builtins() -> List[BuiltinFunction]:
                 ),
                 FunctionParameter(
                     name="value",
+                    context=ParseContext(None),
                     param_type=VariableType(
                         variable_type=VariableTypeEnum.PRIMITIVE,
                         primitive_type=PrimitiveType.STRING,
@@ -127,6 +135,7 @@ def get_builtins() -> List[BuiltinFunction]:
             [
                 FunctionParameter(
                     name="array",
+                    context=ParseContext(None),
                     param_type=VariableType(
                         variable_type=VariableTypeEnum.ARRAY,
                         array_type=VariableType(
@@ -138,6 +147,7 @@ def get_builtins() -> List[BuiltinFunction]:
                 ),
                 FunctionParameter(
                     name="value",
+                    context=ParseContext(None),
                     param_type=VariableType(
                         variable_type=VariableTypeEnum.PRIMITIVE,
                         primitive_type=PrimitiveType.FLOAT,
@@ -152,6 +162,7 @@ def get_builtins() -> List[BuiltinFunction]:
             [
                 FunctionParameter(
                     name="test",
+                    context=ParseContext(None),
                     param_type=VariableType(
                         variable_type=VariableTypeEnum.PRIMITIVE,
                         primitive_type=PrimitiveType.BOOL,

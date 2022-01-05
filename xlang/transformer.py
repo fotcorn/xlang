@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from lark import Transformer, v_args
 
 from xlang.xl_ast import (
@@ -12,6 +13,7 @@ from xlang.xl_ast import (
     IdentifierAndType,
     Function,
     GlobalScope,
+    ParseContext,
     StructType,
     Loop,
     If,
@@ -29,8 +31,10 @@ from xlang.xl_builtins import get_builtins
 from xlang.exceptions import InternalCompilerError
 
 
+@dataclass
 class ArrayAccess:
     expression: BaseExpression
+    context: ParseContext
 
 
 class ASTTransformer(Transformer):
@@ -38,6 +42,7 @@ class ASTTransformer(Transformer):
     def integer_constant(self, value):
         return Constant(
             VariableType(VariableTypeEnum.UNKNOWN),
+            ParseContext(value),
             ConstantType.INTEGER,
             int(value.value),
         )
@@ -46,6 +51,7 @@ class ASTTransformer(Transformer):
     def string_literal(self, value):
         return Constant(
             VariableType(VariableTypeEnum.UNKNOWN),
+            ParseContext(value),
             ConstantType.STRING,
             value.value[1:-1],
         )
@@ -54,16 +60,19 @@ class ASTTransformer(Transformer):
     def boolean_literal(self, value):
         return Constant(
             VariableType(VariableTypeEnum.UNKNOWN),
+            ParseContext(value),
             ConstantType.BOOL,
             value.value == "true",
         )
 
     def function_call(self, param):
-        return FunctionCall(param[0].value, param[1:])
+        return FunctionCall(param[0].value, param[1:], ParseContext(param[0]))
 
     @v_args(inline=True)
     def function_param(self, identifier, param_type):
-        return FunctionParameter(identifier.value, param_type, False)
+        return FunctionParameter(
+            identifier.value, param_type, ParseContext(identifier), False
+        )
 
     def function_params(self, params):
         assert len(params) in [1, 2]
@@ -89,7 +98,13 @@ class ASTTransformer(Transformer):
         if function_params is None:
             function_params = []
 
-        return Function(name.value, return_type, function_params, code_block.children)
+        return Function(
+            name.value,
+            return_type,
+            function_params,
+            code_block.children,
+            ParseContext(params[0]),
+        )
 
     def type(self, params):
         if len(params) == 1:
@@ -105,15 +120,15 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def struct_entry(self, identifier, type):
-        return IdentifierAndType(identifier.value, type)
+        return IdentifierAndType(identifier.value, type, ParseContext(identifier))
 
     @v_args(inline=True)
     def struct_def(self, name, *entries):
-        return StructType(name.value, entries)
+        return StructType(name.value, entries, ParseContext(name))
 
     @v_args(inline=True)
-    def loop(self, code_block):
-        return Loop(code_block.children)
+    def loop(self, keyword, code_block):
+        return Loop(ParseContext(keyword), code_block.children)
 
     def translation_unit(self, entries):
         global_scope = GlobalScope()
@@ -136,32 +151,44 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def variable_def(self, name, var_type, value):
-        return VariableDefinition(name.value, var_type, value)
+        return VariableDefinition(ParseContext(name), name.value, var_type, value)
 
     @v_args(inline=True)
     def variable_dec(self, name, var_type):
-        return VariableDeclaration(name.value, var_type)
+        return VariableDeclaration(ParseContext(name), name.value, var_type)
 
     @v_args(inline=True)
     def variable_assign(self, variable_access, value):
-        return VariableAssign(variable_access, value)
+        return VariableAssign(variable_access.context, variable_access, value)
 
     @v_args(inline=True)
     def compare_expr(self, op1, operator, op2):
         return OperatorExpression(
-            VariableType(VariableTypeEnum.UNKNOWN), op1, op2, operator.value
+            VariableType(VariableTypeEnum.UNKNOWN),
+            op1.context,
+            op1,
+            op2,
+            operator.value,
         )
 
     @v_args(inline=True)
     def add_sub_expr(self, op1, operator, op2):
         return OperatorExpression(
-            VariableType(VariableTypeEnum.UNKNOWN), op1, op2, operator.value
+            VariableType(VariableTypeEnum.UNKNOWN),
+            op1.context,
+            op1,
+            op2,
+            operator.value,
         )
 
     @v_args(inline=True)
     def mul_div_expr(self, op1, operator, op2):
         return OperatorExpression(
-            VariableType(VariableTypeEnum.UNKNOWN), op1, op2, operator.value
+            VariableType(VariableTypeEnum.UNKNOWN),
+            op1.context,
+            op1,
+            op2,
+            operator.value,
         )
 
     @v_args(inline=True)
@@ -169,6 +196,7 @@ class ASTTransformer(Transformer):
         if len(elif_else) > 0:
             if isinstance(elif_else[-1], Else):
                 return If(
+                    compare_expr.context,
                     compare_expr,
                     code_block.children,
                     else_statement=elif_else[-1],
@@ -176,37 +204,36 @@ class ASTTransformer(Transformer):
                 )
             else:
                 return If(
+                    compare_expr.context,
                     compare_expr,
                     code_block.children,
                     elif_statements=elif_else,
                 )
         else:
-            return If(compare_expr, code_block.children)
+            return If(compare_expr.context, compare_expr, code_block.children)
 
     @v_args(inline=True)
     def elif_statement(self, compare_expr, code_block):
-        return Elif(compare_expr, code_block.children)
+        return Elif(compare_expr.context, compare_expr, code_block.children)
 
     @v_args(inline=True)
-    def else_statement(self, code_block):
-        return Else(code_block.children)
+    def else_statement(self, keyword, code_block):
+        return Else(ParseContext(keyword), code_block.children)
 
     @v_args(inline=True)
     def control(self, keyword, return_value=None):
         if keyword == "break":
-            return Break()
+            return Break(ParseContext(keyword))
         elif keyword == "continue":
-            return Continue()
+            return Continue(ParseContext(keyword))
         elif keyword == "return":
-            return Return(return_value)
+            return Return(ParseContext(keyword), return_value)
         else:
             raise InternalCompilerError("Unknown control keyword")
 
     @v_args(inline=True)
     def array_access(self, expression):
-        aa = ArrayAccess()
-        aa.expression = expression
-        return aa
+        return ArrayAccess(expression, expression.context)
 
     @v_args(inline=True)
     def var_access(self, variable, *args):
@@ -222,6 +249,7 @@ class ASTTransformer(Transformer):
 
         return VariableAccess(
             VariableType(VariableTypeEnum.UNKNOWN),
+            ParseContext(variable),
             variable.value,
             array_access,
             variable_access,

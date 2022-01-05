@@ -11,6 +11,15 @@ def parser():
     return Parser()
 
 
+def parse(code):
+    parser = Parser()
+    try:
+        parser.parse(code)
+    except ContextException as ex:
+        ex.print(code)
+        raise ex
+
+
 def run(code):
     try:
         parser = Parser()

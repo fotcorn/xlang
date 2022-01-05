@@ -1,11 +1,11 @@
 import pytest
+from .conftest import parse
 from xlang.exceptions import UnexpectedCharacterException, UnexpectedTokenException
-from xlang.parser import Parser
 
 
-def test_missing_semicolon(parser: Parser):
+def test_missing_semicolon():
     with pytest.raises(UnexpectedTokenException):
-        parser.parse(
+        parse(
             """
             main() {
                 printi(5)
@@ -14,9 +14,9 @@ def test_missing_semicolon(parser: Parser):
         )
 
 
-def test_missing_bracket(parser: Parser):
+def test_missing_bracket():
     with pytest.raises(UnexpectedTokenException):
-        parser.parse(
+        parse(
             """
             main() {
                 printi(5);
@@ -24,9 +24,9 @@ def test_missing_bracket(parser: Parser):
         )
 
 
-def test_unclosed_string(parser: Parser):
+def test_unclosed_string():
     with pytest.raises(UnexpectedCharacterException):
-        parser.parse(
+        parse(
             """
             main() {
                 prints("

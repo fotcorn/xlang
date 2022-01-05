@@ -45,10 +45,10 @@ NUMBER_TYPES = INTEGER_TYPES + (PrimitiveType.FLOAT,)
 
 @dataclass
 class ParseContext:
-    start_pos: int
-    end_pos: int
-    line: int
-    column: int
+    start_pos: int = 0
+    end_pos: int = 0
+    line: int = 0
+    column: int = 0
     builtin: bool = False
 
     def __init__(self, token):
@@ -59,6 +59,12 @@ class ParseContext:
             self.column = token.column
         else:
             self.builtin = True
+
+    def __repr__(self) -> str:
+        if self.builtin:
+            return "<builtin>"
+        else:
+            return f"line: {self.line}, column: {self.column}"
 
 
 @dataclass

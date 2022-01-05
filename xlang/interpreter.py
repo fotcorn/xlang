@@ -339,7 +339,7 @@ class Interpreter:
             evaluated_params.append(evaluated_param)
 
         if isinstance(function, BuiltinFunction):
-            function.function_ptr(evaluated_params)
+            function.function_ptr(evaluated_params, context=func_call.context)
         else:
             old_scope_stack = self.scope_stack
             self.scope_stack = ScopeStack()

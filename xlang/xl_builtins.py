@@ -11,21 +11,21 @@ from xlang.xl_ast import (
 from xlang.interpreter import Value
 
 
-def print_builtin(values: List[Value]):
+def print_builtin(values: List[Value], *args, **kwargs):
     print(values[0].value)
 
 
-def append_builtin(values: List[Value]):
+def append_builtin(values: List[Value], *args, **kwargs):
     array, value = values
     array.value.append(value)
 
 
-def assert_builtin(values: List[Value]):
+def assert_builtin(values: List[Value], context, *args, **kwargs):
     assert len(values) == 1
     if values[0].primitive_type != PrimitiveType.BOOL:
         raise Exception("assert: expression is not a boolean")
     if values[0].value is not True:
-        raise InterpreterAssertionError("assertion failed")
+        raise InterpreterAssertionError("assertion failed", context)
 
 
 def get_builtins() -> List[BuiltinFunction]:

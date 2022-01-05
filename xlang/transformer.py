@@ -23,7 +23,8 @@ from xlang.xl_ast import (
     VariableAssign,
     VariableType,
     VariableTypeEnum,
-    OperatorExpression,
+    MathOperation,
+    CompareOperation,
     Return,
     BaseExpression,
 )
@@ -171,7 +172,7 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def compare_expr(self, op1, operator, op2):
-        return OperatorExpression(
+        return CompareOperation(
             VariableType(VariableTypeEnum.UNKNOWN),
             op1.context,
             op1,
@@ -181,7 +182,7 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def add_sub_expr(self, op1, operator, op2):
-        return OperatorExpression(
+        return MathOperation(
             VariableType(VariableTypeEnum.UNKNOWN),
             op1.context,
             op1,
@@ -191,7 +192,7 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def mul_div_expr(self, op1, operator, op2):
-        return OperatorExpression(
+        return MathOperation(
             VariableType(VariableTypeEnum.UNKNOWN),
             op1.context,
             op1,

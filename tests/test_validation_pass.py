@@ -1,4 +1,5 @@
 import pytest
+from xlang.exceptions import TypeMismatchException
 
 from xlang.xl_ast import GlobalScope, VariableTypeEnum, PrimitiveType
 from xlang.parser import Parser
@@ -283,4 +284,40 @@ def test_variable_type_set_mismatch_func(parser: Parser):
         """
     )
     with pytest.raises(Exception):
+        validation_pass(ast)
+
+
+def test_compare_operator_type_ok(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        main() {
+            a: bool = 1 == 1;
+        }
+        """
+    )
+    validation_pass(ast)
+
+
+def test_compare_operator_type_fail(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        main() {
+            a: int = 1 == 1;
+        }
+        """
+    )
+    with pytest.raises(TypeMismatchException):
+        validation_pass(ast)
+
+
+def test_compare_operator_type_fail2(parser: Parser):
+    ast: GlobalScope = parser.parse(
+        """
+        main() {
+            s: string = "test";
+            a: bool = 1 == s;
+        }
+        """
+    )
+    with pytest.raises(TypeMismatchException):
         validation_pass(ast)

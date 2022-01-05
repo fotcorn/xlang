@@ -112,7 +112,14 @@ class Constant(BaseExpression):
 
 
 @dataclass
-class OperatorExpression(BaseExpression):
+class MathOperation(BaseExpression):
+    operand1: BaseExpression
+    operand2: BaseExpression
+    operator: str
+
+
+@dataclass
+class CompareOperation(BaseExpression):
     operand1: BaseExpression
     operand2: BaseExpression
     operator: str

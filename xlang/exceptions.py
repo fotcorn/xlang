@@ -100,3 +100,7 @@ class FunctionAlreadyDefinedException(ContextException):
 
 class StructAlreadyDefinedException(ContextException):
     pass
+
+
+class TypeMismatchException(ContextException):
+    pass

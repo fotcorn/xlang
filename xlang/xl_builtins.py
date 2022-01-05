@@ -76,6 +76,21 @@ def get_builtins() -> List[BuiltinFunction]:
             print_builtin,
         ),
         BuiltinFunction(
+            "printb",
+            None,
+            [
+                FunctionParameter(
+                    name="value",
+                    context=ParseContext(None),
+                    param_type=VariableType(
+                        variable_type=VariableTypeEnum.PRIMITIVE,
+                        primitive_type=PrimitiveType.BOOL,
+                    ),
+                )
+            ],
+            print_builtin,
+        ),
+        BuiltinFunction(
             "appendi",
             None,
             [

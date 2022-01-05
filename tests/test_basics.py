@@ -61,7 +61,7 @@ def test_compare(parser: Parser):
     ast: GlobalScope = parser.parse(
         """
         main() {
-            printi(5 != 3);
+            printb(5 != 3);
         }
         """
     )

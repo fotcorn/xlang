@@ -13,7 +13,8 @@ from xlang.xl_ast import (
     VariableAccess,
     Constant,
     ConstantType,
-    OperatorExpression,
+    MathOperation,
+    CompareOperation,
     VariableAssign,
     Function,
     Loop,
@@ -24,7 +25,11 @@ from xlang.xl_ast import (
     BuiltinFunction,
 )
 from xlang.xl_types import typeify, is_type_compatible, primitive_type_from_constant
-from xlang.exceptions import ContextException, InternalCompilerError
+from xlang.exceptions import (
+    ContextException,
+    InternalCompilerError,
+    TypeMismatchException,
+)
 
 
 class ScopeStack:
@@ -75,7 +80,9 @@ class Typeifier:
             self.scope_stack.def_variable(statement.name, statement.variable_type)
             value_type = self.expression(statement.value)
             if not is_type_compatible(statement.variable_type, value_type):
-                raise Exception("Incompatible value type")
+                raise TypeMismatchException(
+                    "Incompatible value type", statement.context
+                )
         elif isinstance(statement, VariableAssign):
             value_type = self.expression(statement.value)
             variable_type = self.expression(statement.variable_access)
@@ -84,7 +91,9 @@ class Typeifier:
                     f"Unknown variable {statement.variable_access.variable_name}"
                 )
             if not is_type_compatible(variable_type, value_type):
-                raise Exception("Incompatible value type")
+                raise TypeMismatchException(
+                    "Incompatible value type", statement.context
+                )
         elif isinstance(statement, FunctionCall):
             self.function_call(statement)
         elif isinstance(statement, Loop):
@@ -97,7 +106,13 @@ class Typeifier:
                 self.inside_loop = False
         elif isinstance(statement, If):
             value_type = self.expression(statement.condition)
-            # todo: check if value_type is bool or convertable to bool
+            if (
+                value_type.variable_type != VariableTypeEnum.PRIMITIVE
+                or value_type.primitive_type != PrimitiveType.BOOL
+            ):
+                raise ContextException(
+                    "If statement expression is not bool", statement.condition.context
+                )
             self.scope_stack.push_scope()
             self.statements(statement.statements)
             self.scope_stack.pop_scope()
@@ -211,7 +226,7 @@ class Typeifier:
             else:
                 raise InternalCompilerError("Unknown constant type")
 
-        elif isinstance(expression, OperatorExpression):
+        elif isinstance(expression, MathOperation):
             operand1_type = self.expression(expression.operand1)
             operand2_type = self.expression(expression.operand2)
             if is_type_compatible(operand1_type, operand2_type):
@@ -220,6 +235,18 @@ class Typeifier:
                 expression.type = operand2_type
             else:
                 raise Exception("Incompatible type in operator expressions")
+        elif isinstance(expression, CompareOperation):
+            operand1_type = self.expression(expression.operand1)
+            operand2_type = self.expression(expression.operand2)
+            if not is_type_compatible(
+                operand1_type, operand2_type
+            ) or not is_type_compatible(operand2_type, operand1_type):
+                raise TypeMismatchException(
+                    "Operands cannot be compared", expression.context
+                )
+            expression.type = VariableType(
+                VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.BOOL
+            )
         else:
             raise InternalCompilerError("Unknown expression")
         return expression.type
@@ -244,7 +271,9 @@ class Typeifier:
         ):
             expression_type = self.expression(param)
             if not is_type_compatible(param_type_name.param_type, expression_type):
-                raise Exception("Invalid function parameter type")
+                raise TypeMismatchException(
+                    "Invalid function parameter type", param.context
+                )
         return function.return_type
 
 

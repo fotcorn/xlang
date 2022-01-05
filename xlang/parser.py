@@ -1,6 +1,8 @@
 import os
 
 from lark import Lark
+from lark.exceptions import VisitError
+from xlang.exceptions import ContextException
 
 from xlang.transformer import ASTTransformer
 
@@ -17,4 +19,8 @@ class Parser:
 
     def parse(self, source_code):
         tree = self.lark_parser.parse(source_code)
-        return self.transformer.transform(tree)
+        try:
+            return self.transformer.transform(tree)
+        except VisitError as ex:
+            if isinstance(ex.orig_exc, ContextException):
+                raise ex.orig_exc

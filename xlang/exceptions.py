@@ -41,3 +41,11 @@ class ContextException(Exception):
 
 class InterpreterAssertionError(ContextException):
     pass
+
+
+class FunctionAlreadyDefinedException(ContextException):
+    pass
+
+
+class StructAlreadyDefinedException(ContextException):
+    pass

@@ -1,4 +1,6 @@
+from xlang.exceptions import FunctionAlreadyDefinedException
 from .conftest import run
+import pytest
 
 
 def test_function_int_return():
@@ -63,3 +65,13 @@ def test_function_struct_param_copy():
         }
         """
     )
+
+
+def test_duplicate_function():
+    with pytest.raises(FunctionAlreadyDefinedException):
+        run(
+            """
+            a() {}
+            a() {}
+            """
+        )

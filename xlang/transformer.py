@@ -28,7 +28,11 @@ from xlang.xl_ast import (
     BaseExpression,
 )
 from xlang.xl_builtins import get_builtins
-from xlang.exceptions import InternalCompilerError
+from xlang.exceptions import (
+    FunctionAlreadyDefinedException,
+    InternalCompilerError,
+    StructAlreadyDefinedException,
+)
 
 
 @dataclass
@@ -137,13 +141,17 @@ class ASTTransformer(Transformer):
         for entry in entries:
             if isinstance(entry, Function):
                 if entry.name in global_scope.functions:
-                    raise Exception(
-                        f"function with name {entry.name} is already defined"
+                    raise FunctionAlreadyDefinedException(
+                        f'Function with name "{entry.name}" is already defined',
+                        entry.context,
                     )
                 global_scope.functions[entry.name] = entry
             elif isinstance(entry, StructType):
                 if entry.name in global_scope.structs:
-                    raise Exception(f"struct with name {entry.name} is already defined")
+                    raise StructAlreadyDefinedException(
+                        f'Struct with name "{entry.name}" is already defined',
+                        entry.context,
+                    )
                 global_scope.structs[entry.name] = entry
             else:
                 raise InternalCompilerError("Unknown entry in global scope")

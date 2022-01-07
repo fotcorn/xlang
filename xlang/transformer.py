@@ -75,9 +75,7 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def function_param(self, identifier, param_type):
-        return FunctionParameter(
-            identifier.value, param_type, ParseContext(identifier), False
-        )
+        return FunctionParameter(identifier.value, param_type, ParseContext(identifier))
 
     def function_params(self, params):
         assert len(params) in [1, 2]

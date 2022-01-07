@@ -104,7 +104,6 @@ def get_builtins() -> List[BuiltinFunction]:
                             primitive_type=PrimitiveType.I64,
                         ),
                     ),
-                    inout=True,
                 ),
                 FunctionParameter(
                     name="value",
@@ -131,7 +130,6 @@ def get_builtins() -> List[BuiltinFunction]:
                             primitive_type=PrimitiveType.STRING,
                         ),
                     ),
-                    inout=True,
                 ),
                 FunctionParameter(
                     name="value",
@@ -158,7 +156,6 @@ def get_builtins() -> List[BuiltinFunction]:
                             primitive_type=PrimitiveType.FLOAT,
                         ),
                     ),
-                    inout=True,
                 ),
                 FunctionParameter(
                     name="value",

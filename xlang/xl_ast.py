@@ -177,7 +177,7 @@ class IdentifierAndType:
 
 @dataclass
 class FunctionParameter(IdentifierAndType):
-    inout: bool = False
+    pass
 
 
 @dataclass

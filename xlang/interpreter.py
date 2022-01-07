@@ -333,7 +333,8 @@ class Interpreter:
         evaluated_params = []
         for i, param in enumerate(func_call.params):
             evaluated_param = self.expression(param)
-            if function.function_params[i].inout is False:
+            # todo: temporary until we have references
+            if not isinstance(function, BuiltinFunction):
                 evaluated_param = copy.deepcopy(evaluated_param)
             evaluated_params.append(evaluated_param)
 

@@ -110,7 +110,7 @@ class Typeifier:
                 value_type.variable_type != VariableTypeEnum.PRIMITIVE
                 or value_type.primitive_type != PrimitiveType.BOOL
             ):
-                raise ContextException(
+                raise TypeMismatchException(
                     "If statement expression is not bool", statement.condition.context
                 )
             self.scope_stack.push_scope()
@@ -121,7 +121,15 @@ class Typeifier:
                 self.statements(statement.else_statement.statements)
                 self.scope_stack.pop_scope()
             for elif_statement in statement.elif_statements:
-                self.expression(elif_statement.condition)
+                value_type = self.expression(elif_statement.condition)
+                if (
+                    value_type.variable_type != VariableTypeEnum.PRIMITIVE
+                    or value_type.primitive_type != PrimitiveType.BOOL
+                ):
+                    raise TypeMismatchException(
+                        "Elif statement expression is not bool",
+                        statement.condition.context,
+                    )
                 self.scope_stack.push_scope()
                 self.statements(elif_statement.statements)
                 self.scope_stack.pop_scope()

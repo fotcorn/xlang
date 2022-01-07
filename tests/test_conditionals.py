@@ -1,4 +1,6 @@
-from .conftest import run
+import pytest
+from xlang.exceptions import TypeMismatchException
+from .conftest import run, validate
 
 
 # if/else
@@ -201,3 +203,26 @@ def test_elifelse3():
         }
         """
     )
+
+
+def test_if_working_with_bool_only():
+    with pytest.raises(TypeMismatchException):
+        validate(
+            """
+            main() {
+                if (5) {}
+            }
+            """
+        )
+
+
+def test_elif_working_with_bool_only():
+    with pytest.raises(TypeMismatchException):
+        validate(
+            """
+            main() {
+                if (false) {}
+                elif (5) {}
+            }
+            """
+        )

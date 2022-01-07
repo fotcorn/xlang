@@ -35,3 +35,5 @@ class Parser:
         except VisitError as ex:
             if isinstance(ex.orig_exc, ContextException):
                 raise ex.orig_exc
+            else:
+                raise ex

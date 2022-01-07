@@ -42,27 +42,6 @@ class Value:
     is_array: bool = False
     type_name: Optional[str] = None  # for structs and enums
 
-    def is_truthy(self):
-        if self.is_array:
-            # arrays with items are truthy
-            return len(self.value) > 0
-        elif self.type == ValueType.PRIMITIVE:
-            if self.primitive_type in INTEGER_TYPES:
-                # all integers different from 0 are truthy
-                return self.value != 0
-            elif self.primitive_type == PrimitiveType.STRING:
-                return self.value == ""
-            elif self.primitive_type == PrimitiveType.FLOAT:
-                # all integers other than 0.0 are truthy, including Nan and Infinity
-                return self.value != 0.0
-            elif self.primitive_type == PrimitiveType.BOOL:
-                # true is truthy
-                return self.value is True
-        elif self.type == ValueType.STRUCT:
-            raise Exception("Compiler error: structs do not have truthy/falsy value")
-        else:
-            raise InternalCompilerError("Compiler error: unhandled variable type")
-
 
 class ScopeStack:
     def __init__(self):
@@ -145,7 +124,15 @@ class Interpreter:
             return execution_change
         elif isinstance(statement, If):
             value = self.expression(statement.condition)
-            if value.is_truthy():
+            if (
+                value.type != ValueType.PRIMITIVE
+                or value.primitive_type != PrimitiveType.BOOL
+            ):
+                raise InternalCompilerError(
+                    "Returned value from if expression is not bool, "
+                    "should have been checked by validation pass"
+                )
+            if value.value is True:
                 execution_change = None
                 self.scope_stack.push_scope()
                 for statement in statement.statements:
@@ -157,7 +144,15 @@ class Interpreter:
 
             for elif_statement in statement.elif_statements:
                 value = self.expression(elif_statement.condition)
-                if value.is_truthy():
+                if (
+                    value.type != ValueType.PRIMITIVE
+                    or value.primitive_type != PrimitiveType.BOOL
+                ):
+                    raise InternalCompilerError(
+                        "Returned value from elif expression is not bool, "
+                        "should have been checked by validation pass"
+                    )
+                if value.value is True:
                     execution_change = None
                     self.scope_stack.push_scope()
                     for statement in elif_statement.statements:

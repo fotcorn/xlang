@@ -1,14 +1,8 @@
-import pytest
 from xlang.parser import Parser
 from xlang.xl_ast import GlobalScope
 from xlang.interpreter import Interpreter
 from xlang.validation_pass import validation_pass
 from xlang.exceptions import ContextException
-
-
-@pytest.fixture
-def parser():
-    return Parser()
 
 
 def parse(code):

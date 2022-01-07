@@ -1,21 +1,18 @@
-from xlang.xl_ast import GlobalScope
-from xlang.parser import Parser
-from xlang.validation_pass import validation_pass
+from .conftest import validate
 
 
-def test_definition(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_definition():
+    validate(
         """
         main() {
             array: [int];
         }
         """
     )
-    validation_pass(ast)
 
 
-def test_access(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_access():
+    validate(
         """
         struct MyStruct {
             a: int,
@@ -30,4 +27,3 @@ def test_access(parser: Parser):
         }
         """
     )
-    validation_pass(ast)

@@ -1,13 +1,10 @@
 import pytest
 from xlang.exceptions import StructAlreadyDefinedException
-
-from xlang.xl_ast import GlobalScope
-from xlang.parser import Parser
-from xlang.validation_pass import validation_pass
+from .conftest import validate
 
 
-def test_struct(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_struct():
+    ast = validate(
         """
         struct SubStruct {
             x: int,
@@ -47,15 +44,13 @@ def test_struct(parser: Parser):
         """
     )
 
-    validation_pass(ast)
-
     assert len(ast.structs) == 2
     assert "main" in ast.functions
 
 
-def test_duplicate_struct(parser: Parser):
+def test_duplicate_struct():
     with pytest.raises(StructAlreadyDefinedException):
-        parser.parse(
+        validate(
             """
             struct MyStruct {
                 a: int,

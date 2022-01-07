@@ -1,10 +1,9 @@
-from xlang.xl_ast import Function, GlobalScope
-from xlang.parser import Parser
-from xlang.validation_pass import validation_pass
+from xlang.xl_ast import Function
+from .conftest import validate
 
 
-def test_hello(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_hello():
+    ast = validate(
         """
         main() {
             a: int = 5;
@@ -12,8 +11,6 @@ def test_hello(parser: Parser):
         }
         """
     )
-
-    validation_pass(ast)
 
     assert "main" in ast.functions
 
@@ -23,8 +20,8 @@ def test_hello(parser: Parser):
     assert len(func.statements) == 2
 
 
-def test_string(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_string():
+    validate(
         """
         main() {
             prints("Hello World!");
@@ -32,44 +29,40 @@ def test_string(parser: Parser):
         }
         """
     )
-    validation_pass(ast)
 
 
-def test_add(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_add():
+    validate(
         """
         main() {
             printi(5 + 3);
         }
         """
     )
-    validation_pass(ast)
 
 
-def test_mul(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_mul():
+    validate(
         """
         main() {
             printi(5 * 3);
         }
         """
     )
-    validation_pass(ast)
 
 
-def test_compare(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_compare():
+    validate(
         """
         main() {
             printb(5 != 3);
         }
         """
     )
-    validation_pass(ast)
 
 
-def test_return(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_return():
+    validate(
         """
         a() {
             return;
@@ -79,11 +72,10 @@ def test_return(parser: Parser):
         }
         """
     )
-    validation_pass(ast)
 
 
-def test_function(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_function():
+    validate(
         """
         a() {
         }
@@ -99,11 +91,10 @@ def test_function(parser: Parser):
         }
         """
     )
-    validation_pass(ast)
 
 
-def test_variables(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_variables():
+    ast = validate(
         """
         test(): int {
             return 5;
@@ -123,12 +114,11 @@ def test_variables(parser: Parser):
         """
     )
 
-    validation_pass(ast)
     assert "main" in ast.functions
 
 
-def test_loop(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_loop():
+    validate(
         """
         main() {
             i: int = 0;
@@ -142,11 +132,10 @@ def test_loop(parser: Parser):
         }
         """
     )
-    validation_pass(ast)
 
 
-def test_parens(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_parens():
+    validate(
         """
         main() {
             printi(1 + 2 * 3);
@@ -154,4 +143,3 @@ def test_parens(parser: Parser):
         }
         """
     )
-    validation_pass(ast)

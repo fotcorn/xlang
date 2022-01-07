@@ -1,13 +1,11 @@
 import pytest
+from xlang.xl_ast import VariableTypeEnum, PrimitiveType
 from xlang.exceptions import TypeMismatchException
-
-from xlang.xl_ast import GlobalScope, VariableTypeEnum, PrimitiveType
-from xlang.parser import Parser
-from xlang.validation_pass import validation_pass
+from .conftest import validate
 
 
-def test_validation_pass(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_validation_pass():
+    ast = validate(
         """
         struct MyStruct {
             a: int,
@@ -25,8 +23,6 @@ def test_validation_pass(parser: Parser):
         }
         """
     )
-
-    validation_pass(ast)
 
     assert "intfunc" in ast.functions
     assert "main" in ast.functions
@@ -65,20 +61,19 @@ def test_validation_pass(parser: Parser):
     assert params[3].name == "d"
 
 
-def test_non_existing_type(parser: Parser):
-    ast: GlobalScope = parser.parse(
-        """
-        func(): NonExistingType {
-            return 5;
-        }
-        """
-    )
+def test_non_existing_type():
     with pytest.raises(Exception):
-        validation_pass(ast)
+        validate(
+            """
+            func(): NonExistingType {
+                return 5;
+            }
+            """
+        )
 
 
-def test_inside_loop_continue(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_inside_loop_continue():
+    validate(
         """
         func() {
             loop {
@@ -93,11 +88,10 @@ def test_inside_loop_continue(parser: Parser):
         }
         """
     )
-    validation_pass(ast)
 
 
-def test_inside_loop_break(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_inside_loop_break():
+    validate(
         """
         func() {
             loop {
@@ -112,46 +106,42 @@ def test_inside_loop_break(parser: Parser):
         }
         """
     )
-    validation_pass(ast)
 
 
-def test_inside_loop_continue_fail(parser: Parser):
-    ast: GlobalScope = parser.parse(
-        """
-        func() {
-            continue;
-        }
-        """
-    )
+def test_inside_loop_continue_fail():
     with pytest.raises(Exception):
-        validation_pass(ast)
+        validate(
+            """
+            func() {
+                continue;
+            }
+            """
+        )
 
 
-def test_inside_loop_break_fail(parser: Parser):
-    ast: GlobalScope = parser.parse(
-        """
-        func() {
-            break;
-        }
-        """
-    )
+def test_inside_loop_break_fail():
     with pytest.raises(Exception):
-        validation_pass(ast)
+        validate(
+            """
+            func() {
+                break;
+            }
+            """
+        )
 
 
-def test_bool(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_bool():
+    validate(
         """
         main() {
             b: bool = false;
         }
         """
     )
-    validation_pass(ast)
 
 
-def test_array_access(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_array_access():
+    validate(
         """
         append(array: [int], value: int) {}
 
@@ -162,11 +152,10 @@ def test_array_access(parser: Parser):
         }
         """
     )
-    validation_pass(ast)
 
 
-def test_struct_access(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_struct_access():
+    validate(
         """
         struct B {
             c: float,
@@ -193,131 +182,120 @@ def test_struct_access(parser: Parser):
         }
         """
     )
-    validation_pass(ast)
 
 
-def test_function_param_access(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_function_param_access():
+    validate(
         """
         main(a: int) {
             printi(a);
         }
         """
     )
-    validation_pass(ast)
 
 
-def test_function_param_override_error(parser: Parser):
-    ast: GlobalScope = parser.parse(
-        """
-        main(a: int) {
-            a: int = 5;
-        }
-        """
-    )
+def test_function_param_override_error():
     with pytest.raises(Exception):
-        validation_pass(ast)
+        validate(
+            """
+            main(a: int) {
+                a: int = 5;
+            }
+            """
+        )
 
 
-def test_variable_type_declaration_mismatch(parser: Parser):
-    ast: GlobalScope = parser.parse(
-        """
-        main(a: int) {
-            a: int = "test";
-        }
-        """
-    )
+def test_variable_type_declaration_mismatch():
     with pytest.raises(Exception):
-        validation_pass(ast)
+        validate(
+            """
+            main(a: int) {
+                a: int = "test";
+            }
+            """
+        )
 
 
-def test_variable_type_declaration_mismatch2(parser: Parser):
-    ast: GlobalScope = parser.parse(
-        """
-        main(a: int) {
-            a: string = 1;
-        }
-        """
-    )
+def test_variable_type_declaration_mismatch2():
     with pytest.raises(Exception):
-        validation_pass(ast)
+        validate(
+            """
+            main(a: int) {
+                a: string = 1;
+            }
+            """
+        )
 
 
-def test_variable_type_set_mismatch(parser: Parser):
-    ast: GlobalScope = parser.parse(
-        """
-        main(a: int) {
-            a: int;
-            a = "string";
-        }
-        """
-    )
+def test_variable_type_set_mismatch():
     with pytest.raises(Exception):
-        validation_pass(ast)
+        validate(
+            """
+            main(a: int) {
+                a: int;
+                a = "string";
+            }
+            """
+        )
 
 
-def test_variable_type_declaration_mismatch_func(parser: Parser):
-    ast: GlobalScope = parser.parse(
-        """
-        func(): int {
-            return 5;
-        }
-        main(a: int) {
-            a: string = func();
-        }
-        """
-    )
+def test_variable_type_declaration_mismatch_func():
     with pytest.raises(Exception):
-        validation_pass(ast)
+        validate(
+            """
+            func(): int {
+                return 5;
+            }
+            main(a: int) {
+                a: string = func();
+            }
+            """
+        )
 
 
-def test_variable_type_set_mismatch_func(parser: Parser):
-    ast: GlobalScope = parser.parse(
-        """
-        func(): int {
-            return 5;
-        }
-        main(a: int) {
-            a: string;
-            a = func();
-        }
-        """
-    )
+def test_variable_type_set_mismatch_func():
     with pytest.raises(Exception):
-        validation_pass(ast)
+        validate(
+            """
+            func(): int {
+                return 5;
+            }
+            main(a: int) {
+                a: string;
+                a = func();
+            }
+            """
+        )
 
 
-def test_compare_operator_type_ok(parser: Parser):
-    ast: GlobalScope = parser.parse(
+def test_compare_operator_type_ok():
+    validate(
         """
         main() {
             a: bool = 1 == 1;
         }
         """
     )
-    validation_pass(ast)
 
 
-def test_compare_operator_type_fail(parser: Parser):
-    ast: GlobalScope = parser.parse(
-        """
-        main() {
-            a: int = 1 == 1;
-        }
-        """
-    )
+def test_compare_operator_type_fail():
     with pytest.raises(TypeMismatchException):
-        validation_pass(ast)
+        validate(
+            """
+            main() {
+                a: int = 1 == 1;
+            }
+            """
+        )
 
 
-def test_compare_operator_type_fail2(parser: Parser):
-    ast: GlobalScope = parser.parse(
-        """
-        main() {
-            s: string = "test";
-            a: bool = 1 == s;
-        }
-        """
-    )
+def test_compare_operator_type_fail2():
     with pytest.raises(TypeMismatchException):
-        validation_pass(ast)
+        validate(
+            """
+            main() {
+                s: string = "test";
+                a: bool = 1 == s;
+            }
+            """
+        )

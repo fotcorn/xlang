@@ -20,6 +20,17 @@ def parse(code):
         raise ex
 
 
+def validate(code):
+    try:
+        parser = Parser()
+        ast: GlobalScope = parser.parse(code)
+        validation_pass(ast)
+    except ContextException as ex:
+        ex.print(code)
+        raise ex
+    return ast
+
+
 def run(code):
     try:
         parser = Parser()

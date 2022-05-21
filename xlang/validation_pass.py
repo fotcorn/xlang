@@ -248,7 +248,7 @@ class Typeifier:
             operand2_type = self.expression(expression.operand2)
             if not is_type_compatible(
                 operand1_type, operand2_type
-            ) or not is_type_compatible(operand2_type, operand1_type):
+            ) and not is_type_compatible(operand2_type, operand1_type):
                 raise TypeMismatchException(
                     "Operands cannot be compared", expression.context
                 )

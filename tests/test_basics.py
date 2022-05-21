@@ -1,5 +1,7 @@
+from xlang.exceptions import ContextException
 from xlang.xl_ast import Function
 from .conftest import validate
+import pytest
 
 
 def test_hello():
@@ -143,3 +145,47 @@ def test_parens():
         }
         """
     )
+
+
+def test_int_float_literal():
+    validate(
+        """
+        main() {
+            i: int = 5;
+            f: float = 5.0;
+        }
+        """
+    )
+
+
+def test_invalid_int():
+    with pytest.raises(ContextException):
+        validate(
+            """
+            main() {
+                i: int = 5.0;
+            }
+            """
+        )
+
+
+def test_invalid_float():
+    with pytest.raises(ContextException):
+        validate(
+            """
+                main() {
+                    i: float = 5;
+                }
+                """
+        )
+
+
+def test_invalid_float2():
+    with pytest.raises(ContextException):
+        validate(
+            """
+            main() {
+                printi(5.0);
+            }
+            """
+        )

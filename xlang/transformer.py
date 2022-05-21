@@ -53,6 +53,15 @@ class ASTTransformer(Transformer):
         )
 
     @v_args(inline=True)
+    def float_constant(self, value):
+        return Constant(
+            VariableType(VariableTypeEnum.UNKNOWN),
+            ParseContext(value),
+            ConstantType.FLOAT,
+            float(value.value),
+        )
+
+    @v_args(inline=True)
     def string_literal(self, value):
         return Constant(
             VariableType(VariableTypeEnum.UNKNOWN),

@@ -149,16 +149,18 @@ class Typeifier:
                     )
         elif isinstance(statement, Continue):
             if not self.inside_loop:
-                raise Exception("Continue outside loop")
+                raise ContextException("Continue outside loop", statement.context)
         elif isinstance(statement, Break):
             if not self.inside_loop:
-                raise Exception("Break outside loop")
+                raise ContextException("Break outside loop", statement.context)
         else:
             raise InternalCompilerError("Unhandled statement")
 
     def struct_access(self, variable: VariableType, struct_access: VariableAccess):
         if variable.variable_type != VariableTypeEnum.STRUCT:
-            raise Exception("Struct access on non-variable type")
+            raise ContextException(
+                "Struct access on non-variable type", struct_access.context
+            )
         assert variable.type_name
         struct_type = self.global_scope.structs[variable.type_name]
 
@@ -166,7 +168,10 @@ class Typeifier:
             if struct_access.variable_name == member.name:
                 break
         else:
-            raise Exception(f"Unknown struct field: {struct_access.variable_name}")
+            raise ContextException(
+                f"Unknown struct field: {struct_access.variable_name}",
+                struct_access.context,
+            )
 
         if struct_access.array_access is not None:
             expression_type = self.array_access(
@@ -185,12 +190,16 @@ class Typeifier:
     def array_access(self, variable_type, array_access):
         access_type = self.expression(array_access)
         if variable_type.variable_type != VariableTypeEnum.ARRAY:
-            raise Exception("Array access on non-array type")
+            raise ContextException(
+                "Array access on non-array type", array_access.context
+            )
         if (
             access_type.variable_type != VariableTypeEnum.PRIMITIVE
             or access_type.primitive_type not in INTEGER_TYPES
         ):
-            raise Exception("Invalid type for array access")
+            raise ContextException(
+                "Invalid type for array access", array_access.context
+            )
         return variable_type.array_type
 
     def expression(self, expression: BaseExpression):
@@ -245,7 +254,9 @@ class Typeifier:
             elif is_type_compatible(operand2_type, operand1_type):
                 expression.type = operand2_type
             else:
-                raise Exception("Incompatible type in operator expressions")
+                raise ContextException(
+                    "Incompatible type in operator expressions", expression.context
+                )
         elif isinstance(expression, CompareOperation):
             operand1_type = self.expression(expression.operand1)
             operand2_type = self.expression(expression.operand2)
@@ -265,15 +276,19 @@ class Typeifier:
     def function_call(self, expression):
         # check if function actually exists
         if expression.function_name not in self.global_scope.functions:
-            raise Exception(f"Unknown function called: {expression.function_name}")
+            raise ContextException(
+                f"Unknown function called: {expression.function_name}",
+                expression.context,
+            )
         function = self.global_scope.functions[expression.function_name]
 
         # check correct count of params given in call
         if len(expression.params) != len(function.function_params):
-            raise Exception(
+            raise ContextException(
                 f"function {expression.function_name} takes "
                 f"{len(function.function_params)} params, "
-                f"{len(expression.params)} given"
+                f"{len(expression.params)} given",
+                expression.context,
             )
 
         # evaluate parameters and check if type matches

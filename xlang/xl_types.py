@@ -94,6 +94,7 @@ def primitive_type_from_constant(constant):
             raise Exception("Constant out of range")
 
 
+# target => source
 PRIMITIVE_AUTO_CONVERSION = {
     PrimitiveType.U8: [PrimitiveType.U8],
     PrimitiveType.I8: [PrimitiveType.I8],
@@ -125,26 +126,23 @@ PRIMITIVE_AUTO_CONVERSION = {
 }
 
 
-def is_type_compatible(
-    variable_type_a: VariableType, variable_type_b: VariableType
-) -> bool:
-    if variable_type_a.variable_type != variable_type_b.variable_type:
+def is_type_compatible(target_type: VariableType, source_type: VariableType) -> bool:
+    """can source_type be assigned to target_type?"""
+    if target_type.variable_type != source_type.variable_type:
         return False
-    if variable_type_a.variable_type == VariableTypeEnum.ARRAY:
-        assert variable_type_a.array_type
-        assert variable_type_b.array_type
-        return is_type_compatible(
-            variable_type_a.array_type, variable_type_b.array_type
-        )
-    elif variable_type_a.variable_type == VariableTypeEnum.STRUCT:
-        return variable_type_a.type_name == variable_type_b.type_name
-    elif variable_type_a.variable_type == VariableTypeEnum.PRIMITIVE:
-        if variable_type_b.primitive_type in PRIMITIVE_AUTO_CONVERSION:
+    if target_type.variable_type == VariableTypeEnum.ARRAY:
+        assert target_type.array_type
+        assert source_type.array_type
+        return is_type_compatible(target_type.array_type, source_type.array_type)
+    elif target_type.variable_type == VariableTypeEnum.STRUCT:
+        return target_type.type_name == source_type.type_name
+    elif target_type.variable_type == VariableTypeEnum.PRIMITIVE:
+        if target_type.primitive_type in PRIMITIVE_AUTO_CONVERSION:
             return (
-                variable_type_b.primitive_type
-                in PRIMITIVE_AUTO_CONVERSION[variable_type_b.primitive_type]
+                source_type.primitive_type
+                in PRIMITIVE_AUTO_CONVERSION[target_type.primitive_type]
             )
         else:
-            return variable_type_a.primitive_type == variable_type_b.primitive_type
+            return target_type.primitive_type == source_type.primitive_type
     else:
         raise InternalCompilerError("Unhandled type in is_type_compatible")

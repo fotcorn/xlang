@@ -87,8 +87,9 @@ class Typeifier:
             value_type = self.expression(statement.value)
             variable_type = self.expression(statement.variable_access)
             if not variable_type:
-                raise Exception(
-                    f"Unknown variable {statement.variable_access.variable_name}"
+                raise ContextException(
+                    f"Unknown variable {statement.variable_access.variable_name}",
+                    statement.context,
                 )
             if not is_type_compatible(variable_type, value_type):
                 raise TypeMismatchException(
@@ -136,13 +137,15 @@ class Typeifier:
         elif isinstance(statement, Return):
             if statement.value:
                 if not self.function.return_type:
-                    raise Exception(
-                        f"Function has no return type: {self.function.name}"
+                    raise ContextException(
+                        f"Function has no return type: {self.function.name}",
+                        statement.context,
                     )
                 value_type = self.expression(statement.value)
                 if not is_type_compatible(self.function.return_type, value_type):
-                    raise Exception(
-                        "Returned value is incompatible with function return type"
+                    raise ContextException(
+                        "Returned value is incompatible with function return type",
+                        statement.context,
                     )
         elif isinstance(statement, Continue):
             if not self.inside_loop:

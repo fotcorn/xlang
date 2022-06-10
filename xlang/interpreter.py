@@ -3,7 +3,7 @@ from typing import Optional, Any
 from pydantic.dataclasses import dataclass
 import copy
 
-from xlang.exceptions import InternalCompilerError
+from xlang.exceptions import ContextException, InternalCompilerError
 from xlang.xl_ast import (
     INTEGER_TYPES,
     NUMBER_TYPES,
@@ -332,9 +332,13 @@ class Interpreter:
         function = self.global_scope.functions[func_call.function_name]
         evaluated_params = []
         for i, param in enumerate(func_call.params):
+            is_ref_param = function.function_params[i].reference
+            if is_ref_param and not isinstance(param, VariableAccess):
+                raise ContextException(
+                    "Reference parameters can only by variables", param.context
+                )
             evaluated_param = self.expression(param)
-            # todo: temporary until we have references
-            if not isinstance(function, BuiltinFunction):
+            if not is_ref_param:
                 evaluated_param = copy.deepcopy(evaluated_param)
             evaluated_params.append(evaluated_param)
 

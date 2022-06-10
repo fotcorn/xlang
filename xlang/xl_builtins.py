@@ -41,6 +41,7 @@ def get_builtins() -> List[BuiltinFunction]:
                         variable_type=VariableTypeEnum.PRIMITIVE,
                         primitive_type=PrimitiveType.I64,
                     ),
+                    reference=False,
                 )
             ],
             print_builtin,
@@ -56,6 +57,7 @@ def get_builtins() -> List[BuiltinFunction]:
                         variable_type=VariableTypeEnum.PRIMITIVE,
                         primitive_type=PrimitiveType.STRING,
                     ),
+                    reference=False,
                 )
             ],
             print_builtin,
@@ -71,6 +73,7 @@ def get_builtins() -> List[BuiltinFunction]:
                         variable_type=VariableTypeEnum.PRIMITIVE,
                         primitive_type=PrimitiveType.FLOAT,
                     ),
+                    reference=False,
                 )
             ],
             print_builtin,
@@ -86,6 +89,7 @@ def get_builtins() -> List[BuiltinFunction]:
                         variable_type=VariableTypeEnum.PRIMITIVE,
                         primitive_type=PrimitiveType.BOOL,
                     ),
+                    reference=False,
                 )
             ],
             print_builtin,
@@ -104,6 +108,7 @@ def get_builtins() -> List[BuiltinFunction]:
                             primitive_type=PrimitiveType.I64,
                         ),
                     ),
+                    reference=True,
                 ),
                 FunctionParameter(
                     name="value",
@@ -112,6 +117,7 @@ def get_builtins() -> List[BuiltinFunction]:
                         variable_type=VariableTypeEnum.PRIMITIVE,
                         primitive_type=PrimitiveType.I64,
                     ),
+                    reference=False,
                 ),
             ],
             append_builtin,
@@ -130,6 +136,7 @@ def get_builtins() -> List[BuiltinFunction]:
                             primitive_type=PrimitiveType.STRING,
                         ),
                     ),
+                    reference=True,
                 ),
                 FunctionParameter(
                     name="value",
@@ -138,6 +145,7 @@ def get_builtins() -> List[BuiltinFunction]:
                         variable_type=VariableTypeEnum.PRIMITIVE,
                         primitive_type=PrimitiveType.STRING,
                     ),
+                    reference=False,
                 ),
             ],
             append_builtin,
@@ -156,6 +164,7 @@ def get_builtins() -> List[BuiltinFunction]:
                             primitive_type=PrimitiveType.FLOAT,
                         ),
                     ),
+                    reference=True,
                 ),
                 FunctionParameter(
                     name="value",
@@ -164,6 +173,7 @@ def get_builtins() -> List[BuiltinFunction]:
                         variable_type=VariableTypeEnum.PRIMITIVE,
                         primitive_type=PrimitiveType.FLOAT,
                     ),
+                    reference=False,
                 ),
             ],
             append_builtin,
@@ -179,6 +189,7 @@ def get_builtins() -> List[BuiltinFunction]:
                         variable_type=VariableTypeEnum.PRIMITIVE,
                         primitive_type=PrimitiveType.BOOL,
                     ),
+                    reference=False,
                 )
             ],
             assert_builtin,

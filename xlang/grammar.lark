@@ -2,7 +2,7 @@
 
 translation_unit: (struct_def | function_def)* // enum_def
 
-function_param: IDENTIFIER":" type
+!function_param: IDENTIFIER":" "*"? type
 function_params: function_param | function_params "," function_param
 function_def: IDENTIFIER "(" function_params? ")" (":" type)? code_block
 

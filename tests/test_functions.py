@@ -1,4 +1,4 @@
-from xlang.exceptions import FunctionAlreadyDefinedException
+from xlang.exceptions import ContextException, FunctionAlreadyDefinedException
 from .conftest import run
 import pytest
 
@@ -74,4 +74,42 @@ def test_duplicate_function():
             a() {}
             a() {}
             """
+        )
+
+
+def test_reference_func():
+    run(
+        """
+        struct X {
+            a: int,
+        }
+        func_ref(x: *X) {
+            x.a = 5;
+        }
+        func_copy(x: X) {
+            x.a = 6;
+        }
+        main() {
+            x: X;
+            x.a = 1;
+            func_ref(x);
+            assert(x.a == 5);
+            x.a = 2;
+            func_copy(x);
+            assert(x.a == 2);
+        }
+        """
+    )
+
+
+def test_fail_ref_param():
+    with pytest.raises(ContextException):
+        run(
+            """
+            func(a: *int) {
+            }
+            main() {
+                func(5);
+            }
+        """
         )

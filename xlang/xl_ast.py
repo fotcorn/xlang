@@ -177,7 +177,7 @@ class IdentifierAndType:
 
 @dataclass
 class FunctionParameter(IdentifierAndType):
-    pass
+    reference: bool
 
 
 @dataclass

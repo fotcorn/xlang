@@ -14,13 +14,16 @@ from xlang.interpreter import Value
 BUILTINS = []
 
 
-def builtin(name, return_type, params):
+def builtin(name, return_type, params, context=False):
     def decorate(func):
         global BUILTINS
 
         @functools.wraps(func)
         def wrapper(params, **kwargs):
-            return func(*params)
+            if context:
+                return func(*params, context=kwargs["context"])
+            else:
+                return func(*params)
 
         BUILTINS.append(
             BuiltinFunction(
@@ -73,11 +76,9 @@ def append_builtin(values: List[Value], *args, **kwargs):
     array.value.append(value)
 
 
-def assert_builtin(values: List[Value], context, *args, **kwargs):
-    assert len(values) == 1
-    if values[0].primitive_type != PrimitiveType.BOOL:
-        raise Exception("assert: expression is not a boolean")
-    if values[0].value is not True:
+@builtin("assert", None, [prim("value", PrimitiveType.BOOL)], True)
+def builtin_assert(value, context):
+    if value.value is not True:
         raise InterpreterAssertionError("assertion failed", context)
 
 
@@ -165,22 +166,6 @@ BUILTINS += [
             ),
         ],
         append_builtin,
-    ),
-    BuiltinFunction(
-        "assert",
-        None,
-        [
-            FunctionParameter(
-                name="test",
-                context=ParseContext(None),
-                param_type=VariableType(
-                    variable_type=VariableTypeEnum.PRIMITIVE,
-                    primitive_type=PrimitiveType.BOOL,
-                ),
-                reference=False,
-            )
-        ],
-        assert_builtin,
     ),
 ]
 

@@ -1,3 +1,6 @@
 main() {
     prints("Hello World!");
+    printi(5);
+    printf(5.0);
+    printb(false);
 }

@@ -7,3 +7,5 @@ mypy==0.910
 black
 flake8
 pre-commit
+lit
+filecheck

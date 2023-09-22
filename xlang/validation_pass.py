@@ -292,9 +292,7 @@ class Typeifier:
             )
 
         # evaluate parameters and check if type matches
-        for (param, param_type_name) in zip(
-            expression.params, function.function_params
-        ):
+        for param, param_type_name in zip(expression.params, function.function_params):
             expression_type = self.expression(param)
             if not is_type_compatible(param_type_name.param_type, expression_type):
                 raise TypeMismatchException(

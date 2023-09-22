@@ -295,14 +295,10 @@ class Interpreter:
                     "comparision operator between two incompatible primitive types: "
                     f"{operand1_value.primitive_type}, {operand2_value.primitive_type}"
                 )
-            if (
-                operand1_value.primitive_type
-                in (
-                    PrimitiveType.STRING,
-                    PrimitiveType.BOOL,
-                )
-                and expression.operator not in ("==", "!=")
-            ):
+            if operand1_value.primitive_type in (
+                PrimitiveType.STRING,
+                PrimitiveType.BOOL,
+            ) and expression.operator not in ("==", "!="):
                 raise Exception(
                     f"invalid operator for type {operand1_value.primitive_type}"
                 )

@@ -1,10 +1,6 @@
 import re
 from typing import List, Optional
 
-from lark.exceptions import (
-    UnexpectedToken as LarkUnexpectedToken,
-    UnexpectedCharacters as LarkUnexpectedCharacters,
-)
 from xlang.xl_ast import ParseContext
 
 
@@ -72,7 +68,7 @@ class BaseParseException(ContextException):
 
 
 class UnexpectedTokenException(BaseParseException):
-    def __init__(self, ex: LarkUnexpectedToken):
+    def __init__(self, ex):
         super().__init__(
             f'Unexpected token "{ex.token.value}"', ParseContext.from_exception(ex)
         )
@@ -84,7 +80,7 @@ class UnexpectedTokenException(BaseParseException):
 
 
 class UnexpectedCharacterException(BaseParseException):
-    def __init__(self, ex: LarkUnexpectedCharacters):
+    def __init__(self, ex):
         super().__init__(f'Cannot parse "{ex.char}"', ParseContext.from_exception(ex))
 
         # modeled after UnexpectedInput._format_expected

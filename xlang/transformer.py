@@ -39,7 +39,7 @@ class ASTTransformer(Transformer):
     @v_args(inline=True)
     def integer_constant(self, value):
         return Constant(
-            type=VariableType(VariableTypeEnum.UNKNOWN),
+            type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
             context=ParseContext.from_token(value),
             constant_type=ConstantType.INTEGER,
             value=int(value.value),
@@ -48,7 +48,7 @@ class ASTTransformer(Transformer):
     @v_args(inline=True)
     def float_constant(self, value):
         return Constant(
-            type=VariableType(VariableTypeEnum.UNKNOWN),
+            type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
             context=ParseContext.from_token(value),
             constant_type=ConstantType.FLOAT,
             value=float(value.value),
@@ -57,7 +57,7 @@ class ASTTransformer(Transformer):
     @v_args(inline=True)
     def string_literal(self, value):
         return Constant(
-            type=VariableType(VariableTypeEnum.UNKNOWN),
+            type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
             context=ParseContext.from_token(value),
             constant_type=ConstantType.STRING,
             value=value.value[1:-1],
@@ -66,7 +66,7 @@ class ASTTransformer(Transformer):
     @v_args(inline=True)
     def boolean_literal(self, value):
         return Constant(
-            type=VariableType(VariableTypeEnum.UNKNOWN),
+            type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
             context=ParseContext.from_token(value),
             constant_type=ConstantType.BOOL,
             value=value.value == "true",
@@ -74,6 +74,7 @@ class ASTTransformer(Transformer):
 
     def function_call(self, param):
         return FunctionCall(
+            type=None,
             function_name=param[0].value,
             params=param[1:],
             context=ParseContext.from_token(param[0]),
@@ -187,45 +188,56 @@ class ASTTransformer(Transformer):
     @v_args(inline=True)
     def variable_def(self, name, var_type, value):
         return VariableDefinition(
-            ParseContext.from_token(name), name.value, var_type, value
+            context=ParseContext.from_token(name),
+            name=name.value,
+            variable_type=var_type,
+            value=value,
         )
 
     @v_args(inline=True)
     def variable_dec(self, name, var_type):
-        return VariableDeclaration(ParseContext.from_token(name), name.value, var_type)
+        return VariableDeclaration(
+            context=ParseContext.from_token(name),
+            name=name.value,
+            variable_type=var_type,
+        )
 
     @v_args(inline=True)
     def variable_assign(self, variable_access, value):
-        return VariableAssign(variable_access.context, variable_access, value)
+        return VariableAssign(
+            context=variable_access.context,
+            variable_access=variable_access,
+            value=value,
+        )
 
     @v_args(inline=True)
     def compare_expr(self, op1, operator, op2):
         return CompareOperation(
-            VariableType(VariableTypeEnum.UNKNOWN),
-            op1.context,
-            op1,
-            op2,
-            operator.value,
+            type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
+            context=op1.context,
+            operand1=op1,
+            operand2=op2,
+            operator=operator.value,
         )
 
     @v_args(inline=True)
     def add_sub_expr(self, op1, operator, op2):
         return MathOperation(
-            VariableType(VariableTypeEnum.UNKNOWN),
-            op1.context,
-            op1,
-            op2,
-            operator.value,
+            type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
+            context=op1.context,
+            operand1=op1,
+            operand2=op2,
+            operator=operator.value,
         )
 
     @v_args(inline=True)
     def mul_div_expr(self, op1, operator, op2):
         return MathOperation(
-            VariableType(VariableTypeEnum.UNKNOWN),
-            op1.context,
-            op1,
-            op2,
-            operator.value,
+            type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
+            context=op1.context,
+            operand1=op1,
+            operand2=op2,
+            operator=operator.value,
         )
 
     @v_args(inline=True)
@@ -233,44 +245,54 @@ class ASTTransformer(Transformer):
         if len(elif_else) > 0:
             if isinstance(elif_else[-1], Else):
                 return If(
-                    compare_expr.context,
-                    compare_expr,
-                    code_block.children,
+                    context=compare_expr.context,
+                    condition=compare_expr,
+                    statements=code_block.children,
                     else_statement=elif_else[-1],
                     elif_statements=elif_else[:-1],
                 )
             else:
                 return If(
-                    compare_expr.context,
-                    compare_expr,
-                    code_block.children,
+                    context=compare_expr.context,
+                    condition=compare_expr,
+                    statements=code_block.children,
                     elif_statements=elif_else,
                 )
         else:
-            return If(compare_expr.context, compare_expr, code_block.children)
+            return If(
+                context=compare_expr.context,
+                condition=compare_expr,
+                statements=code_block.children,
+            )
 
     @v_args(inline=True)
     def elif_statement(self, compare_expr, code_block):
-        return Elif(compare_expr.context, compare_expr, code_block.children)
+        return Elif(
+            context=compare_expr.context,
+            condition=compare_expr,
+            statements=code_block.children,
+        )
 
     @v_args(inline=True)
     def else_statement(self, keyword, code_block):
-        return Else(ParseContext.from_token(keyword), code_block.children)
+        return Else(
+            context=ParseContext.from_token(keyword), statements=code_block.children
+        )
 
     @v_args(inline=True)
     def control(self, keyword, return_value=None):
         if keyword == "break":
-            return Break(ParseContext.from_token(keyword))
+            return Break(context=ParseContext.from_token(keyword))
         elif keyword == "continue":
-            return Continue(ParseContext.from_token(keyword))
+            return Continue(context=ParseContext.from_token(keyword))
         elif keyword == "return":
-            return Return(ParseContext.from_token(keyword), return_value)
+            return Return(context=ParseContext.from_token(keyword), value=return_value)
         else:
             raise InternalCompilerError("Unknown control keyword")
 
     @v_args(inline=True)
     def array_access(self, expression):
-        return ArrayAccess(expression, expression.context)
+        return ArrayAccess(type=None, expression=expression, context=expression.context)
 
     @v_args(inline=True)
     def var_access(self, variable, *args):
@@ -285,9 +307,9 @@ class ASTTransformer(Transformer):
             array_access, variable_access = args[0].expression, None
 
         return VariableAccess(
-            VariableType(VariableTypeEnum.UNKNOWN),
-            ParseContext.from_token(variable),
-            variable.value,
-            array_access,
-            variable_access,
+            type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
+            context=ParseContext.from_token(variable),
+            variable_name=variable.value,
+            array_access=array_access,
+            variable_access=variable_access,
         )

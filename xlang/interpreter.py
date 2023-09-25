@@ -261,6 +261,8 @@ class Interpreter:
                 value = operand1_value.value % operand2_value.value
             else:
                 raise InternalCompilerError("Unknown operator")
+            if not expression.type:
+                raise InternalCompilerError("Expression type not set")
             return Value(
                 type=ValueType.PRIMITIVE,
                 value=value,
@@ -418,6 +420,8 @@ class Interpreter:
             raise InternalCompilerError("Unknown variable type")
 
     def value_from_constant(self, constant: Constant) -> Value:
+        if not constant.type:
+            raise InternalCompilerError("Expression type not set")
         return Value(
             type=ValueType.PRIMITIVE,
             value=constant.value,

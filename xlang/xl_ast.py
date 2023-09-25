@@ -54,7 +54,7 @@ class ParseContext(BaseModel):
         return ParseContext(builtin=True)
 
     @staticmethod
-    def from_token(token):
+    def from_token(token: Any):
         return ParseContext(
             start_pos=token.start_pos,
             end_pos=token.end_pos,
@@ -63,7 +63,7 @@ class ParseContext(BaseModel):
         )
 
     @staticmethod
-    def from_exception(exception):
+    def from_exception(exception: Any):
         return ParseContext(
             start_pos=exception.pos_in_stream,
             end_pos=exception.pos_in_stream,
@@ -97,7 +97,7 @@ class GlobalScope(BaseModel):
 
 
 class BaseExpression(BaseModel):
-    type: VariableType
+    type: Optional[VariableType]
     context: ParseContext
 
 

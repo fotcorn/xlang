@@ -19,7 +19,9 @@ def typeify(base_type: VariableType, global_scope: GlobalScope):
 
 
 def primitive(primitive_type: PrimitiveType) -> VariableType:
-    return VariableType(VariableTypeEnum.PRIMITIVE, primitive_type=primitive_type)
+    return VariableType(
+        variable_type=VariableTypeEnum.PRIMITIVE, primitive_type=primitive_type
+    )
 
 
 def get_type_from_string(global_scope: GlobalScope, type_name: str) -> VariableType:
@@ -49,7 +51,7 @@ def get_type_from_string(global_scope: GlobalScope, type_name: str) -> VariableT
     elif type_name == "bool":
         return primitive(PrimitiveType.BOOL)
     elif type_name in global_scope.structs:
-        return VariableType(VariableTypeEnum.STRUCT, type_name=type_name)
+        return VariableType(variable_type=VariableTypeEnum.STRUCT, type_name=type_name)
     else:
         raise InternalCompilerError(f"Unknown type: {type_name}")
 

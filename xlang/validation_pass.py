@@ -231,15 +231,18 @@ class Typeifier:
         elif isinstance(expression, Constant):
             if expression.constant_type == ConstantType.STRING:
                 expression.type = VariableType(
-                    VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.STRING
+                    variable_type=VariableTypeEnum.PRIMITIVE,
+                    primitive_type=PrimitiveType.STRING,
                 )
             elif expression.constant_type == ConstantType.FLOAT:
                 expression.type = VariableType(
-                    VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.FLOAT
+                    variable_type=VariableTypeEnum.PRIMITIVE,
+                    primitive_type=PrimitiveType.FLOAT,
                 )
             elif expression.constant_type == ConstantType.BOOL:
                 expression.type = VariableType(
-                    VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.BOOL
+                    variable_type=VariableTypeEnum.PRIMITIVE,
+                    primitive_type=PrimitiveType.BOOL,
                 )
             elif expression.constant_type == ConstantType.INTEGER:
                 expression.type = primitive_type_from_constant(expression.value)
@@ -267,7 +270,8 @@ class Typeifier:
                     "Operands cannot be compared", expression.context
                 )
             expression.type = VariableType(
-                VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.BOOL
+                variable_type=VariableTypeEnum.PRIMITIVE,
+                primitive_type=PrimitiveType.BOOL,
             )
         else:
             raise InternalCompilerError("Unknown expression")

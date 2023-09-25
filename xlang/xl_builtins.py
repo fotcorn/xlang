@@ -27,13 +27,12 @@ def builtin(name, return_type, params, context=False):
 
         BUILTINS.append(
             BuiltinFunction(
-                name,
-                return_type,
-                params,
-                wrapper,
+                name=name,
+                return_type=return_type,
+                function_params=params,
+                function_ptr=wrapper,
             )
         )
-
         return wrapper
 
     return decorate
@@ -42,7 +41,7 @@ def builtin(name, return_type, params, context=False):
 def prim(param_name: str, primitive_type: PrimitiveType):
     return FunctionParameter(
         name=param_name,
-        context=ParseContext(None),
+        context=ParseContext.from_builtin(),
         param_type=VariableType(
             variable_type=VariableTypeEnum.PRIMITIVE,
             primitive_type=primitive_type,
@@ -84,12 +83,12 @@ def builtin_assert(value, context):
 
 BUILTINS += [
     BuiltinFunction(
-        "appendi",
-        None,
-        [
+        name="appendi",
+        return_type=None,
+        function_params=[
             FunctionParameter(
                 name="array",
-                context=ParseContext(None),
+                context=ParseContext.from_builtin(),
                 param_type=VariableType(
                     variable_type=VariableTypeEnum.ARRAY,
                     array_type=VariableType(
@@ -101,7 +100,7 @@ BUILTINS += [
             ),
             FunctionParameter(
                 name="value",
-                context=ParseContext(None),
+                context=ParseContext.from_builtin(),
                 param_type=VariableType(
                     variable_type=VariableTypeEnum.PRIMITIVE,
                     primitive_type=PrimitiveType.I64,
@@ -109,15 +108,15 @@ BUILTINS += [
                 reference=False,
             ),
         ],
-        append_builtin,
+        function_ptr=append_builtin,
     ),
     BuiltinFunction(
-        "appends",
-        None,
-        [
+        name="appends",
+        return_type=None,
+        function_params=[
             FunctionParameter(
                 name="array",
-                context=ParseContext(None),
+                context=ParseContext.from_builtin(),
                 param_type=VariableType(
                     variable_type=VariableTypeEnum.ARRAY,
                     array_type=VariableType(
@@ -129,7 +128,7 @@ BUILTINS += [
             ),
             FunctionParameter(
                 name="value",
-                context=ParseContext(None),
+                context=ParseContext.from_builtin(),
                 param_type=VariableType(
                     variable_type=VariableTypeEnum.PRIMITIVE,
                     primitive_type=PrimitiveType.STRING,
@@ -137,15 +136,15 @@ BUILTINS += [
                 reference=False,
             ),
         ],
-        append_builtin,
+        function_ptr=append_builtin,
     ),
     BuiltinFunction(
-        "appendf",
-        None,
-        [
+        name="appendf",
+        return_type=None,
+        function_params=[
             FunctionParameter(
                 name="array",
-                context=ParseContext(None),
+                context=ParseContext.from_builtin(),
                 param_type=VariableType(
                     variable_type=VariableTypeEnum.ARRAY,
                     array_type=VariableType(
@@ -157,7 +156,7 @@ BUILTINS += [
             ),
             FunctionParameter(
                 name="value",
-                context=ParseContext(None),
+                context=ParseContext.from_builtin(),
                 param_type=VariableType(
                     variable_type=VariableTypeEnum.PRIMITIVE,
                     primitive_type=PrimitiveType.FLOAT,
@@ -165,7 +164,7 @@ BUILTINS += [
                 reference=False,
             ),
         ],
-        append_builtin,
+        function_ptr=append_builtin,
     ),
 ]
 

@@ -1,86 +1,83 @@
-from dataclasses import dataclass
 from lark import Transformer, v_args
 
-from xlang.xl_ast import (
-    Break,
-    Continue,
-    Constant,
-    ConstantType,
-    Elif,
-    Else,
-    FunctionCall,
-    FunctionParameter,
-    IdentifierAndType,
-    Function,
-    GlobalScope,
-    ParseContext,
-    StructType,
-    Loop,
-    If,
-    VariableDefinition,
-    VariableDeclaration,
-    VariableAccess,
-    VariableAssign,
-    VariableType,
-    VariableTypeEnum,
-    MathOperation,
-    CompareOperation,
-    Return,
-    BaseExpression,
-)
-from xlang.xl_builtins import get_builtins
 from xlang.exceptions import (
     FunctionAlreadyDefinedException,
     InternalCompilerError,
     StructAlreadyDefinedException,
 )
-
-
-@dataclass
-class ArrayAccess:
-    expression: BaseExpression
-    context: ParseContext
+from xlang.xl_ast import (
+    ArrayAccess,
+    Break,
+    CompareOperation,
+    Constant,
+    ConstantType,
+    Continue,
+    Elif,
+    Else,
+    Function,
+    FunctionCall,
+    FunctionParameter,
+    GlobalScope,
+    IdentifierAndType,
+    If,
+    Loop,
+    MathOperation,
+    ParseContext,
+    Return,
+    StructType,
+    VariableAccess,
+    VariableAssign,
+    VariableDeclaration,
+    VariableDefinition,
+    VariableType,
+    VariableTypeEnum,
+)
+from xlang.xl_builtins import get_builtins
 
 
 class ASTTransformer(Transformer):
     @v_args(inline=True)
     def integer_constant(self, value):
         return Constant(
-            VariableType(VariableTypeEnum.UNKNOWN),
-            ParseContext(value),
-            ConstantType.INTEGER,
-            int(value.value),
+            type=VariableType(VariableTypeEnum.UNKNOWN),
+            context=ParseContext.from_token(value),
+            constant_type=ConstantType.INTEGER,
+            value=int(value.value),
         )
 
     @v_args(inline=True)
     def float_constant(self, value):
         return Constant(
-            VariableType(VariableTypeEnum.UNKNOWN),
-            ParseContext(value),
-            ConstantType.FLOAT,
-            float(value.value),
+            type=VariableType(VariableTypeEnum.UNKNOWN),
+            context=ParseContext.from_token(value),
+            constant_type=ConstantType.FLOAT,
+            value=float(value.value),
         )
 
     @v_args(inline=True)
     def string_literal(self, value):
         return Constant(
-            VariableType(VariableTypeEnum.UNKNOWN),
-            ParseContext(value),
-            ConstantType.STRING,
-            value.value[1:-1],
+            type=VariableType(VariableTypeEnum.UNKNOWN),
+            context=ParseContext.from_token(value),
+            constant_type=ConstantType.STRING,
+            value=value.value[1:-1],
         )
 
     @v_args(inline=True)
     def boolean_literal(self, value):
         return Constant(
-            VariableType(VariableTypeEnum.UNKNOWN),
-            ParseContext(value),
-            ConstantType.BOOL,
-            value.value == "true",
+            type=VariableType(VariableTypeEnum.UNKNOWN),
+            context=ParseContext.from_token(value),
+            constant_type=ConstantType.BOOL,
+            value=value.value == "true",
         )
 
     def function_call(self, param):
-        return FunctionCall(param[0].value, param[1:], ParseContext(param[0]))
+        return FunctionCall(
+            function_name=param[0].value,
+            params=param[1:],
+            context=ParseContext.from_token(param[0]),
+        )
 
     def function_param(self, params):
         assert len(params) in [3, 4]
@@ -92,7 +89,10 @@ class ASTTransformer(Transformer):
             reference = False
             param_type = params[2]
         return FunctionParameter(
-            identifier.value, param_type, ParseContext(identifier), reference
+            name=identifier.value,
+            param_type=param_type,
+            context=ParseContext.from_token(identifier),
+            reference=reference,
         )
 
     def function_params(self, params):
@@ -120,36 +120,46 @@ class ASTTransformer(Transformer):
             function_params = []
 
         return Function(
-            name.value,
-            return_type,
-            function_params,
-            code_block.children,
-            ParseContext(params[0]),
+            name=name.value,
+            return_type=return_type,
+            function_params=function_params,
+            statements=code_block.children,
+            context=ParseContext.from_token(params[0]),
         )
 
     def type(self, params):
         if len(params) == 1:
-            return VariableType(VariableTypeEnum.UNKNOWN, params[0].value)
+            return VariableType(
+                variable_type=VariableTypeEnum.UNKNOWN, type_name=params[0].value
+            )
         elif len(params) == 3:
             assert params[0].value == "[" and params[2].value == "]"
             return VariableType(
-                VariableTypeEnum.ARRAY,
+                variable_type=VariableTypeEnum.ARRAY,
                 array_type=VariableType(
-                    VariableTypeEnum.UNKNOWN, type_name=params[1].value
+                    variable_type=VariableTypeEnum.UNKNOWN, type_name=params[1].value
                 ),
             )
 
     @v_args(inline=True)
     def struct_entry(self, identifier, type):
-        return IdentifierAndType(identifier.value, type, ParseContext(identifier))
+        return IdentifierAndType(
+            name=identifier.value,
+            param_type=type,
+            context=ParseContext.from_token(identifier),
+        )
 
     @v_args(inline=True)
     def struct_def(self, name, *entries):
-        return StructType(name.value, entries, ParseContext(name))
+        return StructType(
+            name=name.value, members=entries, context=ParseContext.from_token(name)
+        )
 
     @v_args(inline=True)
     def loop(self, keyword, code_block):
-        return Loop(ParseContext(keyword), code_block.children)
+        return Loop(
+            context=ParseContext.from_token(keyword), statements=code_block.children
+        )
 
     def translation_unit(self, entries):
         global_scope = GlobalScope()
@@ -176,11 +186,13 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def variable_def(self, name, var_type, value):
-        return VariableDefinition(ParseContext(name), name.value, var_type, value)
+        return VariableDefinition(
+            ParseContext.from_token(name), name.value, var_type, value
+        )
 
     @v_args(inline=True)
     def variable_dec(self, name, var_type):
-        return VariableDeclaration(ParseContext(name), name.value, var_type)
+        return VariableDeclaration(ParseContext.from_token(name), name.value, var_type)
 
     @v_args(inline=True)
     def variable_assign(self, variable_access, value):
@@ -243,16 +255,16 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def else_statement(self, keyword, code_block):
-        return Else(ParseContext(keyword), code_block.children)
+        return Else(ParseContext.from_token(keyword), code_block.children)
 
     @v_args(inline=True)
     def control(self, keyword, return_value=None):
         if keyword == "break":
-            return Break(ParseContext(keyword))
+            return Break(ParseContext.from_token(keyword))
         elif keyword == "continue":
-            return Continue(ParseContext(keyword))
+            return Continue(ParseContext.from_token(keyword))
         elif keyword == "return":
-            return Return(ParseContext(keyword), return_value)
+            return Return(ParseContext.from_token(keyword), return_value)
         else:
             raise InternalCompilerError("Unknown control keyword")
 
@@ -274,7 +286,7 @@ class ASTTransformer(Transformer):
 
         return VariableAccess(
             VariableType(VariableTypeEnum.UNKNOWN),
-            ParseContext(variable),
+            ParseContext.from_token(variable),
             variable.value,
             array_access,
             variable_access,

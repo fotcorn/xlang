@@ -73,7 +73,9 @@ class BaseParseException(ContextException):
 
 class UnexpectedTokenException(BaseParseException):
     def __init__(self, ex: LarkUnexpectedToken):
-        super().__init__(f'Unexpected token "{ex.token.value}"', ParseContext(ex.token))
+        super().__init__(
+            f'Unexpected token "{ex.token.value}"', ParseContext.from_exception(ex)
+        )
 
         # modeled after UnexpectedInput._format_expected
         accepts = ex.accepts or ex.expected
@@ -83,7 +85,7 @@ class UnexpectedTokenException(BaseParseException):
 
 class UnexpectedCharacterException(BaseParseException):
     def __init__(self, ex: LarkUnexpectedCharacters):
-        super().__init__(f'Cannot parse "{ex.char}"', ParseContext(ex, True))
+        super().__init__(f'Cannot parse "{ex.char}"', ParseContext.from_exception(ex))
 
         # modeled after UnexpectedInput._format_expected
         for accept in ex.allowed:

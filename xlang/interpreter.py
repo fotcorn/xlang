@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from typing import Optional, Any
-from pydantic.dataclasses import dataclass
+from pydantic import BaseModel
 import copy
 
 from xlang.exceptions import ContextException, InternalCompilerError
@@ -34,8 +34,7 @@ class ValueType(Enum):
     STRUCT = auto()
 
 
-@dataclass
-class Value:
+class Value(BaseModel):
     type: ValueType
     value: Any
     primitive_type: Optional[PrimitiveType] = None

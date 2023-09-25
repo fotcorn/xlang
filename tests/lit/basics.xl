@@ -1,0 +1,7 @@
+// RUN: %run %s | filecheck %s
+
+main() {
+    a: int = 5;
+    // CHECK: 5
+    printi(a);
+}

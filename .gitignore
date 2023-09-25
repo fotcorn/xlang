@@ -131,3 +131,6 @@ dmypy.json
 *.bin
 
 .vscode/
+
+tests/lit/**/Output/
+tests/lit/.lit_test_times.txt

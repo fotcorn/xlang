@@ -2,4 +2,4 @@
 # black will take care of most lines > 88, but strings are not yet reformatted
 max-line-length = 120
 extend-ignore = E203
-exclude = .git,__pycache__,venv/
+exclude = .git,__pycache__,venv/,tests/lit/lit.cfg.py

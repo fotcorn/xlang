@@ -1,0 +1,164 @@
+// RUN: %run --split-input-file %s | %filecheck %s
+
+main() {
+    // CHECK: true
+    if (true) {
+        printb(true);
+    }
+    if (false) {
+        printb(false);
+    }
+}
+
+//---------------------------------------
+
+main() {
+    i: int = 0;
+    if (true) {
+        i = 1;
+    } else {
+        i = 2;
+        assert(false);
+    }
+    // CHECK: 1
+    printi(i);
+}
+
+//---------------------------------------
+
+main() {
+    i: int = 0;
+    if (false) {
+        i = 1;
+        assert(false);
+    } else {
+        i = 2;
+    }
+    // CHECK: true
+    printb(i == 2);
+}
+
+//---------------------------------------
+
+main() {
+    i: int = 0;
+    if (false) {
+        i = 1;
+        assert(false);
+    } elif (false) {
+        i = 2;
+        assert(false);
+    }
+    // CHECK: 0
+    printi(i);
+}
+
+//---------------------------------------
+
+main() {
+    i: int = 0;
+    if (true) {
+        i = 1;
+    } elif (false) {
+        i = 2;
+        assert(false);
+    }
+    // CHECK: 1
+    printi(i);
+}
+
+//---------------------------------------
+
+main() {
+    i: int = 0;
+    if (true) {
+        i = 1;
+    } elif (true) {
+        assert(false);
+        i = 2;
+    }
+    // CHECK: 1
+    printi(i);
+}
+
+//---------------------------------------
+
+main() {
+    i: int = 0;
+    if (false) {
+        i = 1;
+        assert(false);
+    } elif (true) {
+        i = 2;
+    }
+    // CHECK: 2
+    printi(i);
+}
+
+//---------------------------------------
+
+main() {
+    i: int = 0;
+    if (false) {
+        i = 1;
+        assert(false);
+    } elif (true) {
+        i = 2;
+    } elif (false) {
+        i = 3;
+        assert(false);
+    }
+    // CHECK: 2
+    printi(i);
+}
+
+//---------------------------------------
+
+main() {
+    i: int = 0;
+    if (false) {
+        i = 1;
+        assert(false);
+    } elif (false) {
+        i = 2;
+        assert(false);
+    } else {
+        i = 3;
+    }
+    // CHECK: 3
+    printi(i);
+}
+
+//---------------------------------------
+
+main() {
+    i: int = 0;
+    if (false) {
+        i = 1;
+        assert(false);
+    } elif (true) {
+        i = 2;
+    } else {
+        i = 3;
+        assert(false);
+    }
+    // CHECK: 2
+    printi(i);
+}
+
+//---------------------------------------
+
+main() {
+    i: int = 0;
+    if (true) {
+        i = 1;
+    } elif (true) {
+        i = 2;
+        assert(false);
+    } else {
+        i = 3;
+        assert(false);
+    }
+    // CHECK: 1
+    printi(i);
+}

@@ -1,0 +1,11 @@
+// RUN: %run --split-input-file %s | %filecheck %s
+
+main() {
+    array: [int];
+    appendi(array, 2);
+    appendi(array, 6);
+    // CHECK: 6
+    printi(array[1]);
+    // CHECK: 2
+    printi(array[0]);
+}

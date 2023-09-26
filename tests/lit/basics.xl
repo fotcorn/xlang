@@ -119,3 +119,17 @@ main() {
     // CHECK: 7
     printi(1 + (2 * 3));
 }
+
+//---------------------------------------
+
+main() {
+    a: float = 3.5;
+    b: float = 1.2;
+
+    // CHECK: 3.5
+    printf(a);
+    // CHECK: 4.7
+    printf(a + b);
+    // CHECK: 4.2
+    printf(a * b);
+}

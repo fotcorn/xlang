@@ -243,8 +243,7 @@ class Interpreter:
             if (
                 operand1_value.primitive_type == PrimitiveType.FLOAT
                 or operand2_value.primitive_type == PrimitiveType.FLOAT
-                and not operand1_value.primitive_type == operand2_value.primitive_type
-            ):
+            ) and operand1_value.primitive_type != operand2_value.primitive_type:
                 raise Exception(
                     f"{expression.operator} operator only works beween int types"
                     " or float types, not float and int."

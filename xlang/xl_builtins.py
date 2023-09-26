@@ -67,7 +67,7 @@ def builtin_printf(value: Value):
 
 @builtin("printb", None, [prim("value", PrimitiveType.BOOL)])
 def builtin_printb(value: Value):
-    print(value.value)
+    print("true" if value.value else "false")
 
 
 def append_builtin(values: List[Value], *args, **kwargs):

@@ -95,6 +95,44 @@ class GlobalScope(BaseModel):
     structs: Dict[str, StructType] = {}
     functions: Dict[str, BaseFunction] = {}
 
+    def dump(self):
+        def dump_base_model(scope):
+            d = {"ast_type": scope.__class__.__name__}
+            d.update(cleanup_dict(scope.__dict__))
+            return d
+
+        def cleanup_dict(scope):
+            new_dict = {}
+            for k, v in scope.items():
+                if k != "context" and v is not None:
+                    if isinstance(v, dict):
+                        new_dict[k] = cleanup_dict(v)
+                    elif isinstance(v, Enum):
+                        new_dict[k] = v.name
+                    elif isinstance(v, VariableType):
+                        if v.variable_type == VariableTypeEnum.PRIMITIVE:
+                            new_dict[k] = v.primitive_type.name
+                        else:
+                            new_dict[k] = dump_base_model(v)
+                    elif isinstance(v, BuiltinFunction):
+                        # Do not dump builtin functions.
+                        pass
+                    elif isinstance(v, BaseModel):
+                        new_dict[k] = dump_base_model(v)
+                    elif isinstance(v, list):
+                        new_list = []
+                        for item in v:
+                            if isinstance(item, BaseModel):
+                                new_list.append(dump_base_model(item))
+                            else:
+                                new_list.append(item)
+                        new_dict[k] = new_list
+                    else:
+                        new_dict[k] = v
+            return new_dict
+
+        return dump_base_model(self)
+
 
 class BaseExpression(BaseModel):
     type: Optional[VariableType]

@@ -1,4 +1,4 @@
-// RUN: %run --split-input-file %s | %filecheck %s
+// RUN: %run --split-input-file %s | %filecheck --match-full-lines %s
 
 main() {
     const a: int = 5;

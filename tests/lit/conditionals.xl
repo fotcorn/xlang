@@ -1,4 +1,4 @@
-// RUN: %run --split-input-file %s | %filecheck %s
+// RUN: %run --split-input-file %s | %filecheck --match-full-lines %s
 
 main() {
     // CHECK: true

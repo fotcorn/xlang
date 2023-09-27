@@ -37,9 +37,9 @@ def test_struct():
         }
 
         main() {
-            test: Test;
+            var test: Test;
             test.a = 5;
-            a: int = test.a + test.b[0];
+            const a: int = test.a + test.b[0];
         }
         """
     )

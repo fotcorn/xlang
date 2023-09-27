@@ -18,7 +18,7 @@ def test_validation_pass():
         param_func(a: int, b: u16, c: [int], d: MyStruct): [MyStruct] {}
 
         main() {
-            a: int = 5;
+            const a: int = 5;
             intfunc(a);
         }
         """
@@ -134,7 +134,7 @@ def test_bool():
     validate(
         """
         main() {
-            b: bool = false;
+            const b: bool = false;
         }
         """
     )
@@ -146,7 +146,7 @@ def test_array_access():
         append(array: [int], value: int) {}
 
         main() {
-            b: [int];
+            var b: [int];
             append(b, 5);
             printi(b[0]);
         }
@@ -170,7 +170,7 @@ def test_struct_access():
         }
 
         main() {
-            s: A;
+            var s: A;
             printi(s.a);
             printi(s.b[0]);
 
@@ -199,7 +199,7 @@ def test_function_param_override_error():
         validate(
             """
             main(a: int) {
-                a: int = 5;
+                const a: int = 5;
             }
             """
         )
@@ -210,7 +210,7 @@ def test_variable_type_declaration_mismatch():
         validate(
             """
             main(a: int) {
-                a: int = "test";
+                const a: int = "test";
             }
             """
         )
@@ -221,7 +221,7 @@ def test_variable_type_declaration_mismatch2():
         validate(
             """
             main(a: int) {
-                a: string = 1;
+                const a: string = 1;
             }
             """
         )
@@ -232,7 +232,7 @@ def test_variable_type_set_mismatch():
         validate(
             """
             main(a: int) {
-                a: int;
+                var a: int;
                 a = "string";
             }
             """
@@ -247,7 +247,7 @@ def test_variable_type_declaration_mismatch_func():
                 return 5;
             }
             main(a: int) {
-                a: string = func();
+                const a: string = func();
             }
             """
         )
@@ -261,7 +261,7 @@ def test_variable_type_set_mismatch_func():
                 return 5;
             }
             main(a: int) {
-                a: string;
+                var a: string;
                 a = func();
             }
             """
@@ -272,7 +272,7 @@ def test_compare_operator_type_ok():
     validate(
         """
         main() {
-            a: bool = 1 == 1;
+            const a: bool = 1 == 1;
         }
         """
     )
@@ -283,7 +283,7 @@ def test_compare_operator_type_fail():
         validate(
             """
             main() {
-                a: int = 1 == 1;
+                const a: int = 1 == 1;
             }
             """
         )
@@ -294,8 +294,8 @@ def test_compare_operator_type_fail2():
         validate(
             """
             main() {
-                s: string = "test";
-                a: bool = 1 == s;
+                const s: string = "test";
+                const a: bool = 1 == s;
             }
             """
         )

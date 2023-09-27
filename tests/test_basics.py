@@ -8,7 +8,7 @@ def test_hello():
     ast = validate(
         """
         main() {
-            a: int = 5;
+            const a: int = 5;
             printi(a);
         }
         """
@@ -45,8 +45,8 @@ def test_int_float_literal():
     validate(
         """
         main() {
-            i: int = 5;
-            f: float = 5.0;
+            const i: int = 5;
+            const f: float = 5.0;
         }
         """
     )
@@ -57,7 +57,7 @@ def test_invalid_int():
         validate(
             """
             main() {
-                i: int = 5.0;
+                const i: int = 5.0;
             }
             """
         )
@@ -68,7 +68,7 @@ def test_invalid_float():
         validate(
             """
                 main() {
-                    i: float = 5;
+                    const i: float = 5;
                 }
                 """
         )

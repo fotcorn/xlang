@@ -1,6 +1,7 @@
 from typing import Optional
 
 from xlang.xl_ast import (
+    ParseContext,
     VariableType,
     GlobalScope,
     VariableTypeEnum,
@@ -36,9 +37,11 @@ class ScopeStack:
     def __init__(self):
         self.stack = [{}]
 
-    def def_variable(self, name: str, variable_type: VariableType):
+    def def_variable(
+        self, name: str, variable_type: VariableType, context: ParseContext
+    ):
         if name in self.stack[-1]:
-            raise Exception(f"Variable {name} already defined")
+            raise ContextException(f"Variable {name} already defined", context)
         self.stack[-1][name] = variable_type
 
     def get_variable_type(self, name: str) -> Optional[VariableType]:
@@ -59,7 +62,7 @@ class Typeifier:
         self.global_scope = global_scope
         self.scope_stack = ScopeStack()
         for param in function.function_params:
-            self.scope_stack.def_variable(param.name, param.param_type)
+            self.scope_stack.def_variable(param.name, param.param_type, param.context)
         self.function = function
         self.inside_loop = False
 
@@ -72,12 +75,16 @@ class Typeifier:
             statement.variable_type = typeify(
                 statement.variable_type, self.global_scope
             )
-            self.scope_stack.def_variable(statement.name, statement.variable_type)
+            self.scope_stack.def_variable(
+                statement.name, statement.variable_type, statement.context
+            )
         elif isinstance(statement, VariableDefinition):
             statement.variable_type = typeify(
                 statement.variable_type, self.global_scope
             )
-            self.scope_stack.def_variable(statement.name, statement.variable_type)
+            self.scope_stack.def_variable(
+                statement.name, statement.variable_type, statement.context
+            )
             value_type = self.expression(statement.value)
             if not is_type_compatible(statement.variable_type, value_type):
                 raise TypeMismatchException(
@@ -245,7 +252,9 @@ class Typeifier:
                     primitive_type=PrimitiveType.BOOL,
                 )
             elif expression.constant_type == ConstantType.INTEGER:
-                expression.type = primitive_type_from_constant(expression.value)
+                expression.type = primitive_type_from_constant(
+                    expression.value, expression.context
+                )
             else:
                 raise InternalCompilerError("Unknown constant type")
 

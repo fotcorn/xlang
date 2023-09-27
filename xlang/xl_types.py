@@ -1,5 +1,11 @@
-from xlang.xl_ast import VariableType, GlobalScope, PrimitiveType, VariableTypeEnum
-from xlang.exceptions import InternalCompilerError
+from xlang.xl_ast import (
+    ParseContext,
+    VariableType,
+    GlobalScope,
+    PrimitiveType,
+    VariableTypeEnum,
+)
+from xlang.exceptions import ContextException, InternalCompilerError
 
 
 def typeify(base_type: VariableType, global_scope: GlobalScope):
@@ -71,7 +77,7 @@ UNSIGNED = (
 )
 
 
-def primitive_type_from_constant(constant):
+def primitive_type_from_constant(constant: int, context: ParseContext):
     if constant < 0:
         if constant >= SIGNED[0]:
             return primitive(PrimitiveType.I8)
@@ -82,7 +88,7 @@ def primitive_type_from_constant(constant):
         elif constant >= SIGNED[3]:
             return primitive(PrimitiveType.I64)
         else:
-            raise Exception("Constant out of range")
+            raise ContextException("Constant out of range", context)
     else:
         if constant <= UNSIGNED[0]:
             return primitive(PrimitiveType.U8)
@@ -93,7 +99,7 @@ def primitive_type_from_constant(constant):
         elif constant <= UNSIGNED[3]:
             return primitive(PrimitiveType.U64)
         else:
-            raise Exception("Constant out of range")
+            raise ContextException("Constant out of range", context)
 
 
 # target => source

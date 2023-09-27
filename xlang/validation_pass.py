@@ -38,17 +38,23 @@ class ScopeStack:
         self.stack = [{}]
 
     def def_variable(
-        self, name: str, variable_type: VariableType, context: ParseContext
+        self, name: str, variable_type: VariableType, const: bool, context: ParseContext
     ):
         if name in self.stack[-1]:
             raise ContextException(f"Variable {name} already defined", context)
-        self.stack[-1][name] = variable_type
+        self.stack[-1][name] = (variable_type, const)
 
     def get_variable_type(self, name: str) -> Optional[VariableType]:
         for stack in reversed(self.stack):
             if name in stack:
-                return stack[name]
+                return stack[name][0]
         return None  # variable not found
+
+    def is_const(self, name: str) -> Optional[bool]:
+        for stack in reversed(self.stack):
+            if name in stack:
+                return stack[name][1]
+        return None
 
     def push_scope(self):
         self.stack.append({})
@@ -62,7 +68,10 @@ class Typeifier:
         self.global_scope = global_scope
         self.scope_stack = ScopeStack()
         for param in function.function_params:
-            self.scope_stack.def_variable(param.name, param.param_type, param.context)
+            # Params are const by default, except reference params.
+            self.scope_stack.def_variable(
+                param.name, param.param_type, not param.reference, param.context
+            )
         self.function = function
         self.inside_loop = False
 
@@ -76,14 +85,17 @@ class Typeifier:
                 statement.variable_type, self.global_scope
             )
             self.scope_stack.def_variable(
-                statement.name, statement.variable_type, statement.context
+                statement.name, statement.variable_type, False, statement.context
             )
         elif isinstance(statement, VariableDefinition):
             statement.variable_type = typeify(
                 statement.variable_type, self.global_scope
             )
             self.scope_stack.def_variable(
-                statement.name, statement.variable_type, statement.context
+                statement.name,
+                statement.variable_type,
+                statement.const,
+                statement.context,
             )
             value_type = self.expression(statement.value)
             if not is_type_compatible(statement.variable_type, value_type):
@@ -101,6 +113,12 @@ class Typeifier:
             if not is_type_compatible(variable_type, value_type):
                 raise TypeMismatchException(
                     "Incompatible value type", statement.context
+                )
+            variable_name = statement.variable_access.variable_name
+            if self.scope_stack.is_const(variable_name):
+                raise ContextException(
+                    f"Cannot assign {variable_name}, variable is const",
+                    statement.context,
                 )
         elif isinstance(statement, FunctionCall):
             self.function_call(statement)
@@ -305,11 +323,22 @@ class Typeifier:
             )
 
         # evaluate parameters and check if type matches
-        for param, param_type_name in zip(expression.params, function.function_params):
-            expression_type = self.expression(param)
-            if not is_type_compatible(param_type_name.param_type, expression_type):
+        for param_expr, param_type in zip(expression.params, function.function_params):
+            if param_type.reference:
+                if not isinstance(param_expr, VariableAccess):
+                    raise TypeMismatchException(
+                        "Only variables allowed for reference parameters",
+                        param_expr.context,
+                    )
+                if self.scope_stack.is_const(param_expr.variable_name):
+                    raise ContextException(
+                        "Variables passed as reference parameters cannot be const",
+                        param_expr.context,
+                    )
+            expression_type = self.expression(param_expr)
+            if not is_type_compatible(param_type.param_type, expression_type):
                 raise TypeMismatchException(
-                    "Invalid function parameter type", param.context
+                    "Invalid function parameter type", param_expr.context
                 )
         return function.return_type
 

@@ -1,0 +1,66 @@
+// RUN: %run --split-input-file %s | %filecheck %s
+
+// variables can be modified as expected (definition)
+main() {
+    var i: int = 0;
+    i = i + 1;
+    // CHECK: 1
+    printi(i);
+}
+
+//---------------------------------------
+
+// variables can be modified as expected (declaration)
+main() {
+    var i: int;
+    i = i + 1;
+    // CHECK: 1
+    printi(i);
+}
+
+//---------------------------------------
+
+// constants cannot be modified
+main() {
+    const i: int = 0;
+    // CHECK: Cannot assign i, variable is const
+    i = i + 1;
+}
+
+//---------------------------------------
+
+// function parameters are constant
+function(i: int) {
+    // CHECK: Cannot assign i, variable is const
+    i = i + 1;
+    printi(i);
+}
+main() {
+    const i: int = 3;
+    function(i);
+}
+
+//---------------------------------------
+
+// reference parameters need to be vars
+function(i: *int) {
+    i = i + 1;
+}
+main() {
+    var i: int = 5;
+    function(i);
+    // CHECK: 5
+    printi(i);
+}
+
+//---------------------------------------
+
+// reference parameters need to be vars (error case)
+function(i: *int) {
+    i = i + 1;
+}
+main() {
+    const i: int = 5;
+    // CHECK: Variables passed as reference parameters cannot be const
+    function(i);
+}

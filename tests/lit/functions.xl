@@ -1,4 +1,4 @@
-// RUN: %run --split-input-file %s | %filecheck --match-full-lines %s
+// RUN: %run --split-input-file %s | %filecheck %s
 
 a() {
 }
@@ -72,8 +72,6 @@ myfunc(s: MyStruct) {
     printi(s.a);
     // CHECK: 7
     printi(s.b);
-    s.a = 11;
-    s.b = 12;
 }
 
 main() {
@@ -95,18 +93,35 @@ struct X {
 func_ref(x: *X) {
     x.a = 5;
 }
-func_copy(x: X) {
-    x.a = 6;
-}
 main() {
     var x: X;
     x.a = 1;
     func_ref(x);
     // CHECK: 5
     printi(x.a);
+}
 
-    x.a = 2;
-    func_copy(x);
-    // CHECK: 2
-    printi(x.a);
+//---------------------------------------
+
+// reference parameters
+test(i: *int) {
+    i = i + 1;
+}
+main() {
+    var param: int = 3;
+    test(param);
+    // CHECK: 4
+    printi(param);
+}
+
+
+//---------------------------------------
+
+// reference parameters
+test(i: *int) {
+    i = i + 1;
+}
+main() {
+    // CHECK: Only variables allowed for reference parameters
+    test(5);
 }

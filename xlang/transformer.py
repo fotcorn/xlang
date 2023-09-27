@@ -192,6 +192,17 @@ class ASTTransformer(Transformer):
             name=name.value,
             variable_type=var_type,
             value=value,
+            const=False,
+        )
+
+    @v_args(inline=True)
+    def const_def(self, name, var_type, value):
+        return VariableDefinition(
+            context=ParseContext.from_token(name),
+            name=name.value,
+            variable_type=var_type,
+            value=value,
+            const=True,
         )
 
     @v_args(inline=True)

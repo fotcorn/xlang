@@ -1,7 +1,7 @@
 // RUN: %run --split-input-file %s | %filecheck %s
 
 main() {
-    a: int = 5;
+    const a: int = 5;
     // CHECK: 5
     printi(a);
 }
@@ -11,7 +11,7 @@ main() {
 main() {
     // CHECK: Hello World!
     prints("Hello World!");
-    a: string = "teststring";
+    const a: string = "teststring";
     // CHECK: teststring
     prints(a);
 }
@@ -57,12 +57,12 @@ test(): int {
     return 5;
 }
 main() {
-    a: int = 1 + 2;
+    const a: int = 1 + 2;
     // CHECK: 3
     printi(a);
 
-    b: int = 5;
-    c: int = a + b;
+    var b: int = 5;
+    const c: int = a + b;
     // CHECK: 8
     printi(c);
 
@@ -70,27 +70,27 @@ main() {
     // CHECK: 5
     printi(b);
 
-    d: int = a * b;
+    const d: int = a * b;
     // CHECK: 15
     printi(d);
 
-    e: int = a * b + c;
+    const e: int = a * b + c;
     // CHECK: 23
     printi(e);
 
-    f: int = a + b * c;
+    const f: int = a + b * c;
     // CHECK: 43
     printi(f);
 
-    g: int = test();
+    const g: int = test();
     // CHECK: 5
     printi(g);
 
-    h: int = b + 1;
+    const h: int = b + 1;
     // CHECK: 6
     printi(h);
 
-    i: int = 1 + b;
+    const i: int = 1 + b;
     // CHECK: 6
     printi(i);
 }
@@ -98,7 +98,7 @@ main() {
 //---------------------------------------
 
 main() {
-    i: int = 0;
+    var i: int = 0;
     loop {
         i = i + 1;
         if (i == 5) {
@@ -123,8 +123,8 @@ main() {
 //---------------------------------------
 
 main() {
-    a: float = 3.5;
-    b: float = 1.2;
+    const a: float = 3.5;
+    const b: float = 1.2;
 
     // CHECK: 3.5
     printf(a);

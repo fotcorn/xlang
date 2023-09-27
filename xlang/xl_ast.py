@@ -153,6 +153,7 @@ class VariableDefinition(Statement):
     name: str
     variable_type: VariableType
     value: BaseExpression
+    const: bool
 
 
 class VariableAssign(Statement):

@@ -1,7 +1,7 @@
 // RUN: %run --split-input-file %s | %filecheck %s
 
 main() {
-    array: [int];
+    var array: [int];
     appendi(array, 2);
     appendi(array, 6);
     // CHECK: 6

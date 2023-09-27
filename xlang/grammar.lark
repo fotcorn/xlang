@@ -21,14 +21,15 @@ var_access: IDENTIFIER array_access? ("." var_access)?
 
 code_block: "{" statement* "}"
 
-?statement: loop | if_statement | (function_call ";") | variable_dec | variable_def | variable_assign | control ";"
+?statement: loop | if_statement | (function_call ";") | variable_def | const_def | variable_dec | variable_assign | control ";"
 !loop: "loop" code_block
 elif_statement: "elif" "(" compare_expr ")" code_block
 !else_statement: "else" code_block
 if_statement: "if" "(" compare_expr ")" code_block elif_statement* else_statement?
 
-variable_dec: IDENTIFIER ":" type ";"
-variable_def: IDENTIFIER ":" type "=" compare_expr ";"
+variable_def: "var" IDENTIFIER ":" type "=" compare_expr ";"
+const_def: "const" IDENTIFIER ":" type "=" compare_expr ";"
+variable_dec: "var" IDENTIFIER ":" type ";"
 variable_assign: var_access "=" compare_expr ";"
 !control: ("break" | "continue" | "return" compare_expr?)
 

@@ -1,4 +1,33 @@
-// RUN: %run --split-input-file %s | %filecheck %s
+// RUN: %run --split-input-file %s | %filecheck --match-full-lines %s
+
+a() {
+}
+b(): int {
+    return 1;
+}
+c(p1: int) {
+}
+d(p1: int): int {
+    return 2;
+}
+e(p1: int, p2: int) {
+}
+f(p1: int, p2: int): int {
+    return 3;
+}
+main() {
+    a();
+    // CHECK: 1
+    printi(b());
+    c(1);
+    // CHECK: 2
+    printi(d(1));
+    e(1, 2);
+    // CHECK: 3
+    printi(f(1, 2));
+}
+
+//---------------------------------------
 
 myfunc(): int {
     return 5;

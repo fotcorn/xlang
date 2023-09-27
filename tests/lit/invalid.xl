@@ -1,0 +1,20 @@
+// RUN: %run --split-input-file %s | %filecheck %s
+
+main() {
+    // CHECK: Invalid function parameter type
+    printi(5.0);
+}
+
+//---------------------------------------
+
+main() {
+    // CHECK: Incompatible value type
+    const i: float = 5;
+}
+
+//---------------------------------------
+
+main() {
+    // CHECK: Incompatible value type
+    const i: int = 5.0;
+}

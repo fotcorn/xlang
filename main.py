@@ -18,10 +18,8 @@ def run(code: str):
         interpreter.run(ast)
     except ContextException as ex:
         ex.print(code, args.file)
-        sys.exit(1)
-    except Exception as ex:
-        print(ex)
-        sys.exit(1)
+        return False
+    return True
 
 
 if __name__ == "__main__":
@@ -43,4 +41,5 @@ if __name__ == "__main__":
         for chunk in code_chunks:
             run(chunk)
     else:
-        run(code)
+        if not run(code):
+            sys.exit(1)

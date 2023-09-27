@@ -68,8 +68,10 @@ struct MyStruct {
 }
 
 myfunc(s: MyStruct) {
-    assert(s.a == 5);
-    assert(s.b == 7);
+    // CHECK: 5
+    printi(s.a);
+    // CHECK: 7
+    printi(s.b);
     s.a = 11;
     s.b = 12;
 }
@@ -79,8 +81,10 @@ main() {
     s.a = 5;
     s.b = 7;
     myfunc(s);
-    assert(s.a == 5);
-    assert(s.b == 7);
+    // CHECK: 5
+    printi(s.a);
+    // CHECK: 7
+    printi(s.b);
 }
 
 //---------------------------------------
@@ -98,8 +102,11 @@ main() {
     var x: X;
     x.a = 1;
     func_ref(x);
-    assert(x.a == 5);
+    // CHECK: 5
+    printi(x.a);
+
     x.a = 2;
     func_copy(x);
-    assert(x.a == 2);
+    // CHECK: 2
+    printi(x.a);
 }

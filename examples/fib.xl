@@ -1,9 +1,9 @@
 main() {
-    t1: int = 0;
-    t2: int = 1;
-    tmp: int = 0;
+    var t1: int = 0;
+    var t2: int = 1;
+    var tmp: int = 0;
 
-    i: int = 0;
+    var i: int = 0;
     loop {
         printi(t1);
 

@@ -7,7 +7,7 @@ from xlang.parser import Parser
 from xlang.interpreter import Interpreter
 from xlang.xl_ast import GlobalScope
 from xlang.validation_pass import validation_pass
-from xlang.exceptions import ContextException
+from xlang.exceptions import ContextException, InterpreterAssertionError
 
 
 def run(code: str, parse_only: bool = False):
@@ -20,7 +20,11 @@ def run(code: str, parse_only: bool = False):
         else:
             interpreter = Interpreter()
             interpreter.run(ast)
-
+    # assert() is used in tests, so we crash here to detect failed assertions.
+    # Other exceptions are fine, we check for those with // CHECK statements.
+    except InterpreterAssertionError as ex:
+        ex.print(code, args.file)
+        sys.exit(2)
     except ContextException as ex:
         ex.print(code, args.file)
         return False

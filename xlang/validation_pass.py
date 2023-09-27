@@ -262,7 +262,7 @@ class Typeifier:
             elif expression.constant_type == ConstantType.FLOAT:
                 expression.type = VariableType(
                     variable_type=VariableTypeEnum.PRIMITIVE,
-                    primitive_type=PrimitiveType.FLOAT,
+                    primitive_type=PrimitiveType.F32,
                 )
             elif expression.constant_type == ConstantType.BOOL:
                 expression.type = VariableType(

@@ -13,7 +13,7 @@ main() {
 //---------------------------------------
 
 main() {
-    var i: int = 0;
+    var i: i32 = 0;
     if (true) {
         i = 1;
     } else {
@@ -27,7 +27,7 @@ main() {
 //---------------------------------------
 
 main() {
-    var i: int = 0;
+    var i: i32 = 0;
     if (false) {
         i = 1;
         assert(false);
@@ -41,7 +41,7 @@ main() {
 //---------------------------------------
 
 main() {
-    var i: int = 0;
+    var i: i32 = 0;
     if (false) {
         i = 1;
         assert(false);
@@ -56,7 +56,7 @@ main() {
 //---------------------------------------
 
 main() {
-    var i: int = 0;
+    var i: i32 = 0;
     if (true) {
         i = 1;
     } elif (false) {
@@ -70,7 +70,7 @@ main() {
 //---------------------------------------
 
 main() {
-    var i: int = 0;
+    var i: i32 = 0;
     if (true) {
         i = 1;
     } elif (true) {
@@ -84,7 +84,7 @@ main() {
 //---------------------------------------
 
 main() {
-    var i: int = 0;
+    var i: i32 = 0;
     if (false) {
         i = 1;
         assert(false);
@@ -98,7 +98,7 @@ main() {
 //---------------------------------------
 
 main() {
-    var i: int = 0;
+    var i: i32 = 0;
     if (false) {
         i = 1;
         assert(false);
@@ -115,7 +115,7 @@ main() {
 //---------------------------------------
 
 main() {
-    var i: int = 0;
+    var i: i32 = 0;
     if (false) {
         i = 1;
         assert(false);
@@ -132,7 +132,7 @@ main() {
 //---------------------------------------
 
 main() {
-    var i: int = 0;
+    var i: i32 = 0;
     if (false) {
         i = 1;
         assert(false);
@@ -149,7 +149,7 @@ main() {
 //---------------------------------------
 
 main() {
-    var i: int = 0;
+    var i: i32 = 0;
     if (true) {
         i = 1;
     } elif (true) {

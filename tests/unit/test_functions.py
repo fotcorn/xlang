@@ -17,7 +17,7 @@ def test_fail_ref_param():
     with pytest.raises(ContextException):
         run(
             """
-            func(a: *int) {
+            func(a: *i32) {
             }
             main() {
                 func(5);

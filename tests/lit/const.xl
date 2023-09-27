@@ -2,7 +2,7 @@
 
 // variables can be modified as expected (definition)
 main() {
-    var i: int = 0;
+    var i: i32 = 0;
     i = i + 1;
     // CHECK: 1
     printi(i);
@@ -12,7 +12,7 @@ main() {
 
 // variables can be modified as expected (declaration)
 main() {
-    var i: int;
+    var i: i32;
     i = i + 1;
     // CHECK: 1
     printi(i);
@@ -22,7 +22,7 @@ main() {
 
 // constants cannot be modified
 main() {
-    const i: int = 0;
+    const i: i32 = 0;
     // CHECK: Cannot assign i, variable is const
     i = i + 1;
 }
@@ -30,24 +30,24 @@ main() {
 //---------------------------------------
 
 // function parameters are constant
-function(i: int) {
+function(i: i32) {
     // CHECK: Cannot assign i, variable is const
     i = i + 1;
     printi(i);
 }
 main() {
-    const i: int = 3;
+    const i: i32 = 3;
     function(i);
 }
 
 //---------------------------------------
 
 // reference parameters need to be vars
-function(i: *int) {
+function(i: *i32) {
     i = i + 1;
 }
 main() {
-    var i: int = 5;
+    var i: i32 = 5;
     function(i);
     // CHECK: 5
     printi(i);
@@ -56,11 +56,11 @@ main() {
 //---------------------------------------
 
 // reference parameters need to be vars (error case)
-function(i: *int) {
+function(i: *i32) {
     i = i + 1;
 }
 main() {
-    const i: int = 5;
+    const i: i32 = 5;
     // CHECK: Variables passed as reference parameters cannot be const
     function(i);
 }

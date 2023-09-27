@@ -7,11 +7,11 @@ def test_struct():
     ast = validate(
         """
         struct SubStruct {
-            x: int,
+            x: i32,
         }
         struct Test {
-            a: int,
-            b: [int],
+            a: i32,
+            b: [i32],
             c: SubStruct,
             d: [SubStruct],
             e: i64,
@@ -30,8 +30,8 @@ def test_struct():
             r: [u16],
             s: u8,
             t: [u8],
-            u: float,
-            v: [float],
+            u: f32,
+            v: [f32],
             w: string,
             x: [string],
         }
@@ -39,7 +39,7 @@ def test_struct():
         main() {
             var test: Test;
             test.a = 5;
-            const a: int = test.a + test.b[0];
+            const a: i32 = test.a + test.b[0];
         }
         """
     )
@@ -53,10 +53,10 @@ def test_duplicate_struct():
         validate(
             """
             struct MyStruct {
-                a: int,
+                a: i32,
             }
             struct MyStruct {
-                b: int,
+                b: i32,
             }
             """
         )

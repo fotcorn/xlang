@@ -60,7 +60,7 @@ def builtin_printi(value: Value):
     print(value.value)
 
 
-@builtin("printf", None, [prim("value", PrimitiveType.FLOAT)])
+@builtin("printf", None, [prim("value", PrimitiveType.F32)])
 def builtin_printf(value: Value):
     print(value.value)
 
@@ -149,7 +149,7 @@ BUILTINS += [
                     variable_type=VariableTypeEnum.ARRAY,
                     array_type=VariableType(
                         variable_type=VariableTypeEnum.PRIMITIVE,
-                        primitive_type=PrimitiveType.FLOAT,
+                        primitive_type=PrimitiveType.F32,
                     ),
                 ),
                 reference=True,
@@ -159,7 +159,7 @@ BUILTINS += [
                 context=ParseContext.from_builtin(),
                 param_type=VariableType(
                     variable_type=VariableTypeEnum.PRIMITIVE,
-                    primitive_type=PrimitiveType.FLOAT,
+                    primitive_type=PrimitiveType.F32,
                 ),
                 reference=False,
             ),

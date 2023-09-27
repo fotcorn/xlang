@@ -5,7 +5,7 @@ def test_access():
     validate(
         """
         struct MyStruct {
-            a: int,
+            a: i32,
         }
         main() {
             var struct_array: [MyStruct];

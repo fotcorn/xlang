@@ -9,12 +9,12 @@ main() {
 
 main() {
     // CHECK: Incompatible value type
-    const i: float = 5;
+    const i: f32 = 5;
 }
 
 //---------------------------------------
 
 main() {
     // CHECK: Incompatible value type
-    const i: int = 5.0;
+    const i: i32 = 5.0;
 }

@@ -23,7 +23,7 @@ class PrimitiveType(Enum):
     U16 = auto()
     U8 = auto()
     STRING = auto()
-    FLOAT = auto()
+    F32 = auto()
     BOOL = auto()
 
 
@@ -39,7 +39,7 @@ INTEGER_TYPES = (
 )
 
 
-NUMBER_TYPES = INTEGER_TYPES + (PrimitiveType.FLOAT,)
+NUMBER_TYPES = INTEGER_TYPES + (PrimitiveType.F32,)
 
 
 class ParseContext(BaseModel):

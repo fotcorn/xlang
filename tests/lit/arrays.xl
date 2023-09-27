@@ -1,7 +1,7 @@
 // RUN: %run --split-input-file %s | %filecheck --match-full-lines %s
 
 main() {
-    var array: [int];
+    var array: [i32];
     appendi(array, 2);
     appendi(array, 6);
     // CHECK: 6

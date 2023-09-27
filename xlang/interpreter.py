@@ -241,8 +241,8 @@ class Interpreter:
                     f"{expression.operator} operator not supported on type: {operand2_value}"
                 )
             if (
-                operand1_value.primitive_type == PrimitiveType.FLOAT
-                or operand2_value.primitive_type == PrimitiveType.FLOAT
+                operand1_value.primitive_type == PrimitiveType.F32
+                or operand2_value.primitive_type == PrimitiveType.F32
             ) and operand1_value.primitive_type != operand2_value.primitive_type:
                 raise Exception(
                     f"{expression.operator} operator only works beween int types"
@@ -370,7 +370,7 @@ class Interpreter:
                 return Value(
                     type=ValueType.PRIMITIVE, value=0, primitive_type=primitive_type
                 )
-            elif primitive_type == PrimitiveType.FLOAT:
+            elif primitive_type == PrimitiveType.F32:
                 return Value(
                     type=ValueType.PRIMITIVE, value=0.0, primitive_type=primitive_type
                 )

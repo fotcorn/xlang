@@ -1,7 +1,7 @@
 // RUN: %run --split-input-file %s | %filecheck --match-full-lines %s
 
 main() {
-    const a: int = 5;
+    const a: i32 = 5;
     // CHECK: 5
     printi(a);
 }
@@ -42,7 +42,7 @@ main() {
 a() {
     return;
 }
-b(): int {
+b(): i32 {
     return 9;
 }
 main() {
@@ -53,16 +53,16 @@ main() {
 
 //---------------------------------------
 
-test(): int {
+test(): i32 {
     return 5;
 }
 main() {
-    const a: int = 1 + 2;
+    const a: i32 = 1 + 2;
     // CHECK: 3
     printi(a);
 
-    var b: int = 5;
-    const c: int = a + b;
+    var b: i32 = 5;
+    const c: i32 = a + b;
     // CHECK: 8
     printi(c);
 
@@ -70,27 +70,27 @@ main() {
     // CHECK: 5
     printi(b);
 
-    const d: int = a * b;
+    const d: i32 = a * b;
     // CHECK: 15
     printi(d);
 
-    const e: int = a * b + c;
+    const e: i32 = a * b + c;
     // CHECK: 23
     printi(e);
 
-    const f: int = a + b * c;
+    const f: i32 = a + b * c;
     // CHECK: 43
     printi(f);
 
-    const g: int = test();
+    const g: i32 = test();
     // CHECK: 5
     printi(g);
 
-    const h: int = b + 1;
+    const h: i32 = b + 1;
     // CHECK: 6
     printi(h);
 
-    const i: int = 1 + b;
+    const i: i32 = 1 + b;
     // CHECK: 6
     printi(i);
 }
@@ -98,7 +98,7 @@ main() {
 //---------------------------------------
 
 main() {
-    var i: int = 0;
+    var i: i32 = 0;
     loop {
         i = i + 1;
         if (i == 5) {
@@ -123,8 +123,8 @@ main() {
 //---------------------------------------
 
 main() {
-    const a: float = 3.5;
-    const b: float = 1.2;
+    const a: f32 = 3.5;
+    const b: f32 = 1.2;
 
     // CHECK: 3.5
     printf(a);

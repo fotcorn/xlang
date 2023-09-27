@@ -1,11 +1,11 @@
 struct Vec3{
-    x: int,
-    y: int,
-    z: int,
+    x: i32,
+    y: i32,
+    z: i32,
 }
 
-length_squared(vec: Vec3): int {
-    const square: int = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
+length_squared(vec: Vec3): i32 {
+    const square: i32 = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
     return square;
 }
 

@@ -8,17 +8,17 @@ def test_validation_pass():
     ast = validate(
         """
         struct MyStruct {
-            a: int,
+            a: i32,
         }
 
-        intfunc(a: int): int {
+        intfunc(a: i32): i32 {
             return 5;
         }
 
-        param_func(a: int, b: u16, c: [int], d: MyStruct): [MyStruct] {}
+        param_func(a: i32, b: u16, c: [i32], d: MyStruct): [MyStruct] {}
 
         main() {
-            const a: int = 5;
+            const a: i32 = 5;
             intfunc(a);
         }
         """
@@ -36,7 +36,7 @@ def test_validation_pass():
     assert (
         ast.functions["intfunc"].return_type.variable_type == VariableTypeEnum.PRIMITIVE
     )
-    assert ast.functions["intfunc"].return_type.primitive_type == PrimitiveType.I64
+    assert ast.functions["intfunc"].return_type.primitive_type == PrimitiveType.I32
 
     # param_func return type
     assert ast.functions["param_func"].return_type
@@ -143,10 +143,10 @@ def test_bool():
 def test_array_access():
     validate(
         """
-        append(array: [int], value: int) {}
+        append(array: [i32], value: i32) {}
 
         main() {
-            var b: [int];
+            var b: [i32];
             append(b, 5);
             printi(b[0]);
         }
@@ -158,13 +158,13 @@ def test_struct_access():
     validate(
         """
         struct B {
-            c: float,
-            d: [float],
+            c: f32,
+            d: [f32],
         }
 
         struct A {
-            a: int,
-            b: [int],
+            a: i32,
+            b: [i32],
             subStruct: B,
             subStructArray: [B],
         }
@@ -187,7 +187,7 @@ def test_struct_access():
 def test_function_param_access():
     validate(
         """
-        main(a: int) {
+        main(a: i32) {
             printi(a);
         }
         """
@@ -198,8 +198,8 @@ def test_function_param_override_error():
     with pytest.raises(Exception):
         validate(
             """
-            main(a: int) {
-                const a: int = 5;
+            main(a: i32) {
+                const a: i32 = 5;
             }
             """
         )
@@ -209,8 +209,8 @@ def test_variable_type_declaration_mismatch():
     with pytest.raises(Exception):
         validate(
             """
-            main(a: int) {
-                const a: int = "test";
+            main(a: i32) {
+                const a: i32 = "test";
             }
             """
         )
@@ -220,7 +220,7 @@ def test_variable_type_declaration_mismatch2():
     with pytest.raises(Exception):
         validate(
             """
-            main(a: int) {
+            main(a: i32) {
                 const a: string = 1;
             }
             """
@@ -231,8 +231,8 @@ def test_variable_type_set_mismatch():
     with pytest.raises(Exception):
         validate(
             """
-            main(a: int) {
-                var a: int;
+            main(a: i32) {
+                var a: i32;
                 a = "string";
             }
             """
@@ -243,10 +243,10 @@ def test_variable_type_declaration_mismatch_func():
     with pytest.raises(Exception):
         validate(
             """
-            func(): int {
+            func(): i32 {
                 return 5;
             }
-            main(a: int) {
+            main(a: i32) {
                 const a: string = func();
             }
             """
@@ -257,10 +257,10 @@ def test_variable_type_set_mismatch_func():
     with pytest.raises(Exception):
         validate(
             """
-            func(): int {
+            func(): i32 {
                 return 5;
             }
-            main(a: int) {
+            main(a: i32) {
                 var a: string;
                 a = func();
             }
@@ -283,7 +283,7 @@ def test_compare_operator_type_fail():
         validate(
             """
             main() {
-                const a: int = 1 == 1;
+                const a: i32 = 1 == 1;
             }
             """
         )

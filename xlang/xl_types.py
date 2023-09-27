@@ -31,9 +31,6 @@ def primitive(primitive_type: PrimitiveType) -> VariableType:
 
 
 def get_type_from_string(global_scope: GlobalScope, type_name: str) -> VariableType:
-    # int is just an alias for i64
-    if type_name == "int":
-        type_name = "i64"
     if type_name == "i64":
         return primitive(PrimitiveType.I64)
     elif type_name == "i32":
@@ -50,8 +47,8 @@ def get_type_from_string(global_scope: GlobalScope, type_name: str) -> VariableT
         return primitive(PrimitiveType.U16)
     elif type_name == "u8":
         return primitive(PrimitiveType.U8)
-    elif type_name == "float":
-        return primitive(PrimitiveType.FLOAT)
+    elif type_name == "f32":
+        return primitive(PrimitiveType.F32)
     elif type_name == "string":
         return primitive(PrimitiveType.STRING)
     elif type_name == "bool":

@@ -2,17 +2,17 @@
 
 a() {
 }
-b(): int {
+b(): i32 {
     return 1;
 }
-c(p1: int) {
+c(p1: i32) {
 }
-d(p1: int): int {
+d(p1: i32): i32 {
     return 2;
 }
-e(p1: int, p2: int) {
+e(p1: i32, p2: i32) {
 }
-f(p1: int, p2: int): int {
+f(p1: i32, p2: i32): i32 {
     return 3;
 }
 main() {
@@ -29,11 +29,11 @@ main() {
 
 //---------------------------------------
 
-myfunc(): int {
+myfunc(): i32 {
     return 5;
 }
 main() {
-    const i: int = myfunc();
+    const i: i32 = myfunc();
     // CHECK: 5
     printi(i);
 }
@@ -41,8 +41,8 @@ main() {
 //---------------------------------------
 
 struct MyStruct {
-    a: int,
-    b: int,
+    a: i32,
+    b: i32,
 }
 
 myfunc(): MyStruct {
@@ -63,8 +63,8 @@ main() {
 //---------------------------------------
 
 struct MyStruct {
-    a: int,
-    b: int,
+    a: i32,
+    b: i32,
 }
 
 myfunc(s: MyStruct) {
@@ -88,7 +88,7 @@ main() {
 //---------------------------------------
 
 struct X {
-    a: int,
+    a: i32,
 }
 func_ref(x: *X) {
     x.a = 5;
@@ -104,11 +104,11 @@ main() {
 //---------------------------------------
 
 // reference parameters
-test(i: *int) {
+test(i: *i32) {
     i = i + 1;
 }
 main() {
-    var param: int = 3;
+    var param: i32 = 3;
     test(param);
     // CHECK: 4
     printi(param);
@@ -118,7 +118,7 @@ main() {
 //---------------------------------------
 
 // reference parameters
-test(i: *int) {
+test(i: *i32) {
     i = i + 1;
 }
 main() {

@@ -36,7 +36,7 @@ def test_struct():
             x: [string],
         }
 
-        main() {
+        func main() {
             var test: Test;
             test.a = 5;
             const a: i32 = test.a + test.b[0];

@@ -1,4 +1,4 @@
-main() {
+func main() {
     prints("Hello World!");
     printi(5);
     printf(5.0);

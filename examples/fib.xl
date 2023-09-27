@@ -1,4 +1,4 @@
-main() {
+func main() {
     var t1: i32 = 0;
     var t2: i32 = 1;
     var tmp: i32 = 0;

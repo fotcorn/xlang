@@ -1,20 +1,20 @@
 // RUN: %run --split-input-file %s | %filecheck %s
 
-main() {
+func main() {
     // CHECK: Invalid function parameter type
     printi(5.0);
 }
 
 //---------------------------------------
 
-main() {
+func main() {
     // CHECK: Incompatible value type
     const i: f32 = 5;
 }
 
 //---------------------------------------
 
-main() {
+func main() {
     // CHECK: Incompatible value type
     const i: i32 = 5.0;
 }

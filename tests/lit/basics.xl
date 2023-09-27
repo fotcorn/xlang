@@ -1,6 +1,6 @@
 // RUN: %run --split-input-file %s | %filecheck --match-full-lines %s
 
-main() {
+func main() {
     const a: i32 = 5;
     // CHECK: 5
     printi(a);
@@ -8,7 +8,7 @@ main() {
 
 //---------------------------------------
 
-main() {
+func main() {
     // CHECK: Hello World!
     prints("Hello World!");
     const a: string = "teststring";
@@ -18,34 +18,34 @@ main() {
 
 //---------------------------------------
 
-main() {
+func main() {
     // CHECK: 8
     printi(5 + 3);
 }
 
 //---------------------------------------
 
-main() {
+func main() {
     // CHECK: 15
     printi(5 * 3);
 }
 
 //---------------------------------------
 
-main() {
+func main() {
     // CHECK: true
     printb(5 != 3);
 }
 
 //---------------------------------------
 
-a() {
+func a() {
     return;
 }
-b(): i32 {
+func b(): i32 {
     return 9;
 }
-main() {
+func main() {
     a();
     // CHECK: 9
     printi(b());
@@ -53,10 +53,10 @@ main() {
 
 //---------------------------------------
 
-test(): i32 {
+func test(): i32 {
     return 5;
 }
-main() {
+func main() {
     const a: i32 = 1 + 2;
     // CHECK: 3
     printi(a);
@@ -97,7 +97,7 @@ main() {
 
 //---------------------------------------
 
-main() {
+func main() {
     var i: i32 = 0;
     loop {
         i = i + 1;
@@ -111,7 +111,7 @@ main() {
 
 //---------------------------------------
 
-main() {
+func main() {
     // CHECK: 7
     printi(1 + 2 * 3);
     // CHECK: 9
@@ -122,7 +122,7 @@ main() {
 
 //---------------------------------------
 
-main() {
+func main() {
     const a: f32 = 3.5;
     const b: f32 = 1.2;
 

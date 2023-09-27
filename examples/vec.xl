@@ -4,12 +4,12 @@ struct Vec3{
     z: i32,
 }
 
-length_squared(vec: Vec3): i32 {
+func length_squared(vec: Vec3): i32 {
     const square: i32 = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
     return square;
 }
 
-main() {
+func main() {
     var vec: Vec3;
 
     vec.x = 5;

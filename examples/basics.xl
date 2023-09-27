@@ -1,8 +1,8 @@
 
-func(a: i32, b: i32): i32 {
+func func(a: i32, b: i32): i32 {
     return a + b;
 }
 
-main() {
+func main() {
     printi(func(3, 5));
 }

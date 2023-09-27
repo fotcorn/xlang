@@ -7,7 +7,7 @@ def test_access():
         struct MyStruct {
             a: i32,
         }
-        main() {
+        func main() {
             var struct_array: [MyStruct];
             var my_struct: MyStruct;
             printi(my_struct.a);

@@ -11,13 +11,13 @@ def test_validation_pass():
             a: i32,
         }
 
-        intfunc(a: i32): i32 {
+        func intfunc(a: i32): i32 {
             return 5;
         }
 
-        param_func(a: i32, b: u16, c: [i32], d: MyStruct): [MyStruct] {}
+        func param_func(a: i32, b: u16, c: [i32], d: MyStruct): [MyStruct] {}
 
-        main() {
+        func main() {
             const a: i32 = 5;
             intfunc(a);
         }
@@ -65,7 +65,7 @@ def test_non_existing_type():
     with pytest.raises(Exception):
         validate(
             """
-            func(): NonExistingType {
+            func func(): NonExistingType {
                 return 5;
             }
             """
@@ -75,7 +75,7 @@ def test_non_existing_type():
 def test_inside_loop_continue():
     validate(
         """
-        func() {
+        func main() {
             loop {
                 continue;
             }
@@ -93,7 +93,7 @@ def test_inside_loop_continue():
 def test_inside_loop_break():
     validate(
         """
-        func() {
+        func main() {
             loop {
                 break;
             }
@@ -112,7 +112,7 @@ def test_inside_loop_continue_fail():
     with pytest.raises(Exception):
         validate(
             """
-            func() {
+            func main() {
                 continue;
             }
             """
@@ -123,7 +123,7 @@ def test_inside_loop_break_fail():
     with pytest.raises(Exception):
         validate(
             """
-            func() {
+            func main() {
                 break;
             }
             """
@@ -133,7 +133,7 @@ def test_inside_loop_break_fail():
 def test_bool():
     validate(
         """
-        main() {
+        func main() {
             const b: bool = false;
         }
         """
@@ -143,9 +143,9 @@ def test_bool():
 def test_array_access():
     validate(
         """
-        append(array: [i32], value: i32) {}
+        func append(array: [i32], value: i32) {}
 
-        main() {
+        func main() {
             var b: [i32];
             append(b, 5);
             printi(b[0]);
@@ -169,7 +169,7 @@ def test_struct_access():
             subStructArray: [B],
         }
 
-        main() {
+        func main() {
             var s: A;
             printi(s.a);
             printi(s.b[0]);
@@ -187,7 +187,7 @@ def test_struct_access():
 def test_function_param_access():
     validate(
         """
-        main(a: i32) {
+        func main(a: i32) {
             printi(a);
         }
         """
@@ -198,7 +198,7 @@ def test_function_param_override_error():
     with pytest.raises(Exception):
         validate(
             """
-            main(a: i32) {
+            func main(a: i32) {
                 const a: i32 = 5;
             }
             """
@@ -209,7 +209,7 @@ def test_variable_type_declaration_mismatch():
     with pytest.raises(Exception):
         validate(
             """
-            main(a: i32) {
+            func main(a: i32) {
                 const a: i32 = "test";
             }
             """
@@ -220,7 +220,7 @@ def test_variable_type_declaration_mismatch2():
     with pytest.raises(Exception):
         validate(
             """
-            main(a: i32) {
+            func main(a: i32) {
                 const a: string = 1;
             }
             """
@@ -231,7 +231,7 @@ def test_variable_type_set_mismatch():
     with pytest.raises(Exception):
         validate(
             """
-            main(a: i32) {
+            func main(a: i32) {
                 var a: i32;
                 a = "string";
             }
@@ -243,10 +243,10 @@ def test_variable_type_declaration_mismatch_func():
     with pytest.raises(Exception):
         validate(
             """
-            func(): i32 {
+            func func(): i32 {
                 return 5;
             }
-            main(a: i32) {
+            func main(a: i32) {
                 const a: string = func();
             }
             """
@@ -257,10 +257,10 @@ def test_variable_type_set_mismatch_func():
     with pytest.raises(Exception):
         validate(
             """
-            func(): i32 {
+            func func(): i32 {
                 return 5;
             }
-            main(a: i32) {
+            func main(a: i32) {
                 var a: string;
                 a = func();
             }
@@ -271,7 +271,7 @@ def test_variable_type_set_mismatch_func():
 def test_compare_operator_type_ok():
     validate(
         """
-        main() {
+        func main() {
             const a: bool = 1 == 1;
         }
         """
@@ -282,7 +282,7 @@ def test_compare_operator_type_fail():
     with pytest.raises(TypeMismatchException):
         validate(
             """
-            main() {
+            func main() {
                 const a: i32 = 1 == 1;
             }
             """
@@ -293,7 +293,7 @@ def test_compare_operator_type_fail2():
     with pytest.raises(TypeMismatchException):
         validate(
             """
-            main() {
+            func main() {
                 const s: string = "test";
                 const a: bool = 1 == s;
             }

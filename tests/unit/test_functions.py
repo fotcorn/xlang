@@ -7,8 +7,8 @@ def test_duplicate_function():
     with pytest.raises(FunctionAlreadyDefinedException):
         run(
             """
-            a() {}
-            a() {}
+            func a() {}
+            func a() {}
             """
         )
 
@@ -17,9 +17,9 @@ def test_fail_ref_param():
     with pytest.raises(ContextException):
         run(
             """
-            func(a: *i32) {
+            func func(a: *i32) {
             }
-            main() {
+            func main() {
                 func(5);
             }
         """

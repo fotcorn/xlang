@@ -1,21 +1,21 @@
 // RUN: %run --split-input-file %s | %filecheck %s
 
-a() {
+func a() {
 }
-b(): i32 {
+func b(): i32 {
     return 1;
 }
-c(p1: i32) {
+func c(p1: i32) {
 }
-d(p1: i32): i32 {
+func d(p1: i32): i32 {
     return 2;
 }
-e(p1: i32, p2: i32) {
+func e(p1: i32, p2: i32) {
 }
-f(p1: i32, p2: i32): i32 {
+func f(p1: i32, p2: i32): i32 {
     return 3;
 }
-main() {
+func main() {
     a();
     // CHECK: 1
     printi(b());
@@ -29,10 +29,10 @@ main() {
 
 //---------------------------------------
 
-myfunc(): i32 {
+func myfunc(): i32 {
     return 5;
 }
-main() {
+func main() {
     const i: i32 = myfunc();
     // CHECK: 5
     printi(i);
@@ -45,14 +45,14 @@ struct MyStruct {
     b: i32,
 }
 
-myfunc(): MyStruct {
+func myfunc(): MyStruct {
     var s: MyStruct;
     s.a = 5;
     s.b = 7;
     return s;
 }
 
-main() {
+func main() {
     const s: MyStruct = myfunc();
     // CHECK: 5
     printi(s.a);
@@ -67,14 +67,14 @@ struct MyStruct {
     b: i32,
 }
 
-myfunc(s: MyStruct) {
+func myfunc(s: MyStruct) {
     // CHECK: 5
     printi(s.a);
     // CHECK: 7
     printi(s.b);
 }
 
-main() {
+func main() {
     var s: MyStruct;
     s.a = 5;
     s.b = 7;
@@ -93,7 +93,7 @@ struct X {
 func_ref(x: *X) {
     x.a = 5;
 }
-main() {
+func main() {
     var x: X;
     x.a = 1;
     func_ref(x);
@@ -104,10 +104,10 @@ main() {
 //---------------------------------------
 
 // reference parameters
-test(i: *i32) {
+func test(i: *i32) {
     i = i + 1;
 }
-main() {
+func main() {
     var param: i32 = 3;
     test(param);
     // CHECK: 4
@@ -118,10 +118,10 @@ main() {
 //---------------------------------------
 
 // reference parameters
-test(i: *i32) {
+func test(i: *i32) {
     i = i + 1;
 }
-main() {
+func main() {
     // CHECK: Only variables allowed for reference parameters
     test(5);
 }

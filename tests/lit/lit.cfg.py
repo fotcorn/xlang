@@ -26,5 +26,5 @@ if not filecheck_bin:
         if filecheck_bin:
             break
 if not filecheck_bin:
-    raise Exception("FileCheck binary not found in PATH")
+    raise FileNotFoundError("FileCheck binary not found in PATH")
 config.substitutions.append(("%filecheck", f"{filecheck_bin} --match-full-lines"))

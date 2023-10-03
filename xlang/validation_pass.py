@@ -212,20 +212,39 @@ class Typeifier:
 
         return expression_type
 
-    def array_access(self, variable_type, array_access):
+    def array_access(self, variable_type: VariableType, array_access: BaseExpression):
         access_type = self.expression(array_access)
-        if variable_type.variable_type != VariableTypeEnum.ARRAY:
-            raise ContextException(
-                "Array access on non-array type", array_access.context
-            )
-        if (
-            access_type.variable_type != VariableTypeEnum.PRIMITIVE
-            or access_type.primitive_type not in INTEGER_TYPES
+        if variable_type.variable_type == VariableTypeEnum.ARRAY:
+            if (
+                access_type.variable_type != VariableTypeEnum.PRIMITIVE
+                or access_type.primitive_type not in INTEGER_TYPES
+            ):
+                raise TypeMismatchException(
+                    "Array index must be an integer",
+                    array_access.context,
+                )
+            return variable_type.array_type
+        elif (
+            variable_type.variable_type == VariableTypeEnum.PRIMITIVE
+            and variable_type.primitive_type == PrimitiveType.STRING
         ):
-            raise ContextException(
-                "Invalid type for array access", array_access.context
+            if (
+                access_type.variable_type != VariableTypeEnum.PRIMITIVE
+                or access_type.primitive_type not in INTEGER_TYPES
+            ):
+                raise TypeMismatchException(
+                    "String index must be an integer",
+                    array_access.context,
+                )
+            return VariableType(
+                variable_type=VariableTypeEnum.PRIMITIVE,
+                primitive_type=PrimitiveType.I8,
             )
-        return variable_type.array_type
+        else:
+            raise TypeMismatchException(
+                "Indexing not supported for this type",
+                array_access.context,
+            )
 
     def expression(self, expression: BaseExpression):
         if isinstance(expression, FunctionCall):

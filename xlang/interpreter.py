@@ -183,16 +183,25 @@ class Interpreter:
         else:
             raise InternalCompilerError("unhandled statement")
 
-    def array_lookup(
+    def index_lookup(
         self,
-        array: Value,
+        value: Value,
         array_access: BaseExpression,
     ) -> Value:
         index = self.expression(array_access)
-        assert array.is_array is True
-        if index.value < 0 or index.value >= len(array.value):
-            raise Exception("Index array out of bounds")
-        return array.value[index.value]
+        if value.is_array:
+            if index.value < 0 or index.value >= len(value.value):
+                raise Exception("Array index out of bounds")
+            return value.value[index.value]
+        elif (
+            value.type == ValueType.PRIMITIVE
+            and value.primitive_type == PrimitiveType.STRING
+        ):
+            if index.value < 0 or index.value >= len(value.value):
+                raise Exception("String index out of bounds")
+            return Value(type=value.type, value=ord(value.value[index.value]))
+        else:
+            raise Exception("Indexing not supported for this type")
 
     def struct_lookup(self, struct: Value, variable_access: VariableAccess) -> Value:
         value = struct.value[variable_access.variable_name]
@@ -200,7 +209,7 @@ class Interpreter:
             value = self.struct_lookup(value, variable_access.variable_access)
 
         if variable_access.array_access is not None:
-            value = self.array_lookup(value, variable_access.array_access)
+            value = self.index_lookup(value, variable_access.array_access)
         return value
 
     def lookup_variable(self, variable_access: VariableAccess) -> Value:
@@ -211,7 +220,7 @@ class Interpreter:
             value = self.struct_lookup(value, variable_access.variable_access)
 
         if variable_access.array_access is not None:
-            value = self.array_lookup(value, variable_access.array_access)
+            value = self.index_lookup(value, variable_access.array_access)
         return value
 
     def expression(self, expression: BaseExpression):

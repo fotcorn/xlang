@@ -1,0 +1,8 @@
+// RUN: %run --split-input-file %s | %filecheck --match-full-lines %s
+
+func main() {
+    const s: string = "hello";
+    const c: i8 = s[0];
+    // CHECK: 104
+    printi(c);
+}

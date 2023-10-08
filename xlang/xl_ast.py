@@ -11,6 +11,7 @@ class VariableTypeEnum(Enum):
     ARRAY = auto()
     STRUCT = auto()
     ENUM = auto()
+    BUILTIN_GENERIC = auto()
 
 
 class PrimitiveType(Enum):
@@ -114,9 +115,6 @@ class GlobalScope(BaseModel):
                             new_dict[k] = v.primitive_type.name
                         else:
                             new_dict[k] = dump_base_model(v)
-                    elif isinstance(v, BuiltinFunction):
-                        # Do not dump builtin functions.
-                        pass
                     elif isinstance(v, BaseModel):
                         new_dict[k] = dump_base_model(v)
                     elif isinstance(v, list):
@@ -163,18 +161,19 @@ class CompareOperation(BaseExpression):
     operator: str
 
 
-class VariableAccess(BaseExpression):
-    variable_name: str
-    array_access: Optional[BaseExpression] = None
-    variable_access: Optional[VariableAccess] = None
-
-
 class ArrayAccess(BaseExpression):
     expression: BaseExpression
 
 
 class Statement(BaseModel):
     context: ParseContext
+
+
+class VariableAccess(Statement, BaseExpression):
+    variable_name: str
+    array_access: Optional[BaseExpression] = None
+    variable_access: Optional[VariableAccess] = None
+    method_call: Optional[FunctionCall] = None
 
 
 class FunctionCall(Statement, BaseExpression):

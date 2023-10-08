@@ -1,5 +1,6 @@
+from collections import defaultdict
 import functools
-from typing import List
+from typing import Dict, List, Optional
 from xlang.exceptions import InterpreterAssertionError
 from xlang.xl_ast import (
     FunctionParameter,
@@ -9,14 +10,21 @@ from xlang.xl_ast import (
     PrimitiveType,
     BuiltinFunction,
 )
-from xlang.interpreter import Value
+from xlang.interpreter_datatypes import Value
 
-BUILTINS = []
+BUILTIN_FUNCTIONS = {}
+BUILTIN_ARRAY_METHODS = {}
+BUILTIN_PRIMITIVE_METHODS: Dict = defaultdict(dict)
 
 
-def builtin(name, return_type, params, context=False):
+def builtin_function(
+    name: str,
+    return_type: Optional[VariableType],
+    params: List[FunctionParameter],
+    context: bool = False,
+):
     def decorate(func):
-        global BUILTINS
+        global BUILTIN_FUNCTIONS
 
         @functools.wraps(func)
         def wrapper(params, **kwargs):
@@ -25,14 +33,71 @@ def builtin(name, return_type, params, context=False):
             else:
                 return func(*params)
 
-        BUILTINS.append(
-            BuiltinFunction(
-                name=name,
-                return_type=return_type,
-                function_params=params,
-                function_ptr=wrapper,
-            )
+        BUILTIN_FUNCTIONS[name] = BuiltinFunction(
+            name=name,
+            return_type=return_type,
+            function_params=params,
+            function_ptr=wrapper,
         )
+        return wrapper
+
+    return decorate
+
+
+def builtin_method_array(
+    name: str,
+    return_type: Optional[VariableType],
+    params: List[FunctionParameter],
+    context=False,
+):
+    def decorate(func):
+        global BUILTIN_METHODS
+
+        @functools.wraps(func)
+        def wrapper(params, **kwargs):
+            if context:
+                return func(*params, context=kwargs["context"])
+            else:
+                return func(*params)
+
+        func = BuiltinFunction(
+            name=name,
+            return_type=return_type,
+            function_params=params,
+            function_ptr=wrapper,
+        )
+        BUILTIN_ARRAY_METHODS[name] = func
+
+        return wrapper
+
+    return decorate
+
+
+def builtin_method_primitive(
+    primitive_type: PrimitiveType,
+    name: str,
+    return_type: VariableType,
+    params: List[FunctionParameter],
+    context=False,
+):
+    def decorate(func):
+        global BUILTIN_ARRAY_METHODS
+
+        @functools.wraps(func)
+        def wrapper(params, **kwargs):
+            if context:
+                return func(*params, context=kwargs["context"])
+            else:
+                return func(*params)
+
+        func = BuiltinFunction(
+            name=name,
+            return_type=return_type,
+            function_params=params,
+            function_ptr=wrapper,
+        )
+        BUILTIN_PRIMITIVE_METHODS[primitive_type][name] = func
+
         return wrapper
 
     return decorate
@@ -50,124 +115,79 @@ def prim(param_name: str, primitive_type: PrimitiveType):
     )
 
 
-@builtin("prints", None, [prim("value", PrimitiveType.STRING)])
+@builtin_function("prints", None, [prim("value", PrimitiveType.STRING)])
 def builtin_prints(value: Value):
     print(value.value)
 
 
-@builtin("printi", None, [prim("value", PrimitiveType.I64)])
+@builtin_function("printi", None, [prim("value", PrimitiveType.I64)])
 def builtin_printi(value: Value):
     print(value.value)
 
 
-@builtin("printf", None, [prim("value", PrimitiveType.F32)])
+@builtin_function("printf", None, [prim("value", PrimitiveType.F32)])
 def builtin_printf(value: Value):
     print(value.value)
 
 
-@builtin("printb", None, [prim("value", PrimitiveType.BOOL)])
+@builtin_function("printb", None, [prim("value", PrimitiveType.BOOL)])
 def builtin_printb(value: Value):
     print("true" if value.value else "false")
 
 
-def append_builtin(values: List[Value], *args, **kwargs):
-    array, value = values
-    array.value.append(value)
-
-
-@builtin("assert", None, [prim("value", PrimitiveType.BOOL)], True)
+@builtin_function("assert", None, [prim("value", PrimitiveType.BOOL)], True)
 def builtin_assert(value, context):
     if value.value is not True:
         raise InterpreterAssertionError("assertion failed", context)
 
 
-BUILTINS += [
-    BuiltinFunction(
-        name="appendi",
-        return_type=None,
-        function_params=[
-            FunctionParameter(
-                name="array",
-                context=ParseContext.from_builtin(),
-                param_type=VariableType(
-                    variable_type=VariableTypeEnum.ARRAY,
-                    array_type=VariableType(
-                        variable_type=VariableTypeEnum.PRIMITIVE,
-                        primitive_type=PrimitiveType.I64,
-                    ),
-                ),
-                reference=True,
-            ),
-            FunctionParameter(
-                name="value",
-                context=ParseContext.from_builtin(),
-                param_type=VariableType(
-                    variable_type=VariableTypeEnum.PRIMITIVE,
-                    primitive_type=PrimitiveType.I64,
-                ),
-                reference=False,
-            ),
-        ],
-        function_ptr=append_builtin,
-    ),
-    BuiltinFunction(
-        name="appends",
-        return_type=None,
-        function_params=[
-            FunctionParameter(
-                name="array",
-                context=ParseContext.from_builtin(),
-                param_type=VariableType(
-                    variable_type=VariableTypeEnum.ARRAY,
-                    array_type=VariableType(
-                        variable_type=VariableTypeEnum.PRIMITIVE,
-                        primitive_type=PrimitiveType.STRING,
-                    ),
-                ),
-                reference=True,
-            ),
-            FunctionParameter(
-                name="value",
-                context=ParseContext.from_builtin(),
-                param_type=VariableType(
-                    variable_type=VariableTypeEnum.PRIMITIVE,
-                    primitive_type=PrimitiveType.STRING,
-                ),
-                reference=False,
-            ),
-        ],
-        function_ptr=append_builtin,
-    ),
-    BuiltinFunction(
-        name="appendf",
-        return_type=None,
-        function_params=[
-            FunctionParameter(
-                name="array",
-                context=ParseContext.from_builtin(),
-                param_type=VariableType(
-                    variable_type=VariableTypeEnum.ARRAY,
-                    array_type=VariableType(
-                        variable_type=VariableTypeEnum.PRIMITIVE,
-                        primitive_type=PrimitiveType.F32,
-                    ),
-                ),
-                reference=True,
-            ),
-            FunctionParameter(
-                name="value",
-                context=ParseContext.from_builtin(),
-                param_type=VariableType(
-                    variable_type=VariableTypeEnum.PRIMITIVE,
-                    primitive_type=PrimitiveType.F32,
-                ),
-                reference=False,
-            ),
-        ],
-        function_ptr=append_builtin,
-    ),
-]
+@builtin_method_array(
+    "append",
+    None,
+    [
+        FunctionParameter(
+            name="value",
+            param_type=VariableType(variable_type=VariableTypeEnum.BUILTIN_GENERIC),
+            context=ParseContext.from_builtin(),
+            reference=False,
+        )
+    ],
+)
+def builtin_append(array, value):
+    array.value.append(value)
 
 
-def get_builtins() -> List[BuiltinFunction]:
-    return BUILTINS
+@builtin_method_primitive(
+    PrimitiveType.STRING,
+    "toLowerCase",
+    VariableType(
+        variable_type=VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.STRING
+    ),
+    [],
+)
+def builtin_string_toLowerCase(string):
+    return string.lower()
+
+
+@builtin_method_primitive(
+    PrimitiveType.STRING,
+    "toUpperCase",
+    VariableType(
+        variable_type=VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.STRING
+    ),
+    [],
+)
+def builtin_string_toUpperCase(string):
+    return string.upper()
+
+
+def get_builtin_functions() -> Dict[str, BuiltinFunction]:
+    return BUILTIN_FUNCTIONS
+
+
+def get_builtin_array_methods() -> Dict[str, BuiltinFunction]:
+    return BUILTIN_ARRAY_METHODS
+
+
+def get_builtin_primitive_methods():
+    return BUILTIN_PRIMITIVE_METHODS

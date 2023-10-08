@@ -32,7 +32,6 @@ from xlang.xl_ast import (
     VariableType,
     VariableTypeEnum,
 )
-from xlang.xl_builtins import get_builtins
 
 
 class ASTTransformer(Transformer):
@@ -164,8 +163,6 @@ class ASTTransformer(Transformer):
 
     def translation_unit(self, entries):
         global_scope = GlobalScope()
-        for builtin in get_builtins():
-            global_scope.functions[builtin.name] = builtin
         for entry in entries:
             if isinstance(entry, Function):
                 if entry.name in global_scope.functions:
@@ -307,20 +304,37 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def var_access(self, variable, *args):
-        assert len(args) in range(0, 3)
-        if len(args) == 2:
-            array_access, variable_access = args[0].expression, args[1]
-        elif len(args) == 0:
-            array_access, variable_access = None, None
-        elif isinstance(args[0], VariableAccess):
-            array_access, variable_access = None, args[0]
+        array_access, variable_access, method_call = None, None, None
+        if len(args) == 0:
+            # Simple variable only.
+            pass
+        elif len(args) == 1:
+            # Array access, variable access or method call.
+            if isinstance(args[0], VariableAccess):
+                variable_access = args[0]
+            elif isinstance(args[0], ArrayAccess):
+                array_access = args[0].expression
+            elif isinstance(args[0], FunctionCall):
+                method_call = args[0]
+            else:
+                raise InternalCompilerError("Invalid type in variable access")
+        elif len(args) == 2:
+            if isinstance(args[1], VariableAccess):
+                array_access = args[0].expression
+                variable_access = args[1]
+            elif isinstance(args[1], FunctionCall):
+                array_access = args[0].expression
+                method_call = args[1]
+            else:
+                raise InternalCompilerError("Invalid type in variable access")
         else:
-            array_access, variable_access = args[0].expression, None
+            raise InternalCompilerError("Invalid number of args in variable access")
 
         return VariableAccess(
             type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
             context=ParseContext.from_token(variable),
             variable_name=variable.value,
             array_access=array_access,
+            method_call=method_call,
             variable_access=variable_access,
         )

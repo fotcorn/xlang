@@ -1,6 +1,7 @@
-from typing import Optional
+from typing import List, Optional
 
 from xlang.xl_ast import (
+    FunctionParameter,
     ParseContext,
     VariableType,
     GlobalScope,
@@ -23,8 +24,8 @@ from xlang.xl_ast import (
     Return,
     Continue,
     Break,
-    BuiltinFunction,
 )
+from xlang.xl_builtins import get_builtin_functions
 from xlang.xl_types import typeify, is_type_compatible, primitive_type_from_constant
 from xlang.exceptions import (
     ContextException,
@@ -122,6 +123,8 @@ class Typeifier:
                 )
         elif isinstance(statement, FunctionCall):
             self.function_call(statement)
+        elif isinstance(statement, VariableAccess):
+            self.variable_access(statement)
         elif isinstance(statement, Loop):
             inner_loop = self.inside_loop
             self.inside_loop = True
@@ -180,6 +183,43 @@ class Typeifier:
                 raise ContextException("Break outside loop", statement.context)
         else:
             raise InternalCompilerError("Unhandled statement")
+
+    def variable_access(self, variable_access: VariableAccess):
+        variable_type = self.scope_stack.get_variable_type(
+            variable_access.variable_name
+        )
+        if not variable_type:
+            raise ContextException(
+                f"Unknown variable: {variable_access.variable_name}",
+                variable_access.context,
+            )
+
+        # handle array access
+        if variable_access.array_access is not None:
+            expression_type = self.array_access(
+                variable_type, variable_access.array_access
+            )
+        else:
+            expression_type = variable_type
+
+        # handle struct access
+        if variable_access.variable_access is not None:
+            expression_type = self.struct_access(
+                expression_type, variable_access.variable_access
+            )
+
+        if variable_access.method_call is not None:
+            raise Exception("method call not implemented")
+            if variable_type.variable_type == VariableTypeEnum.ARRAY:
+                pass
+            # TODO: support struct method calls
+            else:
+                raise ContextException(
+                    f"Cannot call method on {variable_type}", variable_access.context
+                )
+
+        variable_access.type = expression_type
+        return expression_type
 
     def struct_access(self, variable: VariableType, struct_access: VariableAccess):
         if variable.variable_type != VariableTypeEnum.STRUCT:
@@ -250,28 +290,7 @@ class Typeifier:
         if isinstance(expression, FunctionCall):
             expression.type = self.function_call(expression)
         elif isinstance(expression, VariableAccess):
-            variable_type = self.scope_stack.get_variable_type(expression.variable_name)
-            if not variable_type:
-                raise ContextException(
-                    f"Unknown variable: {expression.variable_name}", expression.context
-                )
-
-            # handle array access
-            if expression.array_access is not None:
-                expression_type = self.array_access(
-                    variable_type, expression.array_access
-                )
-            else:
-                expression_type = variable_type
-
-            # handle struct access
-            if expression.variable_access is not None:
-                expression_type = self.struct_access(
-                    expression_type, expression.variable_access
-                )
-
-            expression.type = expression_type
-
+            expression.type = self.variable_access(expression)
         elif isinstance(expression, Constant):
             if expression.constant_type == ConstantType.STRING:
                 expression.type = VariableType(
@@ -323,26 +342,36 @@ class Typeifier:
             raise InternalCompilerError("Unknown expression")
         return expression.type
 
-    def function_call(self, expression):
+    def function_call(self, expression: FunctionCall):
         # check if function actually exists
-        if expression.function_name not in self.global_scope.functions:
+        if expression.function_name in self.global_scope.functions:
+            function = self.global_scope.functions[expression.function_name]
+        elif expression.function_name in get_builtin_functions():
+            function = get_builtin_functions()[expression.function_name]
+        else:
             raise ContextException(
                 f"Unknown function called: {expression.function_name}",
                 expression.context,
             )
-        function = self.global_scope.functions[expression.function_name]
+        self.check_call_arguments(expression, function.function_params)
+        return function.return_type
 
+    def check_call_arguments(
+        self,
+        expression: FunctionCall,
+        function_params: List[FunctionParameter],
+    ):
         # check correct count of params given in call
-        if len(expression.params) != len(function.function_params):
+        if len(expression.params) != len(function_params):
             raise ContextException(
                 f"function {expression.function_name} takes "
-                f"{len(function.function_params)} params, "
+                f"{len(function_params)} params, "
                 f"{len(expression.params)} given",
                 expression.context,
             )
 
         # evaluate parameters and check if type matches
-        for param_expr, param_type in zip(expression.params, function.function_params):
+        for param_expr, param_type in zip(expression.params, function_params):
             if param_type.reference:
                 if not isinstance(param_expr, VariableAccess):
                     raise TypeMismatchException(
@@ -359,7 +388,6 @@ class Typeifier:
                 raise TypeMismatchException(
                     "Invalid function parameter type", param_expr.context
                 )
-        return function.return_type
 
 
 def validation_pass(global_scope: GlobalScope):
@@ -368,16 +396,12 @@ def validation_pass(global_scope: GlobalScope):
             member.param_type = typeify(member.param_type, global_scope)
 
     for function in global_scope.functions.values():
-        if isinstance(function, BuiltinFunction):
-            continue
         if function.return_type:
             function.return_type = typeify(function.return_type, global_scope)
         for parameter in function.function_params:
             parameter.param_type = typeify(parameter.param_type, global_scope)
 
     for function in global_scope.functions.values():
-        if isinstance(function, BuiltinFunction):
-            continue
         assert isinstance(function, Function)
         try:
             typeifier = Typeifier(global_scope, function)

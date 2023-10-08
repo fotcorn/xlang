@@ -17,11 +17,11 @@ INTEGER: (/[1-9][0-9]*/ | "0" )
 FLOAT: /([1-9][0-9]*|0)\.[0-9]+/
 STRING_LITERAL: /"[^"]*"/
 array_access: "[" compare_expr "]"
-var_access: IDENTIFIER array_access? ("." var_access)?
+var_access: IDENTIFIER array_access? ("." (var_access|function_call))?
 
 code_block: "{" statement* "}"
 
-?statement: loop | if_statement | (function_call ";") | variable_def | const_def | variable_dec | variable_assign | control ";"
+?statement: loop | if_statement | function_call ";" | variable_def | const_def | variable_dec | variable_assign | var_access ";" | control ";"
 !loop: "loop" code_block
 elif_statement: "elif" "(" compare_expr ")" code_block
 !else_statement: "else" code_block

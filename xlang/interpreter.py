@@ -1,9 +1,7 @@
-from enum import Enum, auto
-from typing import Optional, Any
-from pydantic import BaseModel
 import copy
 
 from xlang.exceptions import ContextException, InternalCompilerError
+from xlang.interpreter_datatypes import ScopeStack, Value, ValueType
 from xlang.xl_ast import (
     INTEGER_TYPES,
     NUMBER_TYPES,
@@ -27,40 +25,7 @@ from xlang.xl_ast import (
     Constant,
     BuiltinFunction,
 )
-
-
-class ValueType(Enum):
-    PRIMITIVE = auto()
-    STRUCT = auto()
-
-
-class Value(BaseModel):
-    type: ValueType
-    value: Any
-    primitive_type: Optional[PrimitiveType] = None
-    is_array: bool = False
-    type_name: Optional[str] = None  # for structs and enums
-
-
-class ScopeStack:
-    def __init__(self):
-        self.stack = [{}]
-
-    def set_variable(self, name: str, value):
-        self.stack[-1][name] = value
-
-    def get_variable(self, name: str):
-        for stack in reversed(self.stack):
-            if name in stack:
-                return stack[name]
-        # this should have been detected by the validation pass
-        raise InternalCompilerError(f"Unknown variable: {name}")
-
-    def push_scope(self):
-        self.stack.append({})
-
-    def pop_scope(self):
-        self.stack.pop()
+from xlang.xl_builtins import BUILTIN_FUNCTIONS
 
 
 class Interpreter:
@@ -334,7 +299,12 @@ class Interpreter:
             raise InternalCompilerError("Unknown expression")
 
     def function_call(self, func_call):
-        function = self.global_scope.functions[func_call.function_name]
+        if func_call.function_name in self.global_scope.functions:
+            function = self.global_scope.functions[func_call.function_name]
+        elif func_call.function_name in BUILTIN_FUNCTIONS:
+            function = BUILTIN_FUNCTIONS[func_call.function_name]
+        else:
+            raise Exception(f"Unknown function called: {func_call.function_name}")
         evaluated_params = []
         for i, param in enumerate(func_call.params):
             is_ref_param = function.function_params[i].reference

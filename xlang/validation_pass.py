@@ -124,6 +124,14 @@ class Typeifier:
         elif isinstance(statement, FunctionCall):
             self.function_call(statement)
         elif isinstance(statement, VariableAccess):
+            current_access = statement
+            while current_access.variable_access is not None:
+                current_access = current_access.variable_access
+            if current_access.method_call is None:
+                raise ContextException(
+                    "Variable access as statement must end with a method call",
+                    statement.context,
+                )
             self.variable_access(statement)
         elif isinstance(statement, Loop):
             inner_loop = self.inside_loop

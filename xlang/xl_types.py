@@ -133,6 +133,8 @@ PRIMITIVE_AUTO_CONVERSION = {
 
 def is_type_compatible(target_type: VariableType, source_type: VariableType) -> bool:
     """can source_type be assigned to target_type?"""
+    if target_type.variable_type == VariableTypeEnum.BUILTIN_GENERIC:
+        return True
     if target_type.variable_type != source_type.variable_type:
         return False
     if target_type.variable_type == VariableTypeEnum.ARRAY:

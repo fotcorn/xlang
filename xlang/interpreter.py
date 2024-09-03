@@ -25,7 +25,11 @@ from xlang.xl_ast import (
     Constant,
     BuiltinFunction,
 )
-from xlang.xl_builtins import BUILTIN_FUNCTIONS
+from xlang.xl_builtins import (
+    BUILTIN_FUNCTIONS,
+    get_builtin_array_methods,
+    get_builtin_primitive_methods,
+)
 
 
 class Interpreter:
@@ -145,6 +149,8 @@ class Interpreter:
             return "continue", None
         elif isinstance(statement, Break):
             return "break", None
+        elif isinstance(statement, VariableAccess):
+            self.lookup_variable(statement)
         else:
             raise InternalCompilerError("unhandled statement")
 
@@ -186,6 +192,10 @@ class Interpreter:
 
         if variable_access.array_access is not None:
             value = self.index_lookup(value, variable_access.array_access)
+
+        if variable_access.method_call is not None:
+            value = self.method_call(value, variable_access.method_call)
+
         return value
 
     def expression(self, expression: BaseExpression):
@@ -305,17 +315,8 @@ class Interpreter:
             function = BUILTIN_FUNCTIONS[func_call.function_name]
         else:
             raise Exception(f"Unknown function called: {func_call.function_name}")
-        evaluated_params = []
-        for i, param in enumerate(func_call.params):
-            is_ref_param = function.function_params[i].reference
-            if is_ref_param and not isinstance(param, VariableAccess):
-                raise ContextException(
-                    "Reference parameters can only by variables", param.context
-                )
-            evaluated_param = self.expression(param)
-            if not is_ref_param:
-                evaluated_param = copy.deepcopy(evaluated_param)
-            evaluated_params.append(evaluated_param)
+
+        evaluated_params = self.evaluate_call_parameters(function, func_call)
 
         if isinstance(function, BuiltinFunction):
             function.function_ptr(evaluated_params, context=func_call.context)
@@ -340,6 +341,39 @@ class Interpreter:
 
             self.scope_stack = old_scope_stack
             return return_value
+
+    def method_call(self, value: Value, method_call: FunctionCall) -> Value:
+        if value.is_array:
+            methods = get_builtin_array_methods()
+        elif value.type == ValueType.PRIMITIVE:
+            methods = get_builtin_primitive_methods()[value.primitive_type]
+        else:
+            raise Exception(f"Method calls not supported for type: {value.type}")
+
+        if method_call.function_name not in methods:
+            raise Exception(f"Unknown method: {method_call.function_name}")
+
+        method = methods[method_call.function_name]
+        evaluated_params = self.evaluate_call_parameters(method, method_call)
+        evaluated_params.insert(
+            0, value
+        )  # Add the object itself as the first parameter
+
+        return method.function_ptr(evaluated_params, context=method_call.context)
+
+    def evaluate_call_parameters(self, function, func_call):
+        evaluated_params = []
+        for i, param in enumerate(func_call.params):
+            is_ref_param = function.function_params[i].reference
+            if is_ref_param and not isinstance(param, VariableAccess):
+                raise ContextException(
+                    "Reference parameters can only be variables", param.context
+                )
+            evaluated_param = self.expression(param)
+            if not is_ref_param:
+                evaluated_param = copy.deepcopy(evaluated_param)
+            evaluated_params.append(evaluated_param)
+        return evaluated_params
 
     def default_variable_value(self, variable_type):
         base_type = variable_type.variable_type

@@ -25,7 +25,11 @@ from xlang.xl_ast import (
     Continue,
     Break,
 )
-from xlang.xl_builtins import get_builtin_functions
+from xlang.xl_builtins import (
+    get_builtin_functions,
+    get_builtin_array_methods,
+    get_builtin_primitive_methods,
+)
 from xlang.xl_types import typeify, is_type_compatible, primitive_type_from_constant
 from xlang.exceptions import (
     ContextException,
@@ -217,14 +221,9 @@ class Typeifier:
             )
 
         if variable_access.method_call is not None:
-            raise Exception("method call not implemented")
-            if variable_type.variable_type == VariableTypeEnum.ARRAY:
-                pass
-            # TODO: support struct method calls
-            else:
-                raise ContextException(
-                    f"Cannot call method on {variable_type}", variable_access.context
-                )
+            expression_type = self.method_call(
+                variable_access.method_call, expression_type
+            )
 
         variable_access.type = expression_type
         return expression_type
@@ -394,8 +393,45 @@ class Typeifier:
             expression_type = self.expression(param_expr)
             if not is_type_compatible(param_type.param_type, expression_type):
                 raise TypeMismatchException(
-                    "Invalid function parameter type", param_expr.context
+                    f"Invalid function parameter type. Expected {param_type.param_type}, but got {expression_type}",
+                    param_expr.context,
                 )
+
+    def method_call(self, method_call: FunctionCall, variable_type: VariableType):
+        method_name = method_call.function_name
+
+        if variable_type.variable_type == VariableTypeEnum.ARRAY:
+            methods = get_builtin_array_methods()
+            if method_name not in methods:
+                raise ContextException(
+                    f"Unknown array method: {method_name}",
+                    method_call.context,
+                )
+            method = methods[method_name]
+        elif variable_type.variable_type == VariableTypeEnum.PRIMITIVE:
+            primitive_methods = get_builtin_primitive_methods()
+            if (
+                variable_type.primitive_type not in primitive_methods
+                or method_name not in primitive_methods[variable_type.primitive_type]
+            ):
+                raise ContextException(
+                    f"Unknown primitive method: {method_name} for type {variable_type.primitive_type}",
+                    method_call.context,
+                )
+            method = primitive_methods[variable_type.primitive_type][method_name]
+        elif variable_type.variable_type == VariableTypeEnum.STRUCT:
+            raise ContextException(
+                f"Struct methods are not currently supported: {variable_type}",
+                method_call.context,
+            )
+        else:
+            raise ContextException(
+                f"Method calls not supported for this type: {variable_type}",
+                method_call.context,
+            )
+
+        self.check_call_arguments(method_call, method.function_params)
+        return method.return_type
 
 
 def validation_pass(global_scope: GlobalScope):

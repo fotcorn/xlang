@@ -6,3 +6,21 @@ func main() {
     // CHECK: 104
     printi(c);
 }
+
+//---------------------------------------
+
+func main() {
+    const s: string = "hello";
+    const u: string = s.toUpperCase();
+    // CHECK: HELLO
+    prints(u);
+}
+
+//---------------------------------------
+
+func main() {
+    const s: string = "HELLO";
+    const l: string = s.toLowerCase();
+    // CHECK: hello
+    prints(l);
+}

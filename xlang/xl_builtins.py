@@ -10,7 +10,7 @@ from xlang.xl_ast import (
     PrimitiveType,
     BuiltinFunction,
 )
-from xlang.interpreter_datatypes import Value
+from xlang.interpreter_datatypes import Value, ValueType
 
 BUILTIN_FUNCTIONS = {}
 BUILTIN_ARRAY_METHODS = {}
@@ -24,8 +24,6 @@ def builtin_function(
     context: bool = False,
 ):
     def decorate(func):
-        global BUILTIN_FUNCTIONS
-
         @functools.wraps(func)
         def wrapper(params, **kwargs):
             if context:
@@ -51,8 +49,6 @@ def builtin_method_array(
     context=False,
 ):
     def decorate(func):
-        global BUILTIN_METHODS
-
         @functools.wraps(func)
         def wrapper(params, **kwargs):
             if context:
@@ -60,13 +56,12 @@ def builtin_method_array(
             else:
                 return func(*params)
 
-        func = BuiltinFunction(
+        BUILTIN_ARRAY_METHODS[name] = BuiltinFunction(
             name=name,
             return_type=return_type,
             function_params=params,
             function_ptr=wrapper,
         )
-        BUILTIN_ARRAY_METHODS[name] = func
 
         return wrapper
 
@@ -81,8 +76,6 @@ def builtin_method_primitive(
     context=False,
 ):
     def decorate(func):
-        global BUILTIN_ARRAY_METHODS
-
         @functools.wraps(func)
         def wrapper(params, **kwargs):
             if context:
@@ -90,14 +83,12 @@ def builtin_method_primitive(
             else:
                 return func(*params)
 
-        func = BuiltinFunction(
+        BUILTIN_PRIMITIVE_METHODS[primitive_type][name] = BuiltinFunction(
             name=name,
             return_type=return_type,
             function_params=params,
             function_ptr=wrapper,
         )
-        BUILTIN_PRIMITIVE_METHODS[primitive_type][name] = func
-
         return wrapper
 
     return decorate
@@ -166,7 +157,11 @@ def builtin_append(array, value):
     [],
 )
 def builtin_string_toLowerCase(string):
-    return string.lower()
+    return Value(
+        type=ValueType.PRIMITIVE,
+        primitive_type=PrimitiveType.STRING,
+        value=string.value.lower(),
+    )
 
 
 @builtin_method_primitive(
@@ -177,8 +172,12 @@ def builtin_string_toLowerCase(string):
     ),
     [],
 )
-def builtin_string_toUpperCase(string):
-    return string.upper()
+def builtin_string_toUpperCase(string: Value):
+    return Value(
+        type=ValueType.PRIMITIVE,
+        primitive_type=PrimitiveType.STRING,
+        value=string.value.upper(),
+    )
 
 
 def get_builtin_functions() -> Dict[str, BuiltinFunction]:

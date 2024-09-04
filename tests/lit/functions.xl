@@ -18,13 +18,13 @@ func f(p1: i32, p2: i32): i32 {
 func main() {
     a();
     // CHECK: 1
-    printi(b());
+    print(b());
     c(1);
     // CHECK: 2
-    printi(d(1));
+    print(d(1));
     e(1, 2);
     // CHECK: 3
-    printi(f(1, 2));
+    print(f(1, 2));
 }
 
 //---------------------------------------
@@ -35,7 +35,7 @@ func myfunc(): i32 {
 func main() {
     const i: i32 = myfunc();
     // CHECK: 5
-    printi(i);
+    print(i);
 }
 
 //---------------------------------------
@@ -55,9 +55,9 @@ func myfunc(): MyStruct {
 func main() {
     const s: MyStruct = myfunc();
     // CHECK: 5
-    printi(s.a);
+    print(s.a);
     // CHECK: 7
-    printi(s.b);
+    print(s.b);
 }
 
 //---------------------------------------
@@ -69,9 +69,9 @@ struct MyStruct {
 
 func myfunc(s: MyStruct) {
     // CHECK: 5
-    printi(s.a);
+    print(s.a);
     // CHECK: 7
-    printi(s.b);
+    print(s.b);
 }
 
 func main() {
@@ -80,9 +80,9 @@ func main() {
     s.b = 7;
     myfunc(s);
     // CHECK: 5
-    printi(s.a);
+    print(s.a);
     // CHECK: 7
-    printi(s.b);
+    print(s.b);
 }
 
 //---------------------------------------
@@ -98,7 +98,7 @@ func main() {
     x.a = 1;
     func_ref(x);
     // CHECK: 5
-    printi(x.a);
+    print(x.a);
 }
 
 //---------------------------------------
@@ -111,7 +111,7 @@ func main() {
     var param: i32 = 3;
     test(param);
     // CHECK: 4
-    printi(param);
+    print(param);
 }
 
 

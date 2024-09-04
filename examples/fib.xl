@@ -5,7 +5,7 @@ func main() {
 
     var i: i32 = 0;
     loop {
-        printi(t1);
+        print(t1);
 
         tmp = t1;
         t1 = t2;

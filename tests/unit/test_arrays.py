@@ -10,8 +10,8 @@ def test_access():
         func main() {
             var struct_array: [MyStruct];
             var my_struct: MyStruct;
-            printi(my_struct.a);
-            printi(struct_array[0].a);
+            print(my_struct.a);
+            print(struct_array[0].a);
         }
         """
     )

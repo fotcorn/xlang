@@ -4,5 +4,5 @@ func main() {
     var array: [i32];
     array.append(3);
     // CHECK: 3
-    printi(array[0]);
+    print(array[0]);
 }

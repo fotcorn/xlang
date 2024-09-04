@@ -4,7 +4,7 @@ func main() {
     const s: string = "hello";
     const c: i8 = s[0];
     // CHECK: 104
-    printi(c);
+    print(c);
 }
 
 //---------------------------------------
@@ -13,7 +13,7 @@ func main() {
     const s: string = "hello";
     const u: string = s.toUpperCase();
     // CHECK: HELLO
-    prints(u);
+    print(u);
 }
 
 //---------------------------------------
@@ -22,5 +22,5 @@ func main() {
     const s: string = "HELLO";
     const l: string = s.toLowerCase();
     // CHECK: hello
-    prints(l);
+    print(l);
 }

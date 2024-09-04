@@ -8,7 +8,7 @@ def test_missing_semicolon():
         parse(
             """
             func main() {
-                printi(5)
+                print(5)
             }
             """
         )
@@ -19,7 +19,7 @@ def test_missing_bracket():
         parse(
             """
             func main() {
-                printi(5);
+                print(5);
             """
         )
 
@@ -29,6 +29,6 @@ def test_unclosed_string():
         parse(
             """
             func main() {
-                prints("
+                print("
             """
         )

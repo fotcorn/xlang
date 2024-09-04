@@ -5,7 +5,7 @@ func main() {
     array.append(2);
     array.append(6);
     // CHECK: 6
-    printi(array[1]);
+    print(array[1]);
     // CHECK: 2
-    printi(array[0]);
+    print(array[0]);
 }

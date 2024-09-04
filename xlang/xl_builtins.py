@@ -106,24 +106,26 @@ def prim(param_name: str, primitive_type: PrimitiveType):
     )
 
 
-@builtin_function("prints", None, [prim("value", PrimitiveType.STRING)])
-def builtin_prints(value: Value):
-    print(value.value)
+def builtin_generic(param_name: str):
+    return FunctionParameter(
+        name=param_name,
+        context=ParseContext.from_builtin(),
+        param_type=VariableType(
+            variable_type=VariableTypeEnum.BUILTIN_GENERIC,
+        ),
+        reference=False,
+    )
 
 
-@builtin_function("printi", None, [prim("value", PrimitiveType.I64)])
-def builtin_printi(value: Value):
-    print(value.value)
-
-
-@builtin_function("printf", None, [prim("value", PrimitiveType.F32)])
-def builtin_printf(value: Value):
-    print(value.value)
-
-
-@builtin_function("printb", None, [prim("value", PrimitiveType.BOOL)])
-def builtin_printb(value: Value):
-    print("true" if value.value else "false")
+@builtin_function("print", None, [builtin_generic("value")])
+def builtin_print(value: Value):
+    if value.type == ValueType.PRIMITIVE:
+        if value.primitive_type == PrimitiveType.BOOL:
+            print("true" if value.value else "false")
+        else:
+            print(value.value)
+    else:
+        print(str(value.value))
 
 
 @builtin_function("assert", None, [prim("value", PrimitiveType.BOOL)], True)

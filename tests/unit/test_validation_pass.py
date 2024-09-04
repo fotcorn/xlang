@@ -148,7 +148,7 @@ def test_array_access():
         func main() {
             var b: [i32];
             append(b, 5);
-            printi(b[0]);
+            print(b[0]);
         }
         """
     )
@@ -171,14 +171,14 @@ def test_struct_access():
 
         func main() {
             var s: A;
-            printi(s.a);
-            printi(s.b[0]);
+            print(s.a);
+            print(s.b[0]);
 
-            printf(s.subStruct.c);
-            printf(s.subStruct.d[0]);
+            print(s.subStruct.c);
+            print(s.subStruct.d[0]);
 
-            printf(s.subStructArray[0].c);
-            printf(s.subStructArray[0].d[0]);
+            print(s.subStructArray[0].c);
+            print(s.subStructArray[0].d[0]);
         }
         """
     )
@@ -188,7 +188,7 @@ def test_function_param_access():
     validate(
         """
         func main(a: i32) {
-            printi(a);
+            print(a);
         }
         """
     )

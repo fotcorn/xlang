@@ -5,7 +5,7 @@ func main() {
     var i: i32 = 0;
     i = i + 1;
     // CHECK: 1
-    printi(i);
+    print(i);
 }
 
 //---------------------------------------
@@ -15,7 +15,7 @@ func main() {
     var i: i32;
     i = i + 1;
     // CHECK: 1
-    printi(i);
+    print(i);
 }
 
 //---------------------------------------
@@ -33,7 +33,7 @@ func main() {
 func function(i: i32) {
     // CHECK: Cannot assign i, variable is const
     i = i + 1;
-    printi(i);
+    print(i);
 }
 func main() {
     const i: i32 = 3;
@@ -50,7 +50,7 @@ func main() {
     var i: i32 = 5;
     function(i);
     // CHECK: 5
-    printi(i);
+    print(i);
 }
 
 //---------------------------------------

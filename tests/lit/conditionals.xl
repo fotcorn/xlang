@@ -3,10 +3,10 @@
 func main() {
     // CHECK: true
     if (true) {
-        printb(true);
+        print(true);
     }
     if (false) {
-        printb(false);
+        print(false);
     }
 }
 
@@ -21,7 +21,7 @@ func main() {
         assert(false);
     }
     // CHECK: 1
-    printi(i);
+    print(i);
 }
 
 //---------------------------------------
@@ -35,7 +35,7 @@ func main() {
         i = 2;
     }
     // CHECK: true
-    printb(i == 2);
+    print(i == 2);
 }
 
 //---------------------------------------
@@ -50,7 +50,7 @@ func main() {
         assert(false);
     }
     // CHECK: 0
-    printi(i);
+    print(i);
 }
 
 //---------------------------------------
@@ -64,7 +64,7 @@ func main() {
         assert(false);
     }
     // CHECK: 1
-    printi(i);
+    print(i);
 }
 
 //---------------------------------------
@@ -78,7 +78,7 @@ func main() {
         i = 2;
     }
     // CHECK: 1
-    printi(i);
+    print(i);
 }
 
 //---------------------------------------
@@ -92,7 +92,7 @@ func main() {
         i = 2;
     }
     // CHECK: 2
-    printi(i);
+    print(i);
 }
 
 //---------------------------------------
@@ -109,7 +109,7 @@ func main() {
         assert(false);
     }
     // CHECK: 2
-    printi(i);
+    print(i);
 }
 
 //---------------------------------------
@@ -126,7 +126,7 @@ func main() {
         i = 3;
     }
     // CHECK: 3
-    printi(i);
+    print(i);
 }
 
 //---------------------------------------
@@ -143,7 +143,7 @@ func main() {
         assert(false);
     }
     // CHECK: 2
-    printi(i);
+    print(i);
 }
 
 //---------------------------------------
@@ -160,5 +160,5 @@ func main() {
         assert(false);
     }
     // CHECK: 1
-    printi(i);
+    print(i);
 }

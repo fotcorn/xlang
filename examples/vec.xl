@@ -16,5 +16,5 @@ func main() {
     vec.y = 7;
     vec.z = 12;
 
-    printi(length_squared(vec));
+    print(length_squared(vec));
 }

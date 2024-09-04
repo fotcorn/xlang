@@ -1,5 +1,9 @@
 // RUN: %run --split-input-file %s | %filecheck %s
 
+func printi(value: i32) {
+    print(value);
+}
+
 func main() {
     // CHECK: Invalid function parameter type
     printi(5.0);

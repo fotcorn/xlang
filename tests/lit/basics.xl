@@ -3,38 +3,38 @@
 func main() {
     const a: i32 = 5;
     // CHECK: 5
-    printi(a);
+    print(a);
 }
 
 //---------------------------------------
 
 func main() {
     // CHECK: Hello World!
-    prints("Hello World!");
+    print("Hello World!");
     const a: string = "teststring";
     // CHECK: teststring
-    prints(a);
+    print(a);
 }
 
 //---------------------------------------
 
 func main() {
     // CHECK: 8
-    printi(5 + 3);
+    print(5 + 3);
 }
 
 //---------------------------------------
 
 func main() {
     // CHECK: 15
-    printi(5 * 3);
+    print(5 * 3);
 }
 
 //---------------------------------------
 
 func main() {
     // CHECK: true
-    printb(5 != 3);
+    print(5 != 3);
 }
 
 //---------------------------------------
@@ -48,7 +48,7 @@ func b(): i32 {
 func main() {
     a();
     // CHECK: 9
-    printi(b());
+    print(b());
 }
 
 //---------------------------------------
@@ -59,40 +59,40 @@ func test(): i32 {
 func main() {
     const a: i32 = 1 + 2;
     // CHECK: 3
-    printi(a);
+    print(a);
 
     var b: i32 = 5;
     const c: i32 = a + b;
     // CHECK: 8
-    printi(c);
+    print(c);
 
     b = 5;
     // CHECK: 5
-    printi(b);
+    print(b);
 
     const d: i32 = a * b;
     // CHECK: 15
-    printi(d);
+    print(d);
 
     const e: i32 = a * b + c;
     // CHECK: 23
-    printi(e);
+    print(e);
 
     const f: i32 = a + b * c;
     // CHECK: 43
-    printi(f);
+    print(f);
 
     const g: i32 = test();
     // CHECK: 5
-    printi(g);
+    print(g);
 
     const h: i32 = b + 1;
     // CHECK: 6
-    printi(h);
+    print(h);
 
     const i: i32 = 1 + b;
     // CHECK: 6
-    printi(i);
+    print(i);
 }
 
 //---------------------------------------
@@ -106,18 +106,18 @@ func main() {
         }
     }
     // CHECK: 5
-    printi(i);
+    print(i);
 }
 
 //---------------------------------------
 
 func main() {
     // CHECK: 7
-    printi(1 + 2 * 3);
+    print(1 + 2 * 3);
     // CHECK: 9
-    printi((1 + 2) * 3);
+    print((1 + 2) * 3);
     // CHECK: 7
-    printi(1 + (2 * 3));
+    print(1 + (2 * 3));
 }
 
 //---------------------------------------
@@ -127,9 +127,9 @@ func main() {
     const b: f32 = 1.2;
 
     // CHECK: 3.5
-    printf(a);
+    print(a);
     // CHECK: 4.7
-    printf(a + b);
+    print(a + b);
     // CHECK: 4.2
-    printf(a * b);
+    print(a * b);
 }

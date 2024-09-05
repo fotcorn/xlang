@@ -103,9 +103,9 @@ class ASTTransformer(Transformer):
             return params[0] + [params[1]]
 
     def function_def(self, params):
-        name = params[1]
+        name = params[0]
         code_block = params[-1]
-        params = params[2:-1]
+        params = params[1:-1]
         return_type = None
         function_params = None
         if len(params) == 1:
@@ -151,7 +151,7 @@ class ASTTransformer(Transformer):
         )
 
     @v_args(inline=True)
-    def struct_def(self, _, name, *entries):
+    def struct_def(self, name, *entries):
         return StructType(
             name=name.value, members=entries, context=ParseContext.from_token(name)
         )

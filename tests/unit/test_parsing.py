@@ -32,3 +32,14 @@ def test_unclosed_string():
                 print("
             """
         )
+
+
+def test_const_without_value():
+    with pytest.raises(UnexpectedTokenException):
+        parse(
+            """
+            func main() {
+                const i: i32;
+            }
+            """
+        )

@@ -1,4 +1,4 @@
-// RUN: %run --split-input-file %s | %filecheck %s
+// RUN: %run --split-input-file %s | %filecheck --match-full-lines %s
 
 func a() {
 }
@@ -122,6 +122,6 @@ func test(i: *i32) {
     i = i + 1;
 }
 func main() {
-    // CHECK: Only variables allowed for reference parameters
+    // CHECK: {{.*}} Only variables allowed for reference parameters
     test(5);
 }

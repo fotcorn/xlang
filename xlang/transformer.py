@@ -151,7 +151,7 @@ class ASTTransformer(Transformer):
         )
 
     @v_args(inline=True)
-    def struct_def(self, name, *entries):
+    def struct_def(self, _, name, *entries):
         return StructType(
             name=name.value, members=entries, context=ParseContext.from_token(name)
         )

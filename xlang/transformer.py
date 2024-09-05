@@ -103,18 +103,19 @@ class ASTTransformer(Transformer):
             return params[0] + [params[1]]
 
     def function_def(self, params):
-        name = params[0]
+        name = params[1]
         code_block = params[-1]
+        params = params[2:-1]
         return_type = None
         function_params = None
-        if len(params) == 3:
-            if isinstance(params[1], list):
-                function_params = params[1]
+        if len(params) == 1:
+            if isinstance(params[0], list):
+                function_params = params[0]
             else:
-                return_type = params[1]
-        elif len(params) == 4:
-            function_params = params[1]
-            return_type = params[2]
+                return_type = params[0]
+        elif len(params) == 2:
+            function_params = params[0]
+            return_type = params[1]
 
         if function_params is None:
             function_params = []
@@ -124,7 +125,7 @@ class ASTTransformer(Transformer):
             return_type=return_type,
             function_params=function_params,
             statements=code_block.children,
-            context=ParseContext.from_token(params[0]),
+            context=ParseContext.from_token(name),
         )
 
     def type(self, params):

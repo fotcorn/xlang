@@ -4,7 +4,7 @@ translation_unit: (struct_def | function_def)* // enum_def
 
 !function_param: IDENTIFIER":" "*"? type
 function_params: function_param | function_params "," function_param
-function_def: "func" IDENTIFIER "(" function_params? ")" (":" type)? code_block
+function_def: "func" WS_INLINE IDENTIFIER "(" function_params? ")" (":" type)? code_block
 
 // enum_entry: IDENTIFIER","
 // enum_def: "enum" IDENTIFIER "{" enum_entry+ "}"
@@ -49,6 +49,7 @@ float_constant: FLOAT
 !type: IDENTIFIER | "[" IDENTIFIER "]"
 
 %import common.WS
+%import common.WS_INLINE
 %import common.CPP_COMMENT
 %import common.C_COMMENT
 

@@ -90,7 +90,7 @@ func main() {
 struct X {
     a: i32,
 }
-func_ref(x: *X) {
+func func_ref(x: *X) {
     x.a = 5;
 }
 func main() {

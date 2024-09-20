@@ -63,7 +63,11 @@ class Interpreter:
         elif isinstance(statement, VariableAssign):
             value = self.expression(statement.value)
             variable = self.lookup_variable(statement.variable_access)
-            variable.__dict__.update(value.__dict__)
+            if variable.type == ValueType.ENUM:
+                variable.type = ValueType.ENUM
+                variable.type_name = value.type_name
+            else:
+                variable.__dict__.update(value.__dict__)
         elif isinstance(statement, FunctionCall):
             self.function_call(statement)
         elif isinstance(statement, Loop):
@@ -184,11 +188,26 @@ class Interpreter:
         return value
 
     def lookup_variable(self, variable_access: VariableAccess) -> Value:
-        # value could be a primitive variable, a name of a struct or a name of an array
-        value = self.scope_stack.get_variable(variable_access.variable_name)
+        if (
+            variable_access.type is not None
+            and variable_access.type.variable_type == VariableTypeEnum.ENUM
+            and variable_access.variable_access is not None
+        ):
+            enum_def = self.global_scope.enums[variable_access.variable_name]
+            enum_value = enum_def.entries[
+                variable_access.variable_access.variable_name
+            ].name
+            return Value(
+                type=ValueType.ENUM,
+                value=enum_value,
+                type_name=variable_access.type.type_name,
+            )
+        else:
+            value = self.scope_stack.get_variable(variable_access.variable_name)
         # handle struct access
         if variable_access.variable_access is not None:
-            value = self.struct_lookup(value, variable_access.variable_access)
+            if value.type == ValueType.STRUCT:
+                value = self.struct_lookup(value, variable_access.variable_access)
 
         if variable_access.array_access is not None:
             value = self.index_lookup(value, variable_access.array_access)
@@ -254,6 +273,15 @@ class Interpreter:
         elif isinstance(expression, CompareOperation):
             operand1_value = self.expression(expression.operand1)
             operand2_value = self.expression(expression.operand2)
+
+            if (
+                operand1_value.type == ValueType.ENUM
+                and operand2_value.type == ValueType.ENUM
+            ):
+                return self.enum_compare(
+                    operand1_value, operand2_value, expression.operator
+                )
+
             if (
                 not operand1_value.type == ValueType.PRIMITIVE
                 or operand1_value.is_array
@@ -266,7 +294,7 @@ class Interpreter:
                 or operand2_value.is_array
             ):
                 raise Exception(
-                    f"{expression.operator} operator not supported on type: {operand1_value}"
+                    f"{expression.operator} operator not supported on type: {operand2_value}"
                 )
             if not (
                 operand1_value.primitive_type in INTEGER_TYPES
@@ -347,6 +375,8 @@ class Interpreter:
             methods = get_builtin_array_methods()
         elif value.type == ValueType.PRIMITIVE:
             methods = get_builtin_primitive_methods()[value.primitive_type]
+        elif value.type == ValueType.ENUM:
+            raise Exception("Method calls not supported for enum types")
         else:
             raise Exception(f"Method calls not supported for type: {value.type}")
 
@@ -360,6 +390,23 @@ class Interpreter:
         )  # Add the object itself as the first parameter
 
         return method.function_ptr(evaluated_params, context=method_call.context)
+
+    def enum_compare(
+        self, operand1_value: Value, operand2_value: Value, operator: str
+    ) -> Value:
+        if operand1_value.type_name != operand2_value.type_name:
+            raise Exception("Cannot compare enums of different types")
+        if operator == "==":
+            result = operand1_value.value == operand2_value.value
+        elif operator == "!=":
+            result = operand1_value.value != operand2_value.value
+        else:
+            raise Exception(f"Invalid operator for enum comparison: {operator}")
+        return Value(
+            type=ValueType.PRIMITIVE,
+            value=result,
+            primitive_type=PrimitiveType.BOOL,
+        )
 
     def evaluate_call_parameters(self, function, func_call):
         evaluated_params = []
@@ -408,6 +455,13 @@ class Interpreter:
             elif variable_type.array_type.variable_type == VariableTypeEnum.STRUCT:
                 return Value(
                     type=ValueType.STRUCT,
+                    value=[],
+                    type_name=variable_type.array_type.type_name,
+                    is_array=True,
+                )
+            elif variable_type.array_type.variable_type == VariableTypeEnum.ENUM:
+                return Value(
+                    type=ValueType.ENUM,
                     value=[],
                     type_name=variable_type.array_type.type_name,
                     is_array=True,

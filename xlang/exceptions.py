@@ -100,5 +100,9 @@ class StructAlreadyDefinedException(ContextException):
     pass
 
 
+class EnumAlreadyDefinedException(ContextException):
+    pass
+
+
 class TypeMismatchException(ContextException):
     pass

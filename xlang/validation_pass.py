@@ -201,6 +201,10 @@ class Typeifier:
             variable_access.variable_name
         )
         if not variable_type:
+            variable_type = self.enum_access(variable_access)
+            if variable_type:
+                return variable_type
+        if not variable_type:
             raise ContextException(
                 f"Unknown variable: {variable_access.variable_name}",
                 variable_access.context,
@@ -227,6 +231,24 @@ class Typeifier:
 
         variable_access.type = expression_type
         return expression_type
+
+    def enum_access(self, variable_access: VariableAccess) -> Optional[VariableType]:
+        enum_type = self.global_scope.enums.get(variable_access.variable_name)
+        if not enum_type:
+            return None
+        if variable_access.variable_access is None:
+            raise ContextException(
+                "Enum access must specify a member", variable_access.context
+            )
+        enum_member_name = variable_access.variable_access.variable_name
+        if enum_member_name not in enum_type.entries:
+            raise ContextException(
+                f"Unknown enum member: {enum_member_name}",
+                variable_access.context,
+            )
+        return VariableType(
+            variable_type=VariableTypeEnum.ENUM, type_name=enum_type.name
+        )
 
     def struct_access(self, variable: VariableType, struct_access: VariableAccess):
         if variable.variable_type != VariableTypeEnum.STRUCT:
@@ -419,6 +441,11 @@ class Typeifier:
                     method_call.context,
                 )
             method = primitive_methods[variable_type.primitive_type][method_name]
+        elif variable_type.variable_type == VariableTypeEnum.ENUM:
+            raise ContextException(
+                f"Enum types do not support method calls: {method_name}",
+                method_call.context,
+            )
         elif variable_type.variable_type == VariableTypeEnum.STRUCT:
             raise ContextException(
                 f"Struct methods are not currently supported: {variable_type}",

@@ -92,9 +92,21 @@ class StructType(BaseModel):
     context: ParseContext
 
 
+class EnumEntry(BaseModel):
+    name: str
+    context: ParseContext
+
+
+class EnumType(BaseModel):
+    name: str
+    entries: Dict[str, EnumEntry]
+    context: ParseContext
+
+
 class GlobalScope(BaseModel):
     structs: Dict[str, StructType] = {}
     functions: Dict[str, BaseFunction] = {}
+    enums: Dict[str, EnumType] = {}
 
     def dump(self):
         def dump_base_model(scope):

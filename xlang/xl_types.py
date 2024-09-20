@@ -20,7 +20,7 @@ def typeify(base_type: VariableType, global_scope: GlobalScope):
         assert base_type.type_name
         base_type = get_type_from_string(global_scope, base_type.type_name)
     else:
-        raise InternalCompilerError("Unhandled type in struct validation pass")
+        raise InternalCompilerError("Unhandled type in typeify")
     return base_type
 
 
@@ -55,6 +55,8 @@ def get_type_from_string(global_scope: GlobalScope, type_name: str) -> VariableT
         return primitive(PrimitiveType.BOOL)
     elif type_name in global_scope.structs:
         return VariableType(variable_type=VariableTypeEnum.STRUCT, type_name=type_name)
+    elif type_name in global_scope.enums:
+        return VariableType(variable_type=VariableTypeEnum.ENUM, type_name=type_name)
     else:
         raise InternalCompilerError(f"Unknown type: {type_name}")
 
@@ -142,6 +144,8 @@ def is_type_compatible(target_type: VariableType, source_type: VariableType) -> 
         assert source_type.array_type
         return is_type_compatible(target_type.array_type, source_type.array_type)
     elif target_type.variable_type == VariableTypeEnum.STRUCT:
+        return target_type.type_name == source_type.type_name
+    elif target_type.variable_type == VariableTypeEnum.ENUM:
         return target_type.type_name == source_type.type_name
     elif target_type.variable_type == VariableTypeEnum.PRIMITIVE:
         if target_type.primitive_type in PRIMITIVE_AUTO_CONVERSION:

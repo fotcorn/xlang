@@ -11,6 +11,7 @@ from xlang.xl_ast import (
 class ValueType(Enum):
     PRIMITIVE = auto()
     STRUCT = auto()
+    ENUM = auto()
 
 
 class Value(BaseModel):
@@ -25,10 +26,10 @@ class ScopeStack:
     def __init__(self):
         self.stack = [{}]
 
-    def set_variable(self, name: str, value):
+    def set_variable(self, name: str, value: Value):
         self.stack[-1][name] = value
 
-    def get_variable(self, name: str):
+    def get_variable(self, name: str) -> Value:
         for stack in reversed(self.stack):
             if name in stack:
                 return stack[name]

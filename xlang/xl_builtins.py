@@ -124,6 +124,8 @@ def builtin_print(value: Value):
             print("true" if value.value else "false")
         else:
             print(value.value)
+    elif value.type == ValueType.ENUM:
+        print(value.value)  # Prints the enum member name
     else:
         print(str(value.value))
 

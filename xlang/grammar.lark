@@ -11,14 +11,14 @@ _WS_INLINE: WS_INLINE
 
 ?start: translation_unit
 
-translation_unit: (struct_def | function_def)* // enum_def
+translation_unit: (struct_def | function_def | enum_def)*
+
+enum_def: "enum" _WS_INLINE IDENTIFIER "{" enum_entry+ "}"
+enum_entry: IDENTIFIER ","?
 
 !function_param: IDENTIFIER":" "*"? type
 function_params: function_param | function_params "," function_param
 function_def: "func" _WS_INLINE IDENTIFIER "(" function_params? ")" (":" type)? code_block
-
-// enum_entry: IDENTIFIER","
-// enum_def: "enum" IDENTIFIER "{" enum_entry+ "}"
 
 struct_entry: IDENTIFIER ":" type ","
 struct_def: "struct" _WS_INLINE IDENTIFIER "{" struct_entry+ "}"

@@ -4,6 +4,8 @@ from xlang.exceptions import (
     FunctionAlreadyDefinedException,
     InternalCompilerError,
     StructAlreadyDefinedException,
+    EnumAlreadyDefinedException,
+    ContextException,
 )
 from xlang.xl_ast import (
     ArrayAccess,
@@ -31,6 +33,8 @@ from xlang.xl_ast import (
     VariableDefinition,
     VariableType,
     VariableTypeEnum,
+    EnumType,
+    EnumEntry,
 )
 
 
@@ -162,6 +166,27 @@ class ASTTransformer(Transformer):
             context=ParseContext.from_token(keyword), statements=code_block.children
         )
 
+    @v_args(inline=True)
+    def enum_entry(self, identifier, comma=None):
+        return EnumEntry(
+            name=identifier.value, context=ParseContext.from_token(identifier)
+        )
+
+    @v_args(inline=True)
+    def enum_def(self, name, *entries):
+        entries_dict = {}
+        for entry in entries:
+            if entry.name in entries_dict:
+                raise ContextException(
+                    f'Duplicate enum entry "{entry.name}"', entry.context
+                )
+            entries_dict[entry.name] = entry
+        return EnumType(
+            name=name.value,
+            entries=entries_dict,
+            context=ParseContext.from_token(name),
+        )
+
     def translation_unit(self, entries):
         global_scope = GlobalScope()
         for entry in entries:
@@ -179,6 +204,13 @@ class ASTTransformer(Transformer):
                         entry.context,
                     )
                 global_scope.structs[entry.name] = entry
+            elif isinstance(entry, EnumType):
+                if entry.name in global_scope.enums:
+                    raise EnumAlreadyDefinedException(
+                        f'Enum with name "{entry.name}" is already defined',
+                        entry.context,
+                    )
+                global_scope.enums[entry.name] = entry
             else:
                 raise InternalCompilerError("Unknown entry in global scope")
         return global_scope

@@ -1,0 +1,19 @@
+// RUN: %run --split-input-file %s | %filecheck --match-full-lines %s
+
+enum Color {
+    Red,
+    Green,
+    Blue,
+}
+
+func main() {
+    var c: Color = Color.Green;
+    // CHECK: Green
+    if (c == Color.Red) {
+        print("Red");
+    } elif (c == Color.Green) {
+        print("Green");
+    } elif (c == Color.Blue) {
+        print("Blue");
+    }
+}

@@ -55,6 +55,6 @@ float_constant: FLOAT
 !?add_sub_expr: mul_div_expr | (add_sub_expr "+" mul_div_expr) | (add_sub_expr "-" mul_div_expr)
 !?compare_expr: add_sub_expr | (compare_expr compare_operator add_sub_expr)
 
-!?compare_operator: "==" | "!=" | ">=" | ">" | "<" "<="
+!?compare_operator: "==" | "!=" | ">=" | ">" | "<" | "<="
 
 !type: IDENTIFIER | "[" IDENTIFIER "]"

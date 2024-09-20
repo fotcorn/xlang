@@ -169,7 +169,7 @@ class Typeifier:
                 ):
                     raise TypeMismatchException(
                         "Elif statement expression is not bool",
-                        statement.condition.context,
+                        elif_statement.condition.context,
                     )
                 self.scope_stack.push_scope()
                 self.statements(elif_statement.statements)

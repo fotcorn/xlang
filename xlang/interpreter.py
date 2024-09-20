@@ -229,7 +229,7 @@ class Interpreter:
                 or operand2_value.primitive_type == PrimitiveType.F32
             ) and operand1_value.primitive_type != operand2_value.primitive_type:
                 raise Exception(
-                    f"{expression.operator} operator only works beween int types"
+                    f"{expression.operator} operator only works between int types"
                     " or float types, not float and int."
                 )
             if expression.operator == "+":

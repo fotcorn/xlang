@@ -319,7 +319,7 @@ class Interpreter:
         evaluated_params = self.evaluate_call_parameters(function, func_call)
 
         if isinstance(function, BuiltinFunction):
-            function.function_ptr(evaluated_params, context=func_call.context)
+            return function.function_ptr(evaluated_params, context=func_call.context)
         else:
             old_scope_stack = self.scope_stack
             self.scope_stack = ScopeStack()

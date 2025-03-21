@@ -147,11 +147,13 @@ class ASTTransformer(Transformer):
             )
 
     @v_args(inline=True)
-    def struct_entry(self, identifier, type):
+    def struct_entry(self, identifier, type, *args):
+        default_value = args[0] if args else None
         return IdentifierAndType(
             name=identifier.value,
             param_type=type,
             context=ParseContext.from_token(identifier),
+            default_value=default_value,
         )
 
     @v_args(inline=True)

@@ -474,9 +474,12 @@ class Interpreter:
             struct_def = self.global_scope.structs[variable_type.type_name]
             struct_data = {}
             for member in struct_def.members:
-                struct_data[member.name] = self.default_variable_value(
-                    member.param_type
-                )
+                if member.default_value is not None:
+                    struct_data[member.name] = self.expression(member.default_value)
+                else:
+                    struct_data[member.name] = self.default_variable_value(
+                        member.param_type
+                    )
             return Value(
                 type=ValueType.STRUCT,
                 value=struct_data,

@@ -20,7 +20,7 @@ enum_entry: IDENTIFIER ","?
 function_params: function_param | function_params "," function_param
 function_def: "func" _WS_INLINE IDENTIFIER "(" function_params? ")" (":" type)? code_block
 
-struct_entry: IDENTIFIER ":" type ","
+struct_entry: IDENTIFIER ":" type ("=" (integer_constant | float_constant | string_literal | boolean_literal))? ","
 struct_def: "struct" _WS_INLINE IDENTIFIER "{" struct_entry+ "}"
 
 IDENTIFIER: /[a-zA-Z_][a-zA-Z_0-9]*/

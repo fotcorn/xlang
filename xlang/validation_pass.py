@@ -321,28 +321,7 @@ class Typeifier:
         elif isinstance(expression, VariableAccess):
             expression.type = self.variable_access(expression)
         elif isinstance(expression, Constant):
-            if expression.constant_type == ConstantType.STRING:
-                expression.type = VariableType(
-                    variable_type=VariableTypeEnum.PRIMITIVE,
-                    primitive_type=PrimitiveType.STRING,
-                )
-            elif expression.constant_type == ConstantType.FLOAT:
-                expression.type = VariableType(
-                    variable_type=VariableTypeEnum.PRIMITIVE,
-                    primitive_type=PrimitiveType.F32,
-                )
-            elif expression.constant_type == ConstantType.BOOL:
-                expression.type = VariableType(
-                    variable_type=VariableTypeEnum.PRIMITIVE,
-                    primitive_type=PrimitiveType.BOOL,
-                )
-            elif expression.constant_type == ConstantType.INTEGER:
-                expression.type = primitive_type_from_constant(
-                    expression.value, expression.context
-                )
-            else:
-                raise InternalCompilerError("Unknown constant type")
-
+            expression.type = get_constant_type(expression)
         elif isinstance(expression, MathOperation):
             operand1_type = self.expression(expression.operand1)
             operand2_type = self.expression(expression.operand2)
@@ -461,10 +440,45 @@ class Typeifier:
         return method.return_type
 
 
+def get_constant_type(constant: Constant) -> VariableType:
+    if constant.constant_type == ConstantType.STRING:
+        return VariableType(
+            variable_type=VariableTypeEnum.PRIMITIVE,
+            primitive_type=PrimitiveType.STRING,
+        )
+    elif constant.constant_type == ConstantType.FLOAT:
+        return VariableType(
+            variable_type=VariableTypeEnum.PRIMITIVE,
+            primitive_type=PrimitiveType.F32,
+        )
+    elif constant.constant_type == ConstantType.BOOL:
+        return VariableType(
+            variable_type=VariableTypeEnum.PRIMITIVE,
+            primitive_type=PrimitiveType.BOOL,
+        )
+    elif constant.constant_type == ConstantType.INTEGER:
+        return primitive_type_from_constant(constant.value, constant.context)
+    else:
+        raise InternalCompilerError("Unknown constant type")
+
+
 def validation_pass(global_scope: GlobalScope):
     for struct in global_scope.structs.values():
         for member in struct.members:
             member.param_type = typeify(member.param_type, global_scope)
+            if member.default_value is not None:
+                if not isinstance(member.default_value, Constant):
+                    raise ContextException(
+                        f"Default value for struct member {member.name} must be a constant",
+                        member.default_value.context,
+                    )
+                value_type = get_constant_type(member.default_value)
+                if not is_type_compatible(member.param_type, value_type):
+                    raise TypeMismatchException(
+                        f"Default value type mismatch for struct member {member.name}",
+                        member.default_value.context,
+                    )
+                member.default_value.type = value_type
 
     for function in global_scope.functions.values():
         if function.return_type:

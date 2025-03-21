@@ -214,6 +214,7 @@ class IdentifierAndType(BaseModel):
     name: str
     param_type: VariableType
     context: ParseContext
+    default_value: Optional[BaseExpression] = None
 
 
 class FunctionParameter(IdentifierAndType):

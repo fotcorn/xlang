@@ -1,0 +1,77 @@
+// RUN: %run --split-input-file %s | %filecheck --match-full-lines %s
+
+struct IntStruct {
+    a: i32 = 1,
+    b: i32 = 2,
+}
+
+func main() {
+    var s: IntStruct;
+    // CHECK: 1
+    print(s.a);
+    // CHECK: 2
+    print(s.b);
+}
+
+//---------------------------------------
+
+struct FloatStruct {
+    x: f32 = 1.5,
+    y: f32 = 2.5,
+}
+
+func main() {
+    var s: FloatStruct;
+    // CHECK: 1.5
+    print(s.x);
+    // CHECK: 2.5
+    print(s.y);
+}
+
+//---------------------------------------
+
+struct StringStruct {
+    name: string = "test",
+    desc: string = "hello world",
+}
+
+func main() {
+    var s: StringStruct;
+    // CHECK: test
+    print(s.name);
+    // CHECK: hello world
+    print(s.desc);
+}
+
+//---------------------------------------
+
+struct MixedStruct {
+    i: i32 = 42,
+    f: f32 = 3.14,
+    s: string = "mixed",
+}
+
+func main() {
+    var s: MixedStruct;
+    // CHECK: 42
+    print(s.i);
+    // CHECK: 3.14
+    print(s.f);
+    // CHECK: mixed
+    print(s.s);
+}
+
+//---------------------------------------
+
+struct BoolStruct {
+    a: bool = true,
+    b: bool = false,
+}
+
+func main() {
+    var s: BoolStruct;
+    // CHECK: true
+    print(s.a);
+    // CHECK: false
+    print(s.b);
+}

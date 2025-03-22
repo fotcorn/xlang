@@ -188,11 +188,12 @@ class Interpreter:
         return value
 
     def lookup_variable(self, variable_access: VariableAccess) -> Value:
-        if (
-            variable_access.type is not None
-            and variable_access.type.variable_type == VariableTypeEnum.ENUM
-            and variable_access.variable_access is not None
-        ):
+        # If the variable name is an enum type, check for enum access
+        if variable_access.variable_name in self.global_scope.enums:
+            if variable_access.variable_access is None:
+                raise ContextException(
+                    "Enum access must specify a member", variable_access.context
+                )
             enum_def = self.global_scope.enums[variable_access.variable_name]
             enum_value = enum_def.entries[
                 variable_access.variable_access.variable_name
@@ -200,22 +201,30 @@ class Interpreter:
             return Value(
                 type=ValueType.ENUM,
                 value=enum_value,
-                type_name=variable_access.type.type_name,
+                type_name=variable_access.variable_name,
             )
-        else:
-            value = self.scope_stack.get_variable(variable_access.variable_name)
-        # handle struct access
-        if variable_access.variable_access is not None:
-            if value.type == ValueType.STRUCT:
-                value = self.struct_lookup(value, variable_access.variable_access)
 
-        if variable_access.array_access is not None:
-            value = self.index_lookup(value, variable_access.array_access)
+        # Try to get the variable from scope
+        value = self.scope_stack.get_variable(variable_access.variable_name)
+        if value is not None:
+            # handle struct access
+            if variable_access.variable_access is not None:
+                if value.type == ValueType.STRUCT:
+                    value = self.struct_lookup(value, variable_access.variable_access)
 
-        if variable_access.method_call is not None:
-            value = self.method_call(value, variable_access.method_call)
+            if variable_access.array_access is not None:
+                value = self.index_lookup(value, variable_access.array_access)
 
-        return value
+            if variable_access.method_call is not None:
+                value = self.method_call(value, variable_access.method_call)
+
+            return value
+
+        # If not found in scope and not an enum, raise error
+        raise ContextException(
+            f"Unknown variable: {variable_access.variable_name}",
+            variable_access.context,
+        )
 
     def expression(self, expression: BaseExpression):
         if isinstance(expression, FunctionCall):

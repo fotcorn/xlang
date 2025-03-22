@@ -17,3 +17,21 @@ func main() {
         print("Blue");
     }
 }
+
+//---------------------------------------
+
+enum Color {
+    Red,
+    Green,
+    Blue,
+}
+
+struct ColorStruct {
+    color: Color = Color.Red,
+}
+
+func main() {
+    var s: ColorStruct;
+    // CHECK: Red
+    print(s.color);
+}

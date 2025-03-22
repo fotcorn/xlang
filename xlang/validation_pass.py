@@ -201,7 +201,7 @@ class Typeifier:
             variable_access.variable_name
         )
         if not variable_type:
-            variable_type = self.enum_access(variable_access)
+            variable_type = get_enum_type(variable_access, self.global_scope)
             if variable_type:
                 return variable_type
         if not variable_type:
@@ -231,24 +231,6 @@ class Typeifier:
 
         variable_access.type = expression_type
         return expression_type
-
-    def enum_access(self, variable_access: VariableAccess) -> Optional[VariableType]:
-        enum_type = self.global_scope.enums.get(variable_access.variable_name)
-        if not enum_type:
-            return None
-        if variable_access.variable_access is None:
-            raise ContextException(
-                "Enum access must specify a member", variable_access.context
-            )
-        enum_member_name = variable_access.variable_access.variable_name
-        if enum_member_name not in enum_type.entries:
-            raise ContextException(
-                f"Unknown enum member: {enum_member_name}",
-                variable_access.context,
-            )
-        return VariableType(
-            variable_type=VariableTypeEnum.ENUM, type_name=enum_type.name
-        )
 
     def struct_access(self, variable: VariableType, struct_access: VariableAccess):
         if variable.variable_type != VariableTypeEnum.STRUCT:
@@ -462,17 +444,45 @@ def get_constant_type(constant: Constant) -> VariableType:
         raise InternalCompilerError("Unknown constant type")
 
 
+def get_enum_type(
+    variable_access: VariableAccess, global_scope: GlobalScope
+) -> Optional[VariableType]:
+    enum_type = global_scope.enums.get(variable_access.variable_name)
+    if not enum_type:
+        return None
+    if variable_access.variable_access is None:
+        raise ContextException(
+            "Enum access must specify a member", variable_access.context
+        )
+    enum_member_name = variable_access.variable_access.variable_name
+    if enum_member_name not in enum_type.entries:
+        raise ContextException(
+            f"Unknown enum member: {enum_member_name}",
+            variable_access.context,
+        )
+    return VariableType(variable_type=VariableTypeEnum.ENUM, type_name=enum_type.name)
+
+
 def validation_pass(global_scope: GlobalScope):
     for struct in global_scope.structs.values():
         for member in struct.members:
             member.param_type = typeify(member.param_type, global_scope)
-            if member.default_value is not None:
-                if not isinstance(member.default_value, Constant):
+            if member.default_value:
+                if isinstance(member.default_value, Constant):
+                    value_type = get_constant_type(member.default_value)
+                elif isinstance(member.default_value, VariableAccess):
+                    enum_type = get_enum_type(member.default_value, global_scope)
+                    if enum_type is None:
+                        raise ContextException(
+                            f"Unknown enum type: {member.default_value.variable_name}",
+                            member.default_value.context,
+                        )
+                    value_type = enum_type
+                else:
                     raise ContextException(
-                        f"Default value for struct member {member.name} must be a constant",
+                        f"Invalid default value type: {type(member.default_value)}",
                         member.default_value.context,
                     )
-                value_type = get_constant_type(member.default_value)
                 if not is_type_compatible(member.param_type, value_type):
                     raise TypeMismatchException(
                         f"Default value type mismatch for struct member {member.name}",

@@ -16,6 +16,10 @@ func main() {
     } elif (c == Color.Blue) {
         print("Blue");
     }
+
+    c = Color.Red;
+    // CHECK: Red
+    print(c);
 }
 
 //---------------------------------------
@@ -33,5 +37,8 @@ struct ColorStruct {
 func main() {
     var s: ColorStruct;
     // CHECK: Red
+    print(s.color);
+    s.color = Color.Green;
+    // CHECK: Green
     print(s.color);
 }

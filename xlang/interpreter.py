@@ -66,6 +66,7 @@ class Interpreter:
             if variable.type == ValueType.ENUM:
                 variable.type = ValueType.ENUM
                 variable.type_name = value.type_name
+                variable.value = value.value
             else:
                 variable.__dict__.update(value.__dict__)
         elif isinstance(statement, FunctionCall):

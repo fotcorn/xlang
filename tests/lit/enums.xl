@@ -42,3 +42,21 @@ func main() {
     // CHECK: Green
     print(s.color);
 }
+
+//---------------------------------------
+
+enum Color {
+    Red,
+    Green,
+    Blue,
+}
+
+func main() {
+    var array: [Color];
+    array.append(Color.Blue);
+    array.append(Color.Green);
+    // CHECK: Green
+    // CHECK: Blue
+    print(array[1]);
+    print(array[0]);
+}

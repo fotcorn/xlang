@@ -1,0 +1,28 @@
+# XLang Project Rules
+
+## Project Overview
+XLang is a programming language implementation with a Python-based compiler and interpreter. The project uses Python 3.10+ and follows a modular architecture with separate components for parsing, validation, and interpretation.
+
+## Project Structure
+- `xlang/` - Main source code directory
+  - `xl_ast.py` - Abstract Syntax Tree definitions
+  - `xl_builtins.py` - Built-in functions and methods
+  - `grammar.lark` - Grammar definitions
+  - `interpreter.py` - Interpreter implementation
+  - `parser.py` - Parser implementation
+  - `validation_pass.py` - Validation pass
+- `tests/` - Test files
+  - `lit/` - LLVM-style lit tests
+  - `unit/` - Unit tests
+
+## Running Tests
+There are two ways to run tests:
+
+1. Direct Python execution:
+```bash
+python main.py --split-input-file tests/lit/your_test.xl
+```
+
+2. Using LLVM's lit testing tool:
+```bash
+lit -v tests/lit/your_test.xl

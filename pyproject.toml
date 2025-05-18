@@ -1,0 +1,22 @@
+[project]
+name = "xlang"
+version = "0.1.0"
+description = "The xlang programming language"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "lark-parser",
+  "pydantic"
+]
+
+[dependency-groups]
+dev = [
+  "pytest",
+  "pytest-cov",
+  "mypy",
+  "black",
+  "flake8",
+  "pre-commit",
+  "lit",
+  "filecheck"
+]

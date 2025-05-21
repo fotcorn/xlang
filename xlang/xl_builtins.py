@@ -184,6 +184,22 @@ def builtin_string_toUpperCase(string: Value):
     )
 
 
+@builtin_method_primitive(
+    PrimitiveType.STRING,
+    "length",
+    VariableType(
+        variable_type=VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.I32
+    ),
+    [],
+)
+def builtin_string_length(string: Value):
+    return Value(
+        type=ValueType.PRIMITIVE,
+        primitive_type=PrimitiveType.I32,
+        value=len(string.value),
+    )
+
+
 def get_builtin_functions() -> Dict[str, BuiltinFunction]:
     return BUILTIN_FUNCTIONS
 

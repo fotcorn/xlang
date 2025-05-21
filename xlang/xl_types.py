@@ -53,6 +53,8 @@ def get_type_from_string(global_scope: GlobalScope, type_name: str) -> VariableT
         return primitive(PrimitiveType.STRING)
     elif type_name == "bool":
         return primitive(PrimitiveType.BOOL)
+    elif type_name == "char":
+        return primitive(PrimitiveType.CHAR)
     elif type_name in global_scope.structs:
         return VariableType(variable_type=VariableTypeEnum.STRUCT, type_name=type_name)
     elif type_name in global_scope.enums:

@@ -26,6 +26,7 @@ class PrimitiveType(Enum):
     STRING = auto()
     F32 = auto()
     BOOL = auto()
+    CHAR = auto()
 
 
 INTEGER_TYPES = (

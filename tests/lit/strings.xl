@@ -2,8 +2,8 @@
 
 func main() {
     const s: string = "hello";
-    const c: i8 = s[0];
-    // CHECK: 104
+    const c: char = s[1];
+    // CHECK: e
     print(c);
 }
 

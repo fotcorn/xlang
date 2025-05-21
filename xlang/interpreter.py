@@ -175,7 +175,11 @@ class Interpreter:
         ):
             if index.value < 0 or index.value >= len(value.value):
                 raise Exception("String index out of bounds")
-            return Value(type=value.type, value=ord(value.value[index.value]))
+            return Value(
+                type=ValueType.PRIMITIVE,
+                primitive_type=PrimitiveType.CHAR,
+                value=value.value[index.value],
+            )
         else:
             raise Exception("Indexing not supported for this type")
 

@@ -289,7 +289,7 @@ class Typeifier:
                 )
             return VariableType(
                 variable_type=VariableTypeEnum.PRIMITIVE,
-                primitive_type=PrimitiveType.I8,
+                primitive_type=PrimitiveType.CHAR,
             )
         else:
             raise TypeMismatchException(

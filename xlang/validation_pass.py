@@ -438,6 +438,11 @@ def get_constant_type(constant: Constant) -> VariableType:
             variable_type=VariableTypeEnum.PRIMITIVE,
             primitive_type=PrimitiveType.BOOL,
         )
+    elif constant.constant_type == ConstantType.CHAR:
+        return VariableType(
+            variable_type=VariableTypeEnum.PRIMITIVE,
+            primitive_type=PrimitiveType.CHAR,
+        )
     elif constant.constant_type == ConstantType.INTEGER:
         return primitive_type_from_constant(constant.value, constant.context)
     else:

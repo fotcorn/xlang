@@ -505,6 +505,12 @@ class Interpreter:
     def value_from_constant(self, constant: Constant) -> Value:
         if not constant.type:
             raise InternalCompilerError("Expression type not set")
+        if constant.type.primitive_type == PrimitiveType.CHAR:
+            return Value(
+                type=ValueType.PRIMITIVE,
+                value=constant.value,
+                primitive_type=constant.type.primitive_type,
+            )
         return Value(
             type=ValueType.PRIMITIVE,
             value=constant.value,

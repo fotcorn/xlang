@@ -155,6 +155,7 @@ class ConstantType(Enum):
     FLOAT = auto()
     STRING = auto()
     BOOL = auto()
+    CHAR = auto()
 
 
 class Constant(BaseExpression):

@@ -75,6 +75,15 @@ class ASTTransformer(Transformer):
             value=value.value == "true",
         )
 
+    @v_args(inline=True)
+    def char_literal(self, value):
+        return Constant(
+            type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
+            context=ParseContext.from_token(value),
+            constant_type=ConstantType.CHAR,
+            value=value.value[1:-1],
+        )
+
     def function_call(self, param):
         return FunctionCall(
             type=None,

@@ -24,3 +24,13 @@ func main() {
     // CHECK: hello
     print(l);
 }
+
+//---------------------------------------
+
+func main() {
+    const s: string = "hello";
+    const c: char = s[1];
+    const i: u32 = c.int();
+    // CHECK: 101
+    print(i);
+}

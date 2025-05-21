@@ -200,6 +200,22 @@ def builtin_string_length(string: Value):
     )
 
 
+@builtin_method_primitive(
+    PrimitiveType.CHAR,
+    "int",
+    VariableType(
+        variable_type=VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.U32
+    ),
+    [],
+)
+def builtin_char_to_int(char_val: Value):
+    return Value(
+        type=ValueType.PRIMITIVE,
+        primitive_type=PrimitiveType.U32,
+        value=ord(char_val.value),
+    )
+
+
 def get_builtin_functions() -> Dict[str, BuiltinFunction]:
     return BUILTIN_FUNCTIONS
 

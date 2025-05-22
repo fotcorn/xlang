@@ -22,6 +22,7 @@ from xlang.xl_ast import (
     BaseExpression,
     MathOperation,
     CompareOperation,
+    UnaryOperation,
     Constant,
     BuiltinFunction,
 )
@@ -347,6 +348,26 @@ class Interpreter:
                 value=value,
                 primitive_type=PrimitiveType.BOOL,
             )
+        elif isinstance(expression, UnaryOperation):
+            operand_value = self.expression(expression.operand)
+            if expression.operator == "not":
+                if (
+                    not operand_value.type == ValueType.PRIMITIVE
+                    or operand_value.primitive_type != PrimitiveType.BOOL
+                    or operand_value.is_array
+                ):
+                    raise Exception(
+                        f"not operator only works on bool values, got: {operand_value}"
+                    )
+                return Value(
+                    type=ValueType.PRIMITIVE,
+                    value=not operand_value.value,
+                    primitive_type=PrimitiveType.BOOL,
+                )
+            else:
+                raise InternalCompilerError(
+                    f"Unknown unary operator: {expression.operator}"
+                )
         else:
             raise InternalCompilerError("Unknown expression")
 

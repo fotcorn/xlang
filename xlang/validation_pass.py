@@ -17,6 +17,7 @@ from xlang.xl_ast import (
     ConstantType,
     MathOperation,
     CompareOperation,
+    UnaryOperation,
     VariableAssign,
     Function,
     Loop,
@@ -328,6 +329,24 @@ class Typeifier:
                 variable_type=VariableTypeEnum.PRIMITIVE,
                 primitive_type=PrimitiveType.BOOL,
             )
+        elif isinstance(expression, UnaryOperation):
+            operand_type = self.expression(expression.operand)
+            if expression.operator == "not":
+                if (
+                    operand_type.variable_type != VariableTypeEnum.PRIMITIVE
+                    or operand_type.primitive_type != PrimitiveType.BOOL
+                ):
+                    raise TypeMismatchException(
+                        "not operator only works on bool values", expression.context
+                    )
+                expression.type = VariableType(
+                    variable_type=VariableTypeEnum.PRIMITIVE,
+                    primitive_type=PrimitiveType.BOOL,
+                )
+            else:
+                raise InternalCompilerError(
+                    f"Unknown unary operator: {expression.operator}"
+                )
         else:
             raise InternalCompilerError("Unknown expression")
         return expression.type

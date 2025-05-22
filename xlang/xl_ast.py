@@ -175,6 +175,11 @@ class CompareOperation(BaseExpression):
     operator: str
 
 
+class UnaryOperation(BaseExpression):
+    operand: BaseExpression
+    operator: str
+
+
 class ArrayAccess(BaseExpression):
     expression: BaseExpression
 

@@ -132,6 +132,125 @@ func main() {
 //---------------------------------------
 
 func main() {
+    // CHECK: false
+    print(not true);
+    // CHECK: true
+    print(not false);
+}
+
+//---------------------------------------
+
+func main() {
+    var i: i32 = 0;
+    if (not false) {
+        i = 1;
+    } else {
+        i = 2;
+        assert(false);
+    }
+    // CHECK: 1
+    print(i);
+}
+
+//---------------------------------------
+
+func main() {
+    var i: i32 = 0;
+    if (not true) {
+        i = 1;
+        assert(false);
+    } else {
+        i = 2;
+    }
+    // CHECK: 2
+    print(i);
+}
+
+//---------------------------------------
+
+func main() {
+    var i: i32 = 0;
+    if (not (1 == 2)) {
+        i = 1;
+    } else {
+        i = 2;
+        assert(false);
+    }
+    // CHECK: 1
+    print(i);
+}
+
+//---------------------------------------
+
+func main() {
+    var i: i32 = 0;
+    if (not (1 == 1)) {
+        i = 1;
+        assert(false);
+    } else {
+        i = 2;
+    }
+    // CHECK: 2
+    print(i);
+}
+
+//---------------------------------------
+
+func main() {
+    const b: bool = true;
+    // CHECK: false
+    print(not b);
+
+    const c: bool = false;
+    // CHECK: true
+    print(not c);
+}
+
+//---------------------------------------
+
+func main() {
+    // Test operator precedence - not has lower precedence than ==
+    // This should be parsed as: not (true == false), which is true
+    // CHECK: true
+    print(not true == false);
+}
+
+//---------------------------------------
+
+func main() {
+    // Test operator precedence with parentheses
+    // This should be parsed as: not (true == false), which is true
+    // CHECK: true
+    print(not (true == false));
+}
+
+//---------------------------------------
+
+func main() {
+    // Unambiguous precedence test - these should give different results
+    const a: bool = false;
+    const b: bool = false;
+
+    // not a == b should be not (false == false) = not true = false
+    // CHECK: false
+    print(not a == b);
+
+    // (not a) == b should be true == false = false
+    // CHECK: false
+    print((not a) == b);
+
+    // not a != b should be not (false != false) = not false = true
+    // CHECK: true
+    print(not a != b);
+
+    // (not a) != b should be true != false = true
+    // CHECK: true
+    print((not a) != b);
+}
+
+//---------------------------------------
+
+func main() {
     var i: i32 = 0;
     if (false) {
         i = 1;

@@ -27,6 +27,7 @@ from xlang.xl_ast import (
     ParseContext,
     Return,
     StructType,
+    UnaryOperation,
     VariableAccess,
     VariableAssign,
     VariableDeclaration,
@@ -336,6 +337,15 @@ class ASTTransformer(Transformer):
             context=op1.context,
             operand1=op1,
             operand2=op2,
+            operator=operator.value,
+        )
+
+    @v_args(inline=True)
+    def not_expr(self, operator, operand):
+        return UnaryOperation(
+            type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
+            context=ParseContext.from_token(operator),
+            operand=operand,
             operator=operator.value,
         )
 

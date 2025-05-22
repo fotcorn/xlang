@@ -28,34 +28,35 @@ INTEGER: (/[1-9][0-9]*/ | "0" )
 FLOAT: /([1-9][0-9]*|0)\.[0-9]+/
 STRING_LITERAL: /"([^"\\]|\\[tnr"\\0])*"/
 CHAR_LITERAL: /'([^'\\]|\\[tnr'\\0])'/
-array_access: "[" compare_expr "]"
+array_access: "[" not_expr "]"
 var_access: IDENTIFIER array_access? ("." (var_access|function_call))?
 
 code_block: "{" statement* "}"
 
 ?statement: loop | if_statement | function_call ";" | variable_def | const_def | variable_dec | variable_assign | var_access ";" | control ";"
 !loop: "loop" code_block
-elif_statement: "elif" "(" compare_expr ")" code_block
+elif_statement: "elif" "(" not_expr ")" code_block
 !else_statement: "else" code_block
-if_statement: "if" "(" compare_expr ")" code_block elif_statement* else_statement?
+if_statement: "if" "(" not_expr ")" code_block elif_statement* else_statement?
 
-variable_def: "var" _WS_INLINE IDENTIFIER ":" type "=" compare_expr ";"
-const_def: "const" _WS_INLINE IDENTIFIER ":" type "=" compare_expr ";"
+variable_def: "var" _WS_INLINE IDENTIFIER ":" type "=" not_expr ";"
+const_def: "const" _WS_INLINE IDENTIFIER ":" type "=" not_expr ";"
 variable_dec: "var" _WS_INLINE IDENTIFIER ":" type ";"
-variable_assign: var_access "=" compare_expr ";"
-!control: ("break" | "continue" | "return" compare_expr?)
+variable_assign: var_access "=" not_expr ";"
+!control: ("break" | "continue" | "return" not_expr?)
 
-function_call: IDENTIFIER "(" (compare_expr? | compare_expr ("," compare_expr)*) ")"
+function_call: IDENTIFIER "(" (not_expr? | not_expr ("," not_expr)*) ")"
 integer_constant: INTEGER
 string_literal: STRING_LITERAL
 char_literal: CHAR_LITERAL
 float_constant: FLOAT
 !boolean_literal: ("false" | "true")
-?primary_expression: var_access | function_call | integer_constant | float_constant | string_literal | char_literal | boolean_literal | "(" compare_expr ")"
+?primary_expression: var_access | function_call | integer_constant | float_constant | string_literal | char_literal | boolean_literal | "(" not_expr ")"
 
 !?mul_div_expr: primary_expression | (mul_div_expr "*" primary_expression) | (mul_div_expr "/" primary_expression) | (mul_div_expr "%" primary_expression)
 !?add_sub_expr: mul_div_expr | (add_sub_expr "+" mul_div_expr) | (add_sub_expr "-" mul_div_expr)
 !?compare_expr: add_sub_expr | (compare_expr compare_operator add_sub_expr)
+!?not_expr: compare_expr | ("not" not_expr)
 
 !?compare_operator: "==" | "!=" | ">=" | ">" | "<" | "<="
 

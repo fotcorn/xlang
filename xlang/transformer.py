@@ -77,11 +77,31 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def char_literal(self, value):
+        char_content = value.value[1:-1]  # Remove quotes
+
+        # Handle escape sequences
+        if len(char_content) == 2 and char_content[0] == "\\":
+            escape_char = char_content[1]
+            if escape_char == "t":
+                char_content = "\t"
+            elif escape_char == "n":
+                char_content = "\n"
+            elif escape_char == "r":
+                char_content = "\r"
+            elif escape_char == "'":
+                char_content = "'"
+            elif escape_char == "\\":
+                char_content = "\\"
+            elif escape_char == "0":
+                char_content = "\0"
+            else:
+                raise InternalCompilerError("Unhandled escape sequence")
+
         return Constant(
             type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
             context=ParseContext.from_token(value),
             constant_type=ConstantType.CHAR,
-            value=value.value[1:-1],
+            value=char_content,
         )
 
     def function_call(self, param):

@@ -31,3 +31,30 @@ func main() {
         print("b");
     }
 }
+
+//---------------------------------------
+
+func main() {
+    const tab: char = '\t';
+    const newline: char = '\n';
+    const carriage_return: char = '\r';
+    const single_quote: char = '\'';
+    const backslash: char = '\\';
+    const null_char: char = '\0';
+    const double_quote: char = '"';
+
+    // CHECK: 9
+    print(tab.int());
+    // CHECK: 10
+    print(newline.int());
+    // CHECK: 13
+    print(carriage_return.int());
+    // CHECK: 39
+    print(single_quote.int());
+    // CHECK: 92
+    print(backslash.int());
+    // CHECK: 0
+    print(null_char.int());
+    // CHECK: 34
+    print(double_quote.int());
+}

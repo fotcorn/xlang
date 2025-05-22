@@ -24,3 +24,36 @@ func main() {
     // CHECK: hello
     print(l);
 }
+
+//---------------------------------------
+
+func main() {
+    const quote_string: string = "Say \"Hello\"";
+    // CHECK: Say "Hello"
+    print(quote_string);
+}
+
+//---------------------------------------
+
+func main() {
+    const backslash_string: string = "Path\\to\\file";
+    // CHECK: Path\to\file
+    print(backslash_string);
+}
+
+//---------------------------------------
+
+func main() {
+    const tab_string: string = "Hello\tWorld";
+    // CHECK-REGEX: Hello\tWorld
+    print(tab_string);
+}
+
+//---------------------------------------
+
+func main() {
+    const newline_string: string = "Hello\nWorld";
+    // CHECK: Hello
+    // CHECK: World
+    print(newline_string);
+}

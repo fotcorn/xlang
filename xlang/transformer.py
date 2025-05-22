@@ -59,11 +59,38 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def string_literal(self, value):
+        string_content = value.value[1:-1]  # Remove quotes
+
+        # Handle escape sequences
+        result = ""
+        i = 0
+        while i < len(string_content):
+            if string_content[i] == "\\" and i + 1 < len(string_content):
+                escape_char = string_content[i + 1]
+                if escape_char == "t":
+                    result += "\t"
+                elif escape_char == "n":
+                    result += "\n"
+                elif escape_char == "r":
+                    result += "\r"
+                elif escape_char == '"':
+                    result += '"'
+                elif escape_char == "\\":
+                    result += "\\"
+                elif escape_char == "0":
+                    result += "\0"
+                else:
+                    raise InternalCompilerError("Unhandled escape sequence")
+                i += 2  # Skip both the backslash and escape character
+            else:
+                result += string_content[i]
+                i += 1
+
         return Constant(
             type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
             context=ParseContext.from_token(value),
             constant_type=ConstantType.STRING,
-            value=value.value[1:-1],
+            value=result,
         )
 
     @v_args(inline=True)

@@ -57,3 +57,20 @@ func main() {
     // CHECK: World
     print(newline_string);
 }
+
+//---------------------------------------
+
+func main() {
+    const s: string = "hello";
+    // CHECK: 5
+    print(s.length());
+
+    const empty: string = "";
+    // CHECK: 0
+    print(empty.length());
+
+    // Test that length can be stored in a variable
+    const len: i32 = s.length();
+    // CHECK: 5
+    print(len);
+}

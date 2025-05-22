@@ -152,6 +152,21 @@ def builtin_append(array, value):
     array.value.append(value)
 
 
+@builtin_method_array(
+    "length",
+    VariableType(
+        variable_type=VariableTypeEnum.PRIMITIVE, primitive_type=PrimitiveType.I32
+    ),
+    [],
+)
+def builtin_array_length(array):
+    return Value(
+        type=ValueType.PRIMITIVE,
+        primitive_type=PrimitiveType.I32,
+        value=len(array.value),
+    )
+
+
 @builtin_method_primitive(
     PrimitiveType.STRING,
     "toLowerCase",

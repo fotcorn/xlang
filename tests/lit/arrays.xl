@@ -41,3 +41,41 @@ func main() {
     // CHECK: 1
     print(v4.x);
 }
+
+//---------------------------------------
+
+func main() {
+    var array: [i32];
+    // CHECK: 0
+    print(array.length());
+
+    array.append(10);
+    // CHECK: 1
+    print(array.length());
+
+    array.append(20);
+    // CHECK: 2
+    print(array.length());
+
+    array.append(30);
+    // CHECK: 3
+    print(array.length());
+}
+
+//---------------------------------------
+
+func main() {
+    var stringArray: [string];
+    // CHECK: 0
+    print(stringArray.length());
+
+    stringArray.append("hello");
+    stringArray.append("world");
+    // CHECK: 2
+    print(stringArray.length());
+
+    // Test that we can store length in a variable
+    const arrayLength: i32 = stringArray.length();
+    // CHECK: 2
+    print(arrayLength);
+}

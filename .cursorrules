@@ -25,4 +25,9 @@ python main.py --split-input-file tests/lit/your_test.xl
 
 2. Using LLVM's lit testing tool:
 ```bash
+# a single test file:
 lit -v tests/lit/your_test.xl
+
+# all test files:
+lit -v tests/lit/
+```

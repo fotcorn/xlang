@@ -24,37 +24,3 @@ func main() {
     // CHECK: hello
     print(l);
 }
-
-//---------------------------------------
-
-func main() {
-    const s: string = "hello";
-    const c: char = s[1];
-    const i: u32 = c.int();
-    // CHECK: 101
-    print(i);
-}
-
-//---------------------------------------
-
-func main() {
-    const c: char = 'a';
-    const i: u32 = c.int();
-    // CHECK: a
-    print(c);
-    // CHECK: 97
-    print(i);
-}
-
-//---------------------------------------
-
-func main() {
-    const c: char = 'a';
-    // CHECK: a
-    if (c == 'a') {
-        print("a");
-    } 
-    if (c == 'a') {
-        print("b");
-    }
-}

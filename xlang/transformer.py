@@ -1,3 +1,4 @@
+import lark # Added import
 from lark import Transformer, v_args
 
 from xlang.exceptions import (
@@ -10,6 +11,8 @@ from xlang.exceptions import (
 from xlang.xl_ast import (
     ArrayAccess,
     Break,
+    StructInitializer,
+    StructInitializerMember,
     CompareOperation,
     Constant,
     ConstantType,
@@ -438,4 +441,46 @@ class ASTTransformer(Transformer):
             array_access=array_access,
             method_call=method_call,
             variable_access=variable_access,
+        )
+
+    @v_args(inline=True)
+    def struct_initializer_member(self, identifier, value):
+        return StructInitializerMember(
+            name=identifier.value,
+            value=value,
+            context=ParseContext.from_token(identifier),
+        )
+
+    def struct_initializer(self, children):
+        name_token = children[0]
+        members_ast_nodes = []
+
+        # Iterate over all children after the name_token
+        # Children could be StructInitializerMember nodes or Token(',')
+        for child_node in children[1:]:
+            if isinstance(child_node, StructInitializerMember):
+                members_ast_nodes.append(child_node)
+            elif isinstance(child_node, list):
+                # This case handles if Lark groups (A ("," A)*) into a list.
+                # Should not happen with current grammar for the members part,
+                # but good to be defensive or aware.
+                for item in child_node:
+                    if isinstance(item, StructInitializerMember):
+                        members_ast_nodes.append(item)
+
+        # Check for duplicate members
+        member_names = set()
+        for member_node in members_ast_nodes:
+            if member_node.name in member_names:
+                raise ContextException(
+                    f"Duplicate member '{member_node.name}' in struct initializer",
+                    member_node.context,
+                )
+            member_names.add(member_node.name)
+
+        return StructInitializer(
+            type=None, # Type will be filled in by validation pass
+            name=name_token.value,
+            members=members_ast_nodes,
+            context=ParseContext.from_token(name_token),
         )

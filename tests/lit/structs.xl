@@ -75,3 +75,63 @@ func main() {
     // CHECK: false
     print(s.b);
 }
+
+//---------------------------------------
+
+struct Point {
+    x: i32,
+    y: i32 = 10,
+}
+
+func main() {
+    var p1: Point = Point{x: 5, y: 20};
+    // CHECK: 5
+    print(p1.x);
+    // CHECK: 20
+    print(p1.y);
+
+    var p2: Point = Point{x: 7};
+    // CHECK: 7
+    print(p2.x);
+    // CHECK: 10
+    print(p2.y);
+
+    var p3: Point = Point{y: 30, x: 1}; // test different order
+    // CHECK: 1
+    print(p3.x);
+    // CHECK: 30
+    print(p3.y);
+
+    const five: i32 = 5;
+    var p4: Point = Point{x: five * 2, y: p1.y - p2.y};
+    // CHECK: 10
+    print(p4.x);
+    // CHECK: 10
+    print(p4.y);
+}
+
+//---------------------------------------
+// Test with trailing comma
+struct A { a: i32, }
+func main() {
+    var a_val: A = A{a: 1,};
+    // CHECK: 1
+    print(a_val.a);
+}
+
+//---------------------------------------
+// Test empty initializer (all defaults)
+struct B { b: string = "default_b", }
+func main() {
+    var b_val: B = B{};
+    // CHECK: default_b
+    print(b_val.b);
+}
+//---------------------------------------
+// Test empty initializer with trailing comma
+struct C { c: bool = true, }
+func main() {
+    var c_val: C = C{,};
+    // CHECK: true
+    print(c_val.c);
+}

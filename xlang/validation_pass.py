@@ -25,6 +25,8 @@ from xlang.xl_ast import (
     Return,
     Continue,
     Break,
+    StructInitializer,
+    StructInitializerMember,
 )
 from xlang.xl_builtins import (
     get_builtin_functions,
@@ -347,6 +349,62 @@ class Typeifier:
                 raise InternalCompilerError(
                     f"Unknown unary operator: {expression.operator}"
                 )
+        elif isinstance(expression, StructInitializer):
+            if expression.name not in self.global_scope.structs:
+                raise TypeMismatchException(
+                    f"Unknown struct type: {expression.name}", expression.context
+                )
+            struct_def = self.global_scope.structs[expression.name]
+            expression.type = VariableType(
+                variable_type=VariableTypeEnum.STRUCT, type_name=expression.name
+            )
+
+            # Create a map of member definitions for easy lookup
+            struct_members_def_map = {
+                member.name: member for member in struct_def.members
+            }
+
+            initialized_member_names = set()
+            for member_init in expression.members:
+                if member_init.name not in struct_members_def_map:
+                    raise TypeMismatchException(
+                        f"Struct '{expression.name}' has no member '{member_init.name}'",
+                        member_init.context,
+                    )
+                member_def = struct_members_def_map[member_init.name]
+                member_init_expr_type = self.expression(member_init.value)
+
+                if not is_type_compatible(
+                    member_def.param_type, member_init_expr_type
+                ):
+                    raise TypeMismatchException(
+                        f"Type mismatch for member '{member_init.name}' in struct "
+                        f"'{expression.name}'. Expected {member_def.param_type}, "
+                        f"got {member_init_expr_type}",
+                        member_init.context,
+                    )
+                initialized_member_names.add(member_init.name)
+
+            # Check if all members that don't have a default value are initialized
+            debug_initialized_names_str = ", ".join(sorted(list(initialized_member_names)))
+            debug_provided_members_str = ", ".join(sorted([f"{m.name}: {type(m.value).__name__}" for m in expression.members]))
+            debug_info = (
+                f"DEBUG_INFO Struct: {expression.name}, "
+                f"ContextLine: {expression.context.line if expression.context else 'N/A'}, "
+                f"ProvidedInits: {{{debug_provided_members_str}}}, "
+                f"InitializedNamesSet: {{{debug_initialized_names_str}}}. "
+            )
+
+            for member_def_loop_var in struct_def.members:
+                if (
+                    member_def_loop_var.default_value is None
+                    and member_def_loop_var.name not in initialized_member_names
+                ):
+                    raise TypeMismatchException(
+                        f"{debug_info}Member '{member_def_loop_var.name}' of struct '{expression.name}' "
+                        "must be initialized (it has no default value and was not provided).",
+                        expression.context,
+                    )
         else:
             raise InternalCompilerError("Unknown expression")
         return expression.type

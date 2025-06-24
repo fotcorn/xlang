@@ -163,6 +163,17 @@ class Constant(BaseExpression):
     value: Any
 
 
+class StructInitializerMember(BaseModel):
+    name: str
+    value: BaseExpression
+    context: ParseContext
+
+
+class StructInitializer(BaseExpression):
+    name: str
+    members: List[StructInitializerMember]
+
+
 class MathOperation(BaseExpression):
     operand1: BaseExpression
     operand2: BaseExpression

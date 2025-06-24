@@ -25,6 +25,7 @@ from xlang.xl_ast import (
     UnaryOperation,
     Constant,
     BuiltinFunction,
+    StructInitializer,
 )
 from xlang.xl_builtins import (
     BUILTIN_FUNCTIONS,
@@ -239,6 +240,47 @@ class Interpreter:
             return self.lookup_variable(expression)
         elif isinstance(expression, Constant):
             return self.value_from_constant(expression)
+        elif isinstance(expression, StructInitializer):
+            if expression.name not in self.global_scope.structs:
+                # This should be caught by validation pass
+                raise InternalCompilerError(
+                    f"Unknown struct type: {expression.name}", expression.context
+                )
+            struct_def = self.global_scope.structs[expression.name]
+            struct_data = {}
+
+            # Initialize with provided values
+            initialized_members = set()
+            # Create a quick lookup for member definitions
+            struct_members_def_map = {
+                member.name: member for member in struct_def.members
+            }
+            for member_init in expression.members:
+                if member_init.name not in struct_members_def_map:
+                    # This should ideally be caught by the validation pass
+                    raise ContextException(
+                        f"Struct '{expression.name}' has no member '{member_init.name}'",
+                        member_init.context,
+                    )
+                struct_data[member_init.name] = self.expression(member_init.value)
+                initialized_members.add(member_init.name)
+
+            # Initialize remaining members with defaults or type defaults
+            for member_def in struct_def.members:
+                if member_def.name not in initialized_members:
+                    if member_def.default_value is not None:
+                        struct_data[member_def.name] = self.expression(
+                            member_def.default_value
+                        )
+                    else:
+                        struct_data[member_def.name] = self.default_variable_value(
+                            member_def.param_type
+                        )
+            return Value(
+                type=ValueType.STRUCT,
+                value=struct_data,
+                type_name=expression.name,
+            )
         elif isinstance(expression, MathOperation):
             operand1_value = self.expression(expression.operand1)
             operand2_value = self.expression(expression.operand2)

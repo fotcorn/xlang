@@ -5,7 +5,7 @@ func printi(value: i32) {
 }
 
 func main() {
-    // CHECK: {{.*}} Invalid function parameter type
+    // CHECK: {{.*}} Invalid function parameter type{{.*}}
     printi(5.0);
 }
 

@@ -45,7 +45,7 @@ func main() {
 
 func main() {
     const tab_string: string = "Hello\tWorld";
-    // CHECK-REGEX: Hello\tWorld
+    // CHECK: Hello{{\t}}World
     print(tab_string);
 }
 

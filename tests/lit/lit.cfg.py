@@ -18,13 +18,5 @@ main_py_path = os.path.abspath(os.path.join(lit_cfg_dir, "../../main.py"))
 
 config.substitutions.append(("%run", f"python {main_py_path}"))
 
-# hook up FileCheck
-filecheck_bin = shutil.which("FileCheck")
-if not filecheck_bin:
-    for i in range(18, 11, -1):
-        filecheck_bin = shutil.which(f"FileCheck-{i}")
-        if filecheck_bin:
-            break
-if not filecheck_bin:
-    raise FileNotFoundError("FileCheck binary not found in PATH")
+filecheck_bin = shutil.which("filecheck")
 config.substitutions.append(("%filecheck", f"{filecheck_bin}"))

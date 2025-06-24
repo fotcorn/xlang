@@ -343,12 +343,22 @@ class Typeifier:
                     variable_type=VariableTypeEnum.PRIMITIVE,
                     primitive_type=PrimitiveType.BOOL,
                 )
+            elif expression.operator == "-":
+                if (
+                    operand_type.variable_type != VariableTypeEnum.PRIMITIVE
+                    or operand_type.primitive_type not in INTEGER_TYPES
+                ):
+                    raise TypeMismatchException(
+                        f"Unary minus operator requires an integer, got {operand_type.primitive_type}",
+                        expression.context,
+                    )
+                expression.type = operand_type
             else:
                 raise InternalCompilerError(
-                    f"Unknown unary operator: {expression.operator}"
+                    f"Unknown unary operator: {expression.operator}", expression.context
                 )
         else:
-            raise InternalCompilerError("Unknown expression")
+            raise InternalCompilerError("Unknown expression", expression.context)
         return expression.type
 
     def function_call(self, expression: FunctionCall):

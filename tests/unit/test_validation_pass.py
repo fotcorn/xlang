@@ -72,6 +72,54 @@ def test_non_existing_type():
         )
 
 
+def test_unary_minus_valid():
+    validate(
+        """
+        func main() {
+            var a: i32 = 5;
+            var b: i32 = -a;
+            var c: i32 = -5;
+            var d: i32 = -(a + 2);
+        }
+        """
+    )
+
+
+def test_unary_minus_type_mismatch_assign():
+    with pytest.raises(TypeMismatchException):
+        validate(
+            """
+            func main() {
+                var a: string = "hello";
+                var b: i32 = -a; // Error: cannot apply unary minus to string
+            }
+            """
+        )
+
+
+def test_unary_minus_type_mismatch_operand():
+    with pytest.raises(TypeMismatchException):
+        validate(
+            """
+            func main() {
+                var a: bool = true;
+                var b: i32 = -a; // Error: cannot apply unary minus to bool
+            }
+            """
+        )
+
+def test_unary_minus_type_mismatch_expr_assign():
+    with pytest.raises(TypeMismatchException):
+        validate(
+            """
+            func main() {
+                var a: i32 = 5;
+                var b: string = -(a + 2); // Error: result of -(int) is int, not string
+            }
+            """
+        )
+
+
 def test_inside_loop_continue():
     validate(
         """

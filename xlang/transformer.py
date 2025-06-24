@@ -342,11 +342,21 @@ class ASTTransformer(Transformer):
 
     @v_args(inline=True)
     def not_expr(self, operator, operand):
+        # operator is a Token, operand is an AST node
         return UnaryOperation(
             type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
             context=ParseContext.from_token(operator),
             operand=operand,
-            operator=operator.value,
+            operator=operator.value,  # "not"
+        )
+
+    @v_args(inline=True)
+    def unary_minus_expr(self, operator, operand):
+        return UnaryOperation(
+            type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
+            context=ParseContext.from_token(operator),
+            operand=operand,
+            operator=operator.value,  # "-"
         )
 
     @v_args(inline=True)

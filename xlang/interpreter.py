@@ -364,12 +364,33 @@ class Interpreter:
                     value=not operand_value.value,
                     primitive_type=PrimitiveType.BOOL,
                 )
+            elif expression.operator == "-":
+                if (
+                    not operand_value.type == ValueType.PRIMITIVE
+                    or operand_value.primitive_type not in INTEGER_TYPES
+                    or operand_value.is_array
+                ):
+                    raise ContextException(
+                        f"Unary minus operator only works on integer values, got: {operand_value}",
+                        expression.context,
+                    )
+                if not expression.type or not expression.type.primitive_type:
+                    raise InternalCompilerError(
+                        "Unary minus expression type not set by validation pass",
+                        expression.context,
+                    )
+
+                return Value(
+                    type=ValueType.PRIMITIVE,
+                    value=-operand_value.value,
+                    primitive_type=expression.type.primitive_type,
+                )
             else:
                 raise InternalCompilerError(
-                    f"Unknown unary operator: {expression.operator}"
+                    f"Unknown unary operator: {expression.operator}", expression.context
                 )
         else:
-            raise InternalCompilerError("Unknown expression")
+            raise InternalCompilerError("Unknown expression", expression.context)
 
     def function_call(self, func_call):
         if func_call.function_name in self.global_scope.functions:

@@ -53,7 +53,16 @@ float_constant: FLOAT
 !boolean_literal: ("false" | "true")
 ?primary_expression: var_access | function_call | integer_constant | float_constant | string_literal | char_literal | boolean_literal | "(" not_expr ")"
 
-!?mul_div_expr: primary_expression | (mul_div_expr "*" primary_expression) | (mul_div_expr "/" primary_expression) | (mul_div_expr "%" primary_expression)
+// Expression precedence (high to low):
+// primary_expression
+// unary_minus_expr
+// mul_div_expr
+// add_sub_expr
+// compare_expr
+// not_expr (logical negation)
+
+!?unary_minus_expr: primary_expression | ("-" unary_minus_expr)
+!?mul_div_expr: unary_minus_expr | (mul_div_expr "*" unary_minus_expr) | (mul_div_expr "/" unary_minus_expr) | (mul_div_expr "%" unary_minus_expr)
 !?add_sub_expr: mul_div_expr | (add_sub_expr "+" mul_div_expr) | (add_sub_expr "-" mul_div_expr)
 !?compare_expr: add_sub_expr | (compare_expr compare_operator add_sub_expr)
 !?not_expr: compare_expr | ("not" not_expr)

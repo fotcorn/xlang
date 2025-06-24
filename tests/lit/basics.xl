@@ -133,3 +133,49 @@ func main() {
     // CHECK: 4.2
     print(a * b);
 }
+
+//---------------------------------------
+
+func main() {
+    const a: i32 = -5;
+    // CHECK: -5
+    print(a);
+
+    const b: i32 = -a;
+    // CHECK: 5
+    print(b);
+
+    const c: i32 = -(a + 2); // -( -5 + 2) = -(-3) = 3
+    // CHECK: 3
+    print(c);
+
+    const d: i32 = -a + 2; // -(-5) + 2 = 5 + 2 = 7
+    // CHECK: 7
+    print(d);
+
+    var x: i32 = 10;
+    const e: i32 = -x * 2; // (-10) * 2 = -20
+    // CHECK: -20
+    print(e);
+
+    const f: i32 = -(x * 2); // -(10 * 2) = -(20) = -20
+    // CHECK: -20
+    print(f);
+
+    const g: i32 = -10;
+    // CHECK: -10
+    print(g);
+
+    const h: i32 = 5 + -3; // 5 + (-3) = 2
+    // CHECK: 2
+    print(h);
+
+    const i: i32 = 5 * -3; // 5 * (-3) = -15
+    // CHECK: -15
+    print(i);
+
+    // CHECK: -2
+    print(-2);
+    // CHECK: 2
+    print(-(-2));
+}

@@ -74,3 +74,41 @@ func main() {
     // CHECK: 5
     print(len);
 }
+
+//---------------------------------------
+
+func main() {
+    var s: string = "hello";
+    const c: char = 'w';
+    s.append(c);
+    // CHECK: hellow
+    print(s);
+}
+
+//---------------------------------------
+
+func main() {
+    var s1: string = "hello";
+    const s2: string = " world";
+    s1.append(s2);
+    // CHECK: hello world
+    print(s1);
+}
+
+//---------------------------------------
+
+func main() {
+    var result: string = "";
+    const chars: string = "abc";
+    var i: i32 = 0;
+    loop {
+        if (i >= chars.length()) {
+            break;
+        }
+        const c: char = chars[i];
+        result.append(c);
+        i = i + 1;
+    }
+    // CHECK: abc
+    print(result);
+}

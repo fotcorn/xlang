@@ -1,7 +1,7 @@
 from collections import defaultdict
 import functools
 from typing import Dict, List, Optional
-from xlang.exceptions import InterpreterAssertionError
+from xlang.exceptions import InterpreterAssertionError, ContextException
 from xlang.xl_ast import (
     FunctionParameter,
     ParseContext,
@@ -71,7 +71,7 @@ def builtin_method_array(
 def builtin_method_primitive(
     primitive_type: PrimitiveType,
     name: str,
-    return_type: VariableType,
+    return_type: Optional[VariableType],
     params: List[FunctionParameter],
     context=False,
 ):
@@ -229,6 +229,27 @@ def builtin_char_to_int(char_val: Value):
         primitive_type=PrimitiveType.U32,
         value=ord(char_val.value),
     )
+
+
+@builtin_method_primitive(
+    PrimitiveType.STRING,
+    "append",
+    None,
+    [builtin_generic("value")],
+    True,
+)
+def builtin_string_append(string_val: Value, value: Value, context):
+    if value.type == ValueType.PRIMITIVE and value.primitive_type == PrimitiveType.CHAR:
+        string_val.value += value.value
+    elif (
+        value.type == ValueType.PRIMITIVE
+        and value.primitive_type == PrimitiveType.STRING
+    ):
+        string_val.value += value.value
+    else:
+        raise ContextException(
+            "append() can only accept char or string arguments", context
+        )
 
 
 def get_builtin_functions() -> Dict[str, BuiltinFunction]:

@@ -364,6 +364,12 @@ class Interpreter:
                     value=not operand_value.value,
                     primitive_type=PrimitiveType.BOOL,
                 )
+            elif expression.operator == "-":
+                return Value(
+                    type=ValueType.PRIMITIVE,
+                    value=-operand_value.value,
+                    primitive_type=operand_value.primitive_type,
+                )
             else:
                 raise InternalCompilerError(
                     f"Unknown unary operator: {expression.operator}"

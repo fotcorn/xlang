@@ -341,6 +341,35 @@ class ASTTransformer(Transformer):
         )
 
     @v_args(inline=True)
+    def unary_expr(self, operator, operand):
+        if operator.value == "-":
+            # Smart constant folding for negative literals
+            if isinstance(operand, Constant):
+                if operand.constant_type == ConstantType.INTEGER:
+                    return Constant(
+                        type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
+                        context=ParseContext.from_token(operator),
+                        constant_type=ConstantType.INTEGER,
+                        value=-operand.value,
+                    )
+                elif operand.constant_type == ConstantType.FLOAT:
+                    return Constant(
+                        type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
+                        context=ParseContext.from_token(operator),
+                        constant_type=ConstantType.FLOAT,
+                        value=-operand.value,
+                    )
+            # For non-constants, create UnaryOperation
+            return UnaryOperation(
+                type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
+                context=ParseContext.from_token(operator),
+                operand=operand,
+                operator=operator.value,
+            )
+        else:
+            raise InternalCompilerError(f"Unknown unary operator: {operator.value}")
+
+    @v_args(inline=True)
     def not_expr(self, operator, operand):
         return UnaryOperation(
             type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),

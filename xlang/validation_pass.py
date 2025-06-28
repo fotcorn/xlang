@@ -233,6 +233,98 @@ class Typeifier:
         variable_access.type = expression_type
         return expression_type
 
+    def math_operation(self, expression: MathOperation) -> VariableType:
+        operand1_type = self.expression(expression.operand1)
+        operand2_type = self.expression(expression.operand2)
+
+        # TODO: We currently don't do real constant folding (replacing AST nodes),
+        # we just evaluate constants for type checking purposes. Real constant folding
+        # would replace the MathOperation node with a Constant node in the AST.
+
+        # Constant folding: if both operands are constants, evaluate at compile time
+        if isinstance(expression.operand1, Constant) and isinstance(
+            expression.operand2, Constant
+        ):
+            const1, const2 = expression.operand1, expression.operand2
+
+            # Handle integer constant folding
+            if (
+                const1.constant_type == ConstantType.INTEGER
+                and const2.constant_type == ConstantType.INTEGER
+            ):
+                if expression.operator == "+":
+                    result_value = const1.value + const2.value
+                elif expression.operator == "-":
+                    result_value = const1.value - const2.value
+                elif expression.operator == "*":
+                    result_value = const1.value * const2.value
+                elif expression.operator == "/":
+                    if const2.value == 0:
+                        raise ContextException("Division by zero", expression.context)
+                    result_value = const1.value // const2.value  # Integer division
+                elif expression.operator == "%":
+                    if const2.value == 0:
+                        raise ContextException("Division by zero", expression.context)
+                    result_value = const1.value % const2.value
+                else:
+                    raise InternalCompilerError(
+                        f"Unknown math operator: {expression.operator}"
+                    )
+
+                return primitive_type_from_constant(result_value, expression.context)
+
+            # Handle float constant folding
+            elif (
+                const1.constant_type == ConstantType.FLOAT
+                and const2.constant_type == ConstantType.FLOAT
+            ):
+                val1 = float(const1.value)
+                val2 = float(const2.value)
+
+                if expression.operator == "+":
+                    result_value = val1 + val2
+                elif expression.operator == "-":
+                    result_value = val1 - val2
+                elif expression.operator == "*":
+                    result_value = val1 * val2
+                elif expression.operator == "/":
+                    if val2 == 0.0:
+                        raise ContextException("Division by zero", expression.context)
+                    result_value = val1 / val2
+                elif expression.operator == "%":
+                    if val2 == 0.0:
+                        raise ContextException("Division by zero", expression.context)
+                    result_value = val1 % val2
+                else:
+                    raise InternalCompilerError(
+                        f"Unknown math operator: {expression.operator}"
+                    )
+
+                return VariableType(
+                    variable_type=VariableTypeEnum.PRIMITIVE,
+                    primitive_type=PrimitiveType.F32,
+                )
+            else:
+                # Mixed types that can't be folded, fall back to normal type checking
+                if is_type_compatible(operand1_type, operand2_type):
+                    return operand1_type
+                elif is_type_compatible(operand2_type, operand1_type):
+                    return operand2_type
+                else:
+                    raise ContextException(
+                        "Incompatible type in operator expressions", expression.context
+                    )
+        else:
+            # Normal type compatibility checking for non-constant expressions
+            if is_type_compatible(operand1_type, operand2_type):
+                return operand1_type
+            elif is_type_compatible(operand2_type, operand1_type):
+                return operand2_type
+            else:
+                raise ContextException(
+                    "Incompatible type in operator expressions", expression.context
+                )
+
     def struct_access(self, variable: VariableType, struct_access: VariableAccess):
         if variable.variable_type != VariableTypeEnum.STRUCT:
             raise ContextException(
@@ -306,16 +398,7 @@ class Typeifier:
         elif isinstance(expression, Constant):
             expression.type = get_constant_type(expression)
         elif isinstance(expression, MathOperation):
-            operand1_type = self.expression(expression.operand1)
-            operand2_type = self.expression(expression.operand2)
-            if is_type_compatible(operand1_type, operand2_type):
-                expression.type = operand1_type
-            elif is_type_compatible(operand2_type, operand1_type):
-                expression.type = operand2_type
-            else:
-                raise ContextException(
-                    "Incompatible type in operator expressions", expression.context
-                )
+            expression.type = self.math_operation(expression)
         elif isinstance(expression, CompareOperation):
             operand1_type = self.expression(expression.operand1)
             operand2_type = self.expression(expression.operand2)
@@ -343,6 +426,38 @@ class Typeifier:
                     variable_type=VariableTypeEnum.PRIMITIVE,
                     primitive_type=PrimitiveType.BOOL,
                 )
+            elif expression.operator == "-":
+                if operand_type.variable_type != VariableTypeEnum.PRIMITIVE:
+                    raise TypeMismatchException(
+                        "unary minus operator only works on primitive numeric types",
+                        expression.context,
+                    )
+                # Only allow signed integer types and f32
+                allowed_types = (
+                    PrimitiveType.I8,
+                    PrimitiveType.I16,
+                    PrimitiveType.I32,
+                    PrimitiveType.I64,
+                    PrimitiveType.F32,
+                )
+                if operand_type.primitive_type not in allowed_types:
+                    if operand_type.primitive_type in (
+                        PrimitiveType.U8,
+                        PrimitiveType.U16,
+                        PrimitiveType.U32,
+                        PrimitiveType.U64,
+                    ):
+                        raise TypeMismatchException(
+                            "unary minus operator cannot be used with unsigned integer types",
+                            expression.context,
+                        )
+                    else:
+                        raise TypeMismatchException(
+                            "unary minus operator only works on signed integers and f32",
+                            expression.context,
+                        )
+                # Result type is the same as operand type
+                expression.type = operand_type
             else:
                 raise InternalCompilerError(
                     f"Unknown unary operator: {expression.operator}"

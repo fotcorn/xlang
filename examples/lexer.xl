@@ -1,0 +1,115 @@
+func is_whitespace(c: char): bool {
+    if (c == ' ') {
+        return true;
+    }
+    if (c == '\t') {
+        return true;
+    }
+    if (c == '\n') {
+        return true;
+    }
+    if (c == '\r') {
+        return true;
+    }
+    return false;
+}
+
+func is_digit(c: char): bool {
+    const zero: char = '0';
+    const nine: char = '9';
+    if (c.int() >= zero.int()) {
+        if (c.int() <= nine.int()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+enum TokenType {
+    Number,
+    Add,
+    Sub,
+    Mul,
+    Div,
+}
+
+struct Token {
+    type: TokenType = TokenType.Number,
+    value: string,
+}
+
+func main() {
+    const input: string = "1 + 5 * 3";
+    const length: i32 = input.length();
+    const zero: char = '0';
+    const zeroInt: u32 = zero.int();
+
+    var tokens: [Token];
+
+    var i: i32 = 0;
+    loop {
+        if (i >= length) {
+            break;
+        }
+
+        const c: char = input[i];
+
+        if (c == '+') {
+            var token: Token;
+            token.type = TokenType.Add;
+            tokens.append(token);
+        } elif (c == '-') {
+            var token: Token;
+            token.type = TokenType.Sub;
+            tokens.append(token);
+        } elif (c == '*') {
+            var token: Token;
+            token.type = TokenType.Mul;
+            tokens.append(token);
+        } elif (c == '/') {
+            var token: Token;
+            token.type = TokenType.Div;
+            tokens.append(token);
+        } elif (is_digit(c)) {
+            var value: string = "";
+            value.append(c);
+            loop {
+                i = i + 1;
+                if (i >= length) {
+                    break;
+                }
+                const c: char = input[i];
+                if (not is_digit(c)) {
+                    break;
+                }
+                value.append(c);
+            }
+            var token: Token;
+            token.type = TokenType.Number;
+            token.value = value;
+            tokens.append(token);
+        } elif (is_whitespace(c)) {
+            // ignore
+        } else {
+            print("parse error");
+            break;
+        }
+
+        i = i + 1;
+    }
+
+    i = 0;
+    loop {
+        if (i >= 5) { // TODO
+            break;
+        }
+
+        const token: Token = tokens[i];
+        print(token.type);
+        if (token.type == TokenType.Number) {
+            print(token.value);
+        }
+        print("---");
+        i = i + 1;
+    }
+}

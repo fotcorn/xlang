@@ -1,0 +1,153 @@
+// RUN: %run --split-input-file %s | %filecheck --match-full-lines %s
+
+struct Vec3 {
+    x: i32,
+    y: i32,
+    z: i32,
+}
+
+func main() {
+    var vec: Vec3 = Vec3(x: 5, y: 7, z: 12);
+    // CHECK: 5
+    print(vec.x);
+    // CHECK: 7
+    print(vec.y);
+    // CHECK: 12
+    print(vec.z);
+}
+
+//---------------------------------------
+
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+func main() {
+    var p: Point = Point(x: 10, y: 20);
+    // CHECK: 10
+    print(p.x);
+    // CHECK: 20
+    print(p.y);
+}
+
+//---------------------------------------
+
+struct MixedData {
+    id: i32,
+    name: string,
+    active: bool,
+}
+
+func main() {
+    var data: MixedData = MixedData(id: 42, name: "test", active: true);
+    // CHECK: 42
+    print(data.id);
+    // CHECK: test
+    print(data.name);
+    // CHECK: true
+    print(data.active);
+}
+
+//---------------------------------------
+
+struct WithDefaults {
+    a: i32 = 10,
+    b: string = "default",
+    c: bool = false,
+}
+
+func main() {
+    // Only initialize some members, others use defaults
+    var s1: WithDefaults = WithDefaults(a: 42, c: true);
+    // CHECK: 42
+    print(s1.a);
+    // CHECK: default
+    print(s1.b);
+    // CHECK: true
+    print(s1.c);
+}
+
+//---------------------------------------
+
+struct OrderTest {
+    first: i32 = 1,
+    second: string = "two",
+    third: bool = false,
+}
+
+func main() {
+    // Initialize in different order than definition
+    var s: OrderTest = OrderTest(third: true, first: 99, second: "hello");
+    // CHECK: 99
+    print(s.first);
+    // CHECK: hello
+    print(s.second);
+    // CHECK: true
+    print(s.third);
+}
+
+//---------------------------------------
+
+struct PartialInit {
+    x: i32 = 5,
+    y: i32 = 10,
+    z: i32 = 15,
+}
+
+func main() {
+    // Initialize only middle member
+    var p: PartialInit = PartialInit(y: 100);
+    // CHECK: 5
+    print(p.x);
+    // CHECK: 100
+    print(p.y);
+    // CHECK: 15
+    print(p.z);
+}
+
+//---------------------------------------
+
+struct AutoDefaults {
+    a: i32,
+    b: string,
+    c: bool,
+}
+
+func main() {
+    // Only initialize one field, others get automatic defaults
+    var s: AutoDefaults = AutoDefaults(a: 42);
+    // CHECK: 42
+    print(s.a);
+    if (s.b == "") {
+        // CHECK: empty string
+        print("empty string");
+    }
+    // CHECK: false
+    print(s.c);
+}
+
+//---------------------------------------
+
+struct SimpleVec3 {
+    x: i32,
+    y: i32,
+    z: i32,
+}
+
+struct NestedStruct {
+    pos: SimpleVec3,
+    scale: f32,
+}
+
+func main() {
+    var ns: NestedStruct = NestedStruct(pos: SimpleVec3(x: 1, y: 2, z: 3), scale: 2.5);
+    // CHECK: 1
+    print(ns.pos.x);
+    // CHECK: 2
+    print(ns.pos.y);
+    // CHECK: 3
+    print(ns.pos.z);
+    // CHECK: 2.5
+    print(ns.scale);
+}

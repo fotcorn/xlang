@@ -25,6 +25,7 @@ from xlang.xl_ast import (
     Return,
     Continue,
     Break,
+    StructInitialization,
 )
 from xlang.xl_builtins import (
     get_builtin_functions,
@@ -462,6 +463,8 @@ class Typeifier:
                 raise InternalCompilerError(
                     f"Unknown unary operator: {expression.operator}"
                 )
+        elif isinstance(expression, StructInitialization):
+            expression.type = self.struct_initialization(expression)
         else:
             raise InternalCompilerError("Unknown expression")
         return expression.type
@@ -554,6 +557,72 @@ class Typeifier:
 
         self.check_call_arguments(method_call, method.function_params)
         return method.return_type
+
+    def struct_initialization(self, expression: StructInitialization):
+        # Check if struct exists
+        if expression.struct_name not in self.global_scope.structs:
+            raise ContextException(
+                f"Unknown struct: {expression.struct_name}",
+                expression.context,
+            )
+
+        struct_type = self.global_scope.structs[expression.struct_name]
+
+        # Create a map of field names to their types for quick lookup
+        struct_fields = {member.name: member for member in struct_type.members}
+
+        # Track which fields have been initialized
+        initialized_fields = set()
+
+        # Validate each field initialization
+        for field_init in expression.field_inits:
+            field_name = field_init.field_name
+
+            # Check if field exists in struct
+            if field_name not in struct_fields:
+                raise ContextException(
+                    f"Unknown field '{field_name}' in struct '{expression.struct_name}'",
+                    field_init.context,
+                )
+
+            # Check for duplicate field initialization
+            if field_name in initialized_fields:
+                raise ContextException(
+                    f"Field '{field_name}' is initialized multiple times",
+                    field_init.context,
+                )
+
+            initialized_fields.add(field_name)
+
+            # Type check the field value
+            field_type = struct_fields[field_name].param_type
+            value_type = self.expression(field_init.value)
+
+            if not is_type_compatible(field_type, value_type):
+                raise TypeMismatchException(
+                    f"Field '{field_name}' expects type {field_type}, got {value_type}",
+                    field_init.context,
+                )
+
+        # Check if all required fields are initialized
+        # Only enum fields without explicit defaults must be initialized
+        # Other types (primitives, structs) get automatic default values
+        for member in struct_type.members:
+            if (
+                member.name not in initialized_fields
+                and member.default_value is None
+                and member.param_type.variable_type == VariableTypeEnum.ENUM
+            ):
+                raise ContextException(
+                    f"Enum field '{member.name}' must be explicitly initialized",
+                    expression.context,
+                )
+
+        # Return the struct type
+        return VariableType(
+            variable_type=VariableTypeEnum.STRUCT,
+            type_name=expression.struct_name,
+        )
 
 
 def get_constant_type(constant: Constant) -> VariableType:

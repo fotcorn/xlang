@@ -200,6 +200,17 @@ class FunctionCall(Statement, BaseExpression):
     params: List[BaseExpression]
 
 
+class StructFieldInit(BaseModel):
+    field_name: str
+    value: BaseExpression
+    context: ParseContext
+
+
+class StructInitialization(BaseExpression):
+    struct_name: str
+    field_inits: List[StructFieldInit]
+
+
 class VariableDeclaration(Statement):
     name: str
     variable_type: VariableType

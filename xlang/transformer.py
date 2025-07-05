@@ -27,6 +27,8 @@ from xlang.xl_ast import (
     ParseContext,
     Return,
     StructType,
+    StructFieldInit,
+    StructInitialization,
     UnaryOperation,
     VariableAccess,
     VariableAssign,
@@ -467,4 +469,22 @@ class ASTTransformer(Transformer):
             array_access=array_access,
             method_call=method_call,
             variable_access=variable_access,
+        )
+
+    @v_args(inline=True)
+    def struct_field_init(self, field_name, value):
+        return StructFieldInit(
+            field_name=field_name.value,
+            value=value,
+            context=ParseContext.from_token(field_name),
+        )
+
+    def struct_init(self, params):
+        struct_name = params[0]
+        field_inits = params[1:]
+        return StructInitialization(
+            type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
+            context=ParseContext.from_token(struct_name),
+            struct_name=struct_name.value,
+            field_inits=field_inits,
         )

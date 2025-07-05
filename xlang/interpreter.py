@@ -25,6 +25,7 @@ from xlang.xl_ast import (
     UnaryOperation,
     Constant,
     BuiltinFunction,
+    StructInitialization,
 )
 from xlang.xl_builtins import (
     BUILTIN_FUNCTIONS,
@@ -374,6 +375,8 @@ class Interpreter:
                 raise InternalCompilerError(
                     f"Unknown unary operator: {expression.operator}"
                 )
+        elif isinstance(expression, StructInitialization):
+            return self.struct_initialization(expression)
         else:
             raise InternalCompilerError("Unknown expression")
 
@@ -542,4 +545,29 @@ class Interpreter:
             type=ValueType.PRIMITIVE,
             value=constant.value,
             primitive_type=constant.type.primitive_type,
+        )
+
+    def struct_initialization(self, expression: StructInitialization):
+        # Get the struct definition
+        struct_def = self.global_scope.structs[expression.struct_name]
+
+        # Start with default values for all fields
+        struct_data = {}
+        for member in struct_def.members:
+            if member.default_value is not None:
+                struct_data[member.name] = self.expression(member.default_value)
+            else:
+                struct_data[member.name] = self.default_variable_value(
+                    member.param_type
+                )
+
+        # Override with explicitly initialized fields
+        for field_init in expression.field_inits:
+            field_value = self.expression(field_init.value)
+            struct_data[field_init.field_name] = field_value
+
+        return Value(
+            type=ValueType.STRUCT,
+            value=struct_data,
+            type_name=expression.struct_name,
         )

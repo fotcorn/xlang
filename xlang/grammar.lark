@@ -46,12 +46,14 @@ variable_assign: var_access "=" not_expr ";"
 !control: ("break" | "continue" | "return" not_expr?)
 
 function_call: IDENTIFIER "(" (not_expr? | not_expr ("," not_expr)*) ")"
+struct_field_init: IDENTIFIER ":" not_expr
+struct_init: IDENTIFIER "(" struct_field_init ("," struct_field_init)* ")"
 integer_constant: INTEGER
 string_literal: STRING_LITERAL
 char_literal: CHAR_LITERAL
 float_constant: FLOAT
 !boolean_literal: ("false" | "true")
-?primary_expression: var_access | function_call | integer_constant | float_constant | string_literal | char_literal | boolean_literal | "(" not_expr ")"
+?primary_expression: var_access | function_call | struct_init | integer_constant | float_constant | string_literal | char_literal | boolean_literal | "(" not_expr ")"
 
 !?unary_expr: primary_expression | ("-" unary_expr)
 !?mul_div_expr: unary_expr | (mul_div_expr "*" unary_expr) | (mul_div_expr "/" unary_expr) | (mul_div_expr "%" unary_expr)

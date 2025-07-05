@@ -697,6 +697,13 @@ def validation_pass(global_scope: GlobalScope):
                         member.default_value.context,
                     )
                 member.default_value.type = value_type
+            else:
+                # Check if enum field lacks required default value
+                if member.param_type.variable_type == VariableTypeEnum.ENUM:
+                    raise ContextException(
+                        f"Enum field '{member.name}' in struct '{struct.name}' must have a default value",
+                        member.context,
+                    )
 
     for function in global_scope.functions.values():
         if function.return_type:

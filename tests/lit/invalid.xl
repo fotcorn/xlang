@@ -22,3 +22,19 @@ func main() {
     // CHECK: {{.*}} Incompatible value type
     const i: i32 = 5.0;
 }
+
+//---------------------------------------
+
+enum Color {
+    Red,
+    Green,
+    Blue,
+}
+
+struct BadStruct {
+    // CHECK: {{.*}} Enum field 'color' in struct 'BadStruct' must have a default value
+    color: Color,
+}
+
+func main() {
+}

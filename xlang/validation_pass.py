@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from xlang.xl_ast import (
+    BaseFunction,
     FunctionParameter,
     ParseContext,
     VariableType,
@@ -89,14 +90,14 @@ class Typeifier:
     def statement(self, statement):
         if isinstance(statement, VariableDeclaration):
             statement.variable_type = typeify(
-                statement.variable_type, self.global_scope
+                statement.variable_type, self.global_scope, statement.context
             )
             self.scope_stack.def_variable(
                 statement.name, statement.variable_type, False, statement.context
             )
         elif isinstance(statement, VariableDefinition):
             statement.variable_type = typeify(
-                statement.variable_type, self.global_scope
+                statement.variable_type, self.global_scope, statement.context
             )
             self.scope_stack.def_variable(
                 statement.name,
@@ -471,6 +472,7 @@ class Typeifier:
 
     def function_call(self, expression: FunctionCall):
         # check if function actually exists
+        function: BaseFunction
         if expression.function_name in self.global_scope.functions:
             function = self.global_scope.functions[expression.function_name]
         elif expression.function_name in get_builtin_functions():
@@ -674,7 +676,7 @@ def get_enum_type(
 def validation_pass(global_scope: GlobalScope):
     for struct in global_scope.structs.values():
         for member in struct.members:
-            member.param_type = typeify(member.param_type, global_scope)
+            member.param_type = typeify(member.param_type, global_scope, member.context)
             if member.default_value:
                 if isinstance(member.default_value, Constant):
                     value_type = get_constant_type(member.default_value)
@@ -707,9 +709,13 @@ def validation_pass(global_scope: GlobalScope):
 
     for function in global_scope.functions.values():
         if function.return_type:
-            function.return_type = typeify(function.return_type, global_scope)
+            function.return_type = typeify(
+                function.return_type, global_scope, function.context
+            )
         for parameter in function.function_params:
-            parameter.param_type = typeify(parameter.param_type, global_scope)
+            parameter.param_type = typeify(
+                parameter.param_type, global_scope, parameter.context
+            )
 
     for function in global_scope.functions.values():
         assert isinstance(function, Function)

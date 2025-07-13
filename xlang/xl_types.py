@@ -8,17 +8,17 @@ from xlang.xl_ast import (
 from xlang.exceptions import ContextException, InternalCompilerError
 
 
-def typeify(base_type: VariableType, global_scope: GlobalScope):
+def typeify(base_type: VariableType, global_scope: GlobalScope, context: ParseContext):
     if base_type.variable_type == VariableTypeEnum.ARRAY:
         assert base_type.array_type
         assert base_type.array_type.type_name
         assert base_type.array_type.variable_type == VariableTypeEnum.UNKNOWN
         base_type.array_type = get_type_from_string(
-            global_scope, base_type.array_type.type_name
+            global_scope, base_type.array_type.type_name, context
         )
     elif base_type.variable_type == VariableTypeEnum.UNKNOWN:
         assert base_type.type_name
-        base_type = get_type_from_string(global_scope, base_type.type_name)
+        base_type = get_type_from_string(global_scope, base_type.type_name, context)
     else:
         raise InternalCompilerError("Unhandled type in typeify")
     return base_type
@@ -30,7 +30,9 @@ def primitive(primitive_type: PrimitiveType) -> VariableType:
     )
 
 
-def get_type_from_string(global_scope: GlobalScope, type_name: str) -> VariableType:
+def get_type_from_string(
+    global_scope: GlobalScope, type_name: str, context: ParseContext
+) -> VariableType:
     if type_name == "i64":
         return primitive(PrimitiveType.I64)
     elif type_name == "i32":
@@ -60,7 +62,7 @@ def get_type_from_string(global_scope: GlobalScope, type_name: str) -> VariableT
     elif type_name in global_scope.enums:
         return VariableType(variable_type=VariableTypeEnum.ENUM, type_name=type_name)
     else:
-        raise InternalCompilerError(f"Unknown type: {type_name}")
+        raise ContextException(f"Unknown type: {type_name}", context)
 
 
 SIGNED = (

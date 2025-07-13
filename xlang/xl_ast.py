@@ -106,7 +106,7 @@ class EnumType(BaseModel):
 
 class GlobalScope(BaseModel):
     structs: Dict[str, StructType] = {}
-    functions: Dict[str, BaseFunction] = {}
+    functions: Dict[str, Function] = {}
     enums: Dict[str, EnumType] = {}
 
     def dump(self):

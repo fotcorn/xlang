@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from enum import Enum, auto
 from typing import List, Dict, Optional, Callable, Any
 
@@ -96,6 +96,7 @@ class StructType(BaseModel):
 class EnumEntry(BaseModel):
     name: str
     context: ParseContext
+    fields: List[IdentifierAndType] = Field(default_factory=list)
 
 
 class EnumType(BaseModel):

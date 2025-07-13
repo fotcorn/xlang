@@ -206,7 +206,7 @@ class ASTTransformer(Transformer):
             )
 
     @v_args(inline=True)
-    def struct_entry(self, identifier, type, *args):
+    def field_entry(self, identifier, type, *args):
         default_value = args[0] if args else None
         return IdentifierAndType(
             name=identifier.value,
@@ -227,10 +227,18 @@ class ASTTransformer(Transformer):
             context=ParseContext.from_token(keyword), statements=code_block.children
         )
 
-    @v_args(inline=True)
-    def enum_entry(self, identifier, comma=None):
+    def enum_entry(self, args):
+        identifier = args[0]
+        fields = []
+
+        for arg in args[1:]:
+            assert isinstance(arg, IdentifierAndType)
+            fields.append(arg)
+
         return EnumEntry(
-            name=identifier.value, context=ParseContext.from_token(identifier)
+            name=identifier.value,
+            context=ParseContext.from_token(identifier),
+            fields=fields,
         )
 
     @v_args(inline=True)

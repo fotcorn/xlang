@@ -674,6 +674,22 @@ def get_enum_type(
 
 
 def validation_pass(global_scope: GlobalScope):
+    for enum in global_scope.enums.values():
+        for entry in enum.entries.values():
+            # Check for duplicate field names within the entry
+            if entry.fields:
+                field_names = [f.name for f in entry.fields]
+                if len(field_names) != len(set(field_names)):
+                    raise ContextException(
+                        f"Duplicate field names in enum entry '{entry.name}'",
+                        entry.context,
+                    )
+            # Validate field types
+            for field in entry.fields:
+                field.param_type = typeify(
+                    field.param_type, global_scope, field.context
+                )
+
     for struct in global_scope.structs.values():
         for member in struct.members:
             member.param_type = typeify(member.param_type, global_scope, member.context)

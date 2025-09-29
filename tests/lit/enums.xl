@@ -60,3 +60,70 @@ func main() {
     print(array[1]);
     print(array[0]);
 }
+
+//---------------------------------------
+
+enum Shape {
+    Circle {radius: f32},
+    Rectangle {width: f32, height: f32},
+    Point,
+}
+
+func main() {
+    var s: Shape = Shape.Circle { radius: 3.5 };
+    // CHECK: Circle
+    print(s);
+
+    var r: Shape = Shape.Rectangle { width: 2.0, height: 4.0 };
+    // CHECK: Rectangle
+    print(r);
+
+    var p: Shape = Shape.Point;
+    // CHECK: Point
+    print(p);
+}
+
+//---------------------------------------
+
+enum Shape {
+    Circle {radius: f32},
+    Rectangle {width: f32, height: f32},
+    Point,
+}
+
+func main() {
+    var s1: Shape = Shape.Circle { radius: 3.5 };
+    var s2: Shape = Shape.Circle { radius: 5.0 };
+    var s3: Shape = Shape.Rectangle { width: 2.0, height: 4.0 };
+    var s4: Shape = Shape.Point;
+
+    // CHECK: true
+    print(s1 == s2);
+    // CHECK: false
+    print(s1 == s3);
+    // CHECK: false
+    print(s1 == s4);
+    // CHECK: false
+    print(s3 == s4);
+}
+
+//---------------------------------------
+
+enum Settings {
+    WindowSize {width: i32 = 800, height: i32 = 600},
+    Theme {name: string = "dark"},
+}
+
+func main() {
+    var s1: Settings = Settings.WindowSize { width: 1024, height: 768 };
+    // CHECK: WindowSize
+    print(s1);
+
+    var s2: Settings = Settings.WindowSize { width: 1920 };
+    // CHECK: WindowSize
+    print(s2);
+
+    var s3: Settings = Settings.Theme { name: "light" };
+    // CHECK: Theme
+    print(s3);
+}

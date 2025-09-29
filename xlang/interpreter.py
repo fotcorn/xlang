@@ -26,6 +26,7 @@ from xlang.xl_ast import (
     Constant,
     BuiltinFunction,
     StructInitialization,
+    EnumVariantInitialization,
 )
 from xlang.xl_builtins import (
     BUILTIN_FUNCTIONS,
@@ -377,6 +378,8 @@ class Interpreter:
                 )
         elif isinstance(expression, StructInitialization):
             return self.struct_initialization(expression)
+        elif isinstance(expression, EnumVariantInitialization):
+            return self.enum_variant_initialization(expression)
         else:
             raise InternalCompilerError("Unknown expression")
 
@@ -440,10 +443,25 @@ class Interpreter:
     ) -> Value:
         if operand1_value.type_name != operand2_value.type_name:
             raise Exception("Cannot compare enums of different types")
+
+        # Extract variant names for comparison
+        # Simple enums: value is a string (variant name)
+        # Tagged enums: value is a dict with "variant" and "data"
+        variant1 = (
+            operand1_value.value["variant"]
+            if isinstance(operand1_value.value, dict)
+            else operand1_value.value
+        )
+        variant2 = (
+            operand2_value.value["variant"]
+            if isinstance(operand2_value.value, dict)
+            else operand2_value.value
+        )
+
         if operator == "==":
-            result = operand1_value.value == operand2_value.value
+            result = variant1 == variant2
         elif operator == "!=":
-            result = operand1_value.value != operand2_value.value
+            result = variant1 != variant2
         else:
             raise Exception(f"Invalid operator for enum comparison: {operator}")
         return Value(
@@ -570,4 +588,32 @@ class Interpreter:
             type=ValueType.STRUCT,
             value=struct_data,
             type_name=expression.struct_name,
+        )
+
+    def enum_variant_initialization(self, expression: EnumVariantInitialization):
+        # Get the enum and variant definition
+        enum_def = self.global_scope.enums[expression.enum_name]
+        variant_entry = enum_def.entries[expression.variant_name]
+
+        # Start with default values for all fields
+        variant_data = {}
+        for field in variant_entry.fields:
+            if field.default_value is not None:
+                variant_data[field.name] = self.expression(field.default_value)
+            else:
+                variant_data[field.name] = self.default_variable_value(field.param_type)
+
+        # Override with explicitly initialized fields
+        for field_init in expression.field_inits:
+            field_value = self.expression(field_init.value)
+            variant_data[field_init.field_name] = field_value
+
+        # Return enum value with discriminant and payload
+        # Store as dict with "variant" (discriminant) and "data" (payload)
+        enum_value = {"variant": expression.variant_name, "data": variant_data}
+
+        return Value(
+            type=ValueType.ENUM,
+            value=enum_value,
+            type_name=expression.enum_name,
         )

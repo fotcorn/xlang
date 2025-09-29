@@ -150,3 +150,128 @@ def test_tagged_enum_with_default_values():
         }
         """
     )
+
+
+def test_enum_variant_instantiation_basic():
+    validate(
+        """
+        enum Shape {
+            Circle {radius: f32},
+            Rectangle {width: f32, height: f32},
+            Point,
+        }
+        func main() {
+            var s: Shape = Shape.Circle { radius: 3.5 };
+        }
+        """
+    )
+
+
+def test_enum_variant_instantiation_multiple_fields():
+    validate(
+        """
+        enum Shape {
+            Circle {radius: f32},
+            Rectangle {width: f32, height: f32},
+            Point,
+        }
+        func main() {
+            var r: Shape = Shape.Rectangle { width: 2.0, height: 4.0 };
+        }
+        """
+    )
+
+
+def test_enum_variant_instantiation_unknown_enum():
+    with pytest.raises(ContextException):
+        validate(
+            """
+            func main() {
+                var s: Shape = Shape.Circle { radius: 3.5 };
+            }
+            """
+        )
+
+
+def test_enum_variant_instantiation_unknown_variant():
+    with pytest.raises(ContextException):
+        validate(
+            """
+            enum Shape {
+                Circle {radius: f32},
+                Point,
+            }
+            func main() {
+                var s: Shape = Shape.Square { side: 2.0 };
+            }
+            """
+        )
+
+
+def test_enum_variant_instantiation_unknown_field():
+    with pytest.raises(ContextException):
+        validate(
+            """
+            enum Shape {
+                Circle {radius: f32},
+            }
+            func main() {
+                var s: Shape = Shape.Circle { radius: 3.5, diameter: 7.0 };
+            }
+            """
+        )
+
+
+def test_enum_variant_instantiation_duplicate_field():
+    with pytest.raises(ContextException):
+        validate(
+            """
+            enum Shape {
+                Circle {radius: f32},
+            }
+            func main() {
+                var s: Shape = Shape.Circle { radius: 3.5, radius: 4.0 };
+            }
+            """
+        )
+
+
+def test_enum_variant_instantiation_missing_required_field():
+    with pytest.raises(ContextException):
+        validate(
+            """
+            enum Shape {
+                Rectangle {width: f32, height: f32},
+            }
+            func main() {
+                var s: Shape = Shape.Rectangle { width: 2.0 };
+            }
+            """
+        )
+
+
+def test_enum_variant_instantiation_with_defaults():
+    validate(
+        """
+        enum Settings {
+            WindowSize {width: i32 = 800, height: i32 = 600},
+        }
+        func main() {
+            var s: Settings = Settings.WindowSize { width: 1024 };
+        }
+        """
+    )
+
+
+def test_enum_variant_instantiation_type_mismatch():
+    with pytest.raises(ContextException):
+        validate(
+            """
+            enum Shape {
+                Circle {radius: f32},
+            }
+            func main() {
+                var s: Shape = Shape.Circle { radius: "not a number" };
+            }
+            """
+        )

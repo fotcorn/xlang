@@ -125,7 +125,12 @@ def builtin_print(value: Value):
         else:
             print(value.value)
     elif value.type == ValueType.ENUM:
-        print(value.value)  # Prints the enum member name
+        # For simple enums, value is a string (variant name)
+        # For tagged enums, value is a dict with "variant" and "data"
+        if isinstance(value.value, dict):
+            print(value.value["variant"])
+        else:
+            print(value.value)
     else:
         print(str(value.value))
 

@@ -212,6 +212,12 @@ class StructInitialization(BaseExpression):
     field_inits: List[StructFieldInit]
 
 
+class EnumVariantInitialization(BaseExpression):
+    enum_name: str
+    variant_name: str
+    field_inits: List[StructFieldInit]
+
+
 class VariableDeclaration(Statement):
     name: str
     variable_type: VariableType

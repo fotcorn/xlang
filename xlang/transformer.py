@@ -29,6 +29,7 @@ from xlang.xl_ast import (
     StructType,
     StructFieldInit,
     StructInitialization,
+    EnumVariantInitialization,
     UnaryOperation,
     VariableAccess,
     VariableAssign,
@@ -494,5 +495,17 @@ class ASTTransformer(Transformer):
             type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
             context=ParseContext.from_token(struct_name),
             struct_name=struct_name.value,
+            field_inits=field_inits,
+        )
+
+    def enum_variant_init(self, params):
+        enum_name = params[0]
+        variant_name = params[1]
+        field_inits = params[2:]
+        return EnumVariantInitialization(
+            type=VariableType(variable_type=VariableTypeEnum.UNKNOWN),
+            context=ParseContext.from_token(enum_name),
+            enum_name=enum_name.value,
+            variant_name=variant_name.value,
             field_inits=field_inits,
         )

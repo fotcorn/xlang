@@ -27,6 +27,7 @@ from xlang.xl_ast import (
     Continue,
     Break,
     StructInitialization,
+    EnumVariantInitialization,
 )
 from xlang.xl_builtins import (
     get_builtin_functions,
@@ -466,6 +467,8 @@ class Typeifier:
                 )
         elif isinstance(expression, StructInitialization):
             expression.type = self.struct_initialization(expression)
+        elif isinstance(expression, EnumVariantInitialization):
+            expression.type = self.enum_variant_initialization(expression)
         else:
             raise InternalCompilerError("Unknown expression")
         return expression.type
@@ -624,6 +627,77 @@ class Typeifier:
         return VariableType(
             variable_type=VariableTypeEnum.STRUCT,
             type_name=expression.struct_name,
+        )
+
+    def enum_variant_initialization(
+        self, expression: EnumVariantInitialization
+    ) -> VariableType:
+        # Check if enum exists
+        if expression.enum_name not in self.global_scope.enums:
+            raise ContextException(
+                f"Unknown enum: {expression.enum_name}",
+                expression.context,
+            )
+
+        enum_type = self.global_scope.enums[expression.enum_name]
+
+        # Check if variant exists in enum
+        if expression.variant_name not in enum_type.entries:
+            raise ContextException(
+                f"Unknown variant '{expression.variant_name}' in enum '{expression.enum_name}'",
+                expression.context,
+            )
+
+        variant_entry = enum_type.entries[expression.variant_name]
+
+        # Create a map of field names to their types for quick lookup
+        variant_fields = {field.name: field for field in variant_entry.fields}
+
+        # Track which fields have been initialized
+        initialized_fields = set()
+
+        # Validate each field initialization
+        for field_init in expression.field_inits:
+            field_name = field_init.field_name
+
+            # Check if field exists in variant
+            if field_name not in variant_fields:
+                raise ContextException(
+                    f"Unknown field '{field_name}' in variant '{expression.variant_name}'",
+                    field_init.context,
+                )
+
+            # Check for duplicate field initialization
+            if field_name in initialized_fields:
+                raise ContextException(
+                    f"Field '{field_name}' is initialized multiple times",
+                    field_init.context,
+                )
+
+            initialized_fields.add(field_name)
+
+            # Type check the field value
+            field_type = variant_fields[field_name].param_type
+            value_type = self.expression(field_init.value)
+
+            if not is_type_compatible(field_type, value_type):
+                raise TypeMismatchException(
+                    f"Field '{field_name}' expects type {field_type}, got {value_type}",
+                    field_init.context,
+                )
+
+        # Check if all required fields are initialized (those without defaults)
+        for field in variant_entry.fields:
+            if field.name not in initialized_fields and field.default_value is None:
+                raise ContextException(
+                    f"Field '{field.name}' in variant '{expression.variant_name}' must be initialized",
+                    expression.context,
+                )
+
+        # Return the enum type
+        return VariableType(
+            variable_type=VariableTypeEnum.ENUM,
+            type_name=expression.enum_name,
         )
 
 

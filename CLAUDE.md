@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 XLang is a Python-based programming language implementation with a compiler and interpreter. The project uses Python 3.12+ and follows a modular architecture with separate components for parsing, validation, and interpretation.
 
+The project uses the `uv` package manager. A virtual environment is already set up with all dependencies in `.venv`.
+
 ## Commands
 
 ### Running XLang Code

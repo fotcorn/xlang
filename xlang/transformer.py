@@ -23,6 +23,8 @@ from xlang.xl_ast import (
     IdentifierAndType,
     If,
     Loop,
+    Match,
+    MatchArm,
     MathOperation,
     ParseContext,
     Return,
@@ -37,6 +39,7 @@ from xlang.xl_ast import (
     VariableDefinition,
     VariableType,
     VariableTypeEnum,
+    VariantPattern,
     EnumType,
     EnumEntry,
 )
@@ -426,6 +429,45 @@ class ASTTransformer(Transformer):
     def else_statement(self, keyword, code_block):
         return Else(
             context=ParseContext.from_token(keyword), statements=code_block.children
+        )
+
+    def pattern_bindings(self, tokens):
+        return [tok.value for tok in tokens]
+
+    def match_pattern(self, children):
+        identifier_token = children[0]
+        bindings: list = []
+        has_braces = False
+        if len(children) > 1:
+            has_braces = True
+            bindings_list = children[1]
+            if bindings_list is not None:
+                bindings = bindings_list
+
+        name = identifier_token.value
+        is_wildcard = name == "_" and not has_braces
+        return VariantPattern(
+            variant_name=None if is_wildcard else name,
+            is_wildcard=is_wildcard,
+            bindings=bindings,
+            context=ParseContext.from_token(identifier_token),
+        )
+
+    @v_args(inline=True)
+    def match_arm(self, pattern, code_block):
+        return MatchArm(
+            pattern=pattern,
+            statements=code_block.children,
+            context=pattern.context,
+        )
+
+    def match_statement(self, children):
+        scrutinee = children[0]
+        arms = children[1:]
+        return Match(
+            context=scrutinee.context,
+            scrutinee=scrutinee,
+            arms=arms,
         )
 
     @v_args(inline=True)

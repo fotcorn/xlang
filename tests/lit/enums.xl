@@ -127,3 +127,270 @@ func main() {
     // CHECK: Theme
     print(s3);
 }
+
+//---------------------------------------
+
+// Match: basic payload binding
+enum Shape {
+    Circle {radius: f32},
+    Rectangle {width: f32, height: f32},
+    Point,
+}
+
+func main() {
+    var s: Shape = Shape.Circle { radius: 3.0 };
+    match (s) {
+        Circle { radius } => {
+            // CHECK: 3.0
+            print(radius);
+        }
+        Rectangle { width, height } => {
+            print(width);
+            print(height);
+        }
+        Point => {
+            print("Point");
+        }
+    }
+}
+
+//---------------------------------------
+
+// Match: multi-field binding
+enum Shape {
+    Circle {radius: f32},
+    Rectangle {width: f32, height: f32},
+    Point,
+}
+
+func main() {
+    var r: Shape = Shape.Rectangle { width: 2.0, height: 4.0 };
+    match (r) {
+        Circle { radius } => {
+            print(radius);
+        }
+        Rectangle { width, height } => {
+            // CHECK: 2.0
+            // CHECK-NEXT: 4.0
+            print(width);
+            print(height);
+        }
+        Point => {
+            print("Point");
+        }
+    }
+}
+
+//---------------------------------------
+
+// Match: fieldless variant
+enum Shape {
+    Circle {radius: f32},
+    Point,
+}
+
+func main() {
+    var p: Shape = Shape.Point;
+    match (p) {
+        Circle { radius } => {
+            print(radius);
+        }
+        Point => {
+            // CHECK: Point
+            print("Point");
+        }
+    }
+}
+
+//---------------------------------------
+
+// Match: wildcard arm covers remaining variants
+enum Shape {
+    Circle {radius: f32},
+    Rectangle {width: f32, height: f32},
+    Point,
+    Square {side: f32},
+}
+
+func main() {
+    var sq: Shape = Shape.Square { side: 7.0 };
+    match (sq) {
+        Circle { radius } => {
+            print(radius);
+        }
+        _ => {
+            // CHECK: Unknown shape
+            print("Unknown shape");
+        }
+    }
+}
+
+//---------------------------------------
+
+// Match: all variants covered without wildcard
+enum Shape {
+    Circle {radius: f32},
+    Rectangle {width: f32, height: f32},
+    Point,
+}
+
+func main() {
+    var s: Shape = Shape.Rectangle { width: 1.0, height: 2.0 };
+    match (s) {
+        Circle { radius } => {
+            print(radius);
+        }
+        Rectangle { width, height } => {
+            // CHECK: 1.0
+            print(width);
+        }
+        Point => {
+            print("Point");
+        }
+    }
+}
+
+//---------------------------------------
+
+// Match: partial binding (omit fields)
+enum Shape {
+    Rectangle {width: f32, height: f32},
+    Point,
+}
+
+func main() {
+    var r: Shape = Shape.Rectangle { width: 5.0, height: 10.0 };
+    match (r) {
+        Rectangle { width } => {
+            // CHECK: 5.0
+            print(width);
+        }
+        Point => {
+            print("Point");
+        }
+    }
+}
+
+//---------------------------------------
+
+// Match: break/continue from arm control enclosing loop
+enum Signal {
+    Stop,
+    Go,
+}
+
+func main() {
+    var i: i32 = 0;
+    loop {
+        i = i + 1;
+        if (i > 5) {
+            break;
+        }
+        var s: Signal = Signal.Go;
+        if (i == 3) {
+            s = Signal.Stop;
+        }
+        match (s) {
+            Stop => {
+                continue;
+            }
+            Go => {
+                // CHECK: 1
+                // CHECK-NEXT: 2
+                // CHECK-NEXT: 4
+                // CHECK-NEXT: 5
+                print(i);
+            }
+        }
+    }
+    // CHECK-NEXT: 6
+    print(i);
+}
+
+//---------------------------------------
+
+// Match: return from match arm exits the enclosing function
+enum Shape {
+    Circle {radius: f32},
+    Point,
+}
+
+func classify(s: Shape): i32 {
+    match (s) {
+        Circle { radius } => {
+            return 1;
+        }
+        Point => {
+            return 2;
+        }
+    }
+    return -1;
+}
+
+func main() {
+    // CHECK: 1
+    print(classify(Shape.Circle { radius: 1.5 }));
+    // CHECK-NEXT: 2
+    print(classify(Shape.Point));
+}
+
+//---------------------------------------
+
+// Match: plain enum with no payloads
+enum Color {
+    Red,
+    Green,
+    Blue,
+}
+
+func main() {
+    var c: Color = Color.Green;
+    match (c) {
+        Red => {
+            print("red");
+        }
+        Green => {
+            // CHECK: green
+            print("green");
+        }
+        Blue => {
+            print("blue");
+        }
+    }
+}
+
+//---------------------------------------
+
+// Match: enum variant with default field values; bindings reflect what was passed
+enum Settings {
+    WindowSize {width: i32 = 800, height: i32 = 600},
+    Theme {name: string = "dark"},
+}
+
+func main() {
+    var s1: Settings = Settings.WindowSize { width: 1024, height: 768 };
+    match (s1) {
+        WindowSize { width, height } => {
+            // CHECK: 1024
+            // CHECK-NEXT: 768
+            print(width);
+            print(height);
+        }
+        Theme { name } => {
+            print(name);
+        }
+    }
+
+    var s2: Settings = Settings.WindowSize { width: 1920 };
+    match (s2) {
+        WindowSize { width, height } => {
+            // CHECK-NEXT: 1920
+            // CHECK-NEXT: 600
+            print(width);
+            print(height);
+        }
+        Theme { name } => {
+            print(name);
+        }
+    }
+}

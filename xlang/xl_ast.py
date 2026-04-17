@@ -291,3 +291,21 @@ class Break(Statement):
 
 class Return(Statement):
     value: Optional[BaseExpression] = None
+
+
+class VariantPattern(BaseModel):
+    variant_name: Optional[str] = None
+    is_wildcard: bool = False
+    bindings: List[str] = Field(default_factory=list)
+    context: ParseContext
+
+
+class MatchArm(BaseModel):
+    pattern: VariantPattern
+    statements: List[Statement]
+    context: ParseContext
+
+
+class Match(Statement):
+    scrutinee: BaseExpression
+    arms: List[MatchArm]

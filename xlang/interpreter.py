@@ -16,6 +16,7 @@ from xlang.xl_ast import (
     Function,
     FunctionCall,
     If,
+    Match,
     Return,
     Continue,
     Break,
@@ -147,6 +148,8 @@ class Interpreter:
                         break
                 self.scope_stack.pop_scope()
                 return execution_change
+        elif isinstance(statement, Match):
+            return self.match_statement(statement)
         elif isinstance(statement, Return):
             if statement.value:
                 value = self.expression(statement.value)
@@ -161,6 +164,44 @@ class Interpreter:
             self.lookup_variable(statement)
         else:
             raise InternalCompilerError("unhandled statement")
+
+    def match_statement(self, statement: Match):
+        scrutinee_value = self.expression(statement.scrutinee)
+        if isinstance(scrutinee_value.value, dict):
+            active_variant = scrutinee_value.value["variant"]
+            variant_data = scrutinee_value.value.get("data", {})
+        else:
+            active_variant = scrutinee_value.value
+            variant_data = {}
+
+        chosen_arm = None
+        for arm in statement.arms:
+            if arm.pattern.is_wildcard:
+                if chosen_arm is None:
+                    chosen_arm = arm
+                continue
+            if arm.pattern.variant_name == active_variant:
+                chosen_arm = arm
+                break
+
+        if chosen_arm is None:
+            raise InternalCompilerError(
+                "No match arm was selected; should have been caught by "
+                "exhaustiveness check"
+            )
+
+        self.scope_stack.push_scope()
+        if not chosen_arm.pattern.is_wildcard:
+            for binding in chosen_arm.pattern.bindings:
+                self.scope_stack.set_variable(binding, variant_data[binding])
+
+        execution_change = None
+        for arm_statement in chosen_arm.statements:
+            execution_change = self.statement(arm_statement)
+            if execution_change:
+                break
+        self.scope_stack.pop_scope()
+        return execution_change
 
     def index_lookup(
         self,

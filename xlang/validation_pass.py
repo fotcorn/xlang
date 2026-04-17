@@ -23,6 +23,7 @@ from xlang.xl_ast import (
     Function,
     Loop,
     If,
+    Match,
     Return,
     Continue,
     Break,
@@ -178,6 +179,8 @@ class Typeifier:
                 self.scope_stack.push_scope()
                 self.statements(elif_statement.statements)
                 self.scope_stack.pop_scope()
+        elif isinstance(statement, Match):
+            self.match_statement(statement)
         elif isinstance(statement, Return):
             if statement.value:
                 if not self.function.return_type:
@@ -699,6 +702,89 @@ class Typeifier:
             variable_type=VariableTypeEnum.ENUM,
             type_name=expression.enum_name,
         )
+
+    def match_statement(self, statement: Match):
+        scrutinee_type = self.expression(statement.scrutinee)
+        if scrutinee_type.variable_type != VariableTypeEnum.ENUM:
+            raise TypeMismatchException(
+                "Match scrutinee must be an enum value",
+                statement.scrutinee.context,
+            )
+        assert scrutinee_type.type_name
+        enum_type = self.global_scope.enums[scrutinee_type.type_name]
+        variant_entries = enum_type.entries
+
+        seen_variants: set = set()
+        wildcard_arm = None
+        for arm in statement.arms:
+            pattern = arm.pattern
+            if pattern.is_wildcard:
+                if wildcard_arm is not None:
+                    raise ContextException("Duplicate wildcard arm", pattern.context)
+                if pattern.bindings:
+                    raise ContextException(
+                        "Wildcard pattern cannot have bindings", pattern.context
+                    )
+                wildcard_arm = arm
+                self.scope_stack.push_scope()
+                self.statements(arm.statements)
+                self.scope_stack.pop_scope()
+                continue
+
+            variant_name = pattern.variant_name
+            assert variant_name is not None
+            if variant_name not in variant_entries:
+                raise ContextException(
+                    f"Unknown variant '{variant_name}' in enum " f"'{enum_type.name}'",
+                    pattern.context,
+                )
+            if variant_name in seen_variants:
+                raise ContextException(
+                    f"Duplicate match arm for variant '{variant_name}'",
+                    pattern.context,
+                )
+            seen_variants.add(variant_name)
+
+            variant_entry = variant_entries[variant_name]
+            variant_field_names = {f.name: f for f in variant_entry.fields}
+
+            seen_bindings: set = set()
+            for binding in pattern.bindings:
+                if binding in seen_bindings:
+                    raise ContextException(
+                        f"Duplicate binding '{binding}' in pattern",
+                        pattern.context,
+                    )
+                seen_bindings.add(binding)
+                if binding not in variant_field_names:
+                    raise ContextException(
+                        f"Unknown field '{binding}' in variant " f"'{variant_name}'",
+                        pattern.context,
+                    )
+
+            self.scope_stack.push_scope()
+            for binding in pattern.bindings:
+                field = variant_field_names[binding]
+                self.scope_stack.def_variable(
+                    binding, field.param_type, True, pattern.context
+                )
+            self.statements(arm.statements)
+            self.scope_stack.pop_scope()
+
+        missing_variants = set(variant_entries.keys()) - seen_variants
+        if wildcard_arm is not None:
+            if not missing_variants:
+                raise ContextException(
+                    "Wildcard arm is unreachable: all variants are already " "covered",
+                    wildcard_arm.pattern.context,
+                )
+        else:
+            if missing_variants:
+                missing_list = ", ".join(sorted(missing_variants))
+                raise ContextException(
+                    f"Non-exhaustive match: missing variants: {missing_list}",
+                    statement.context,
+                )
 
 
 def get_constant_type(constant: Constant) -> VariableType:

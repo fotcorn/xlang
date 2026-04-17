@@ -33,11 +33,16 @@ var_access: IDENTIFIER array_access? ("." (var_access|function_call))?
 
 code_block: "{" statement* "}"
 
-?statement: loop | if_statement | function_call ";" | variable_def | const_def | variable_dec | variable_assign | var_access ";" | control ";"
+?statement: loop | if_statement | match_statement | function_call ";" | variable_def | const_def | variable_dec | variable_assign | var_access ";" | control ";"
 !loop: "loop" code_block
 elif_statement: "elif" "(" not_expr ")" code_block
 !else_statement: "else" code_block
 if_statement: "if" "(" not_expr ")" code_block elif_statement* else_statement?
+
+match_statement: "match" "(" not_expr ")" "{" match_arm+ "}"
+match_arm: match_pattern "=>" code_block
+match_pattern: IDENTIFIER pattern_bindings?
+pattern_bindings: "{" (IDENTIFIER ("," IDENTIFIER)*)? "}"
 
 variable_def: "var" _WS_INLINE IDENTIFIER ":" type "=" not_expr ";"
 const_def: "const" _WS_INLINE IDENTIFIER ":" type "=" not_expr ";"

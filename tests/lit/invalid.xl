@@ -38,3 +38,128 @@ struct BadStruct {
 
 func main() {
 }
+
+//---------------------------------------
+
+// Match: non-exhaustive (missing variant and no wildcard)
+enum Shape {
+    Circle {radius: f32},
+    Rectangle {width: f32, height: f32},
+    Point,
+}
+
+func main() {
+    var s: Shape = Shape.Point;
+    // CHECK: {{.*}} Non-exhaustive match: missing variants: {{.*}}Point{{.*}}
+    match (s) {
+        Circle { radius } => {
+            print(radius);
+        }
+        Rectangle { width, height } => {
+            print(width);
+        }
+    }
+}
+
+//---------------------------------------
+
+// Match: duplicate arm for same variant
+enum Shape {
+    Circle {radius: f32},
+    Point,
+}
+
+func main() {
+    var s: Shape = Shape.Point;
+    match (s) {
+        Circle { radius } => {
+            print(radius);
+        }
+        // CHECK: {{.*}} Duplicate match arm for variant 'Circle'
+        Circle { radius } => {
+            print(radius);
+        }
+        Point => {
+            print("Point");
+        }
+    }
+}
+
+//---------------------------------------
+
+// Match: invalid field name in pattern
+enum Shape {
+    Circle {radius: f32},
+    Point,
+}
+
+func main() {
+    var s: Shape = Shape.Point;
+    match (s) {
+        // CHECK: {{.*}} Unknown field 'notafield' in variant 'Circle'
+        Circle { notafield } => {
+            print("x");
+        }
+        Point => {
+            print("Point");
+        }
+    }
+}
+
+//---------------------------------------
+
+// Match: wildcard present when all variants already covered
+enum Shape {
+    Circle {radius: f32},
+    Point,
+}
+
+func main() {
+    var s: Shape = Shape.Point;
+    match (s) {
+        Circle { radius } => {
+            print(radius);
+        }
+        Point => {
+            print("Point");
+        }
+        // CHECK: {{.*}} Wildcard arm is unreachable: all variants are already covered
+        _ => {
+            print("anything");
+        }
+    }
+}
+
+//---------------------------------------
+
+// Match: scrutinee is not an enum type
+func main() {
+    var s: i32 = 5;
+    // CHECK: {{.*}} Match scrutinee must be an enum value
+    match (s) {
+        _ => {
+            print("x");
+        }
+    }
+}
+
+//---------------------------------------
+
+// Match: qualified variant name is not allowed in arm patterns
+enum Shape {
+    Circle {radius: f32},
+    Point,
+}
+
+func main() {
+    var s: Shape = Shape.Point;
+    // CHECK: {{.*}} Unexpected token{{.*}}
+    match (s) {
+        Shape.Circle { radius } => {
+            print(radius);
+        }
+        Point => {
+            print("Point");
+        }
+    }
+}

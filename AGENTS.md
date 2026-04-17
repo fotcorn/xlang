@@ -14,6 +14,8 @@ The project uses the `uv` package manager. A virtual environment is already set 
 ```bash
 # Run a single XLang file
 python main.py examples/fib.xl
+# or
+uv run main.py examples/fib.xl
 
 # Parse only (outputs AST as JSON)
 python main.py --parse-only examples/fib.xl
@@ -23,6 +25,7 @@ python main.py --split-input-file tests/lit/your_test.xl
 ```
 
 ### Testing
+(activate virtual environment first)
 ```bash
 # Run all lit tests
 lit -v tests/lit/

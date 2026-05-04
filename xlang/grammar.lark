@@ -16,11 +16,15 @@ translation_unit: (struct_def | function_def | enum_def)*
 enum_def: "enum" _WS_INLINE IDENTIFIER "{" enum_entry+ "}"
 enum_entry: IDENTIFIER ("{" field_entry+ "}")? ","?
 
-!function_param: IDENTIFIER":" "*"? type
+function_param: positional_only_param | keyword_only_param
+positional_only_param: "_" _WS_INLINE IDENTIFIER ":" reference_marker? type ("=" default_constant)?
+keyword_only_param: IDENTIFIER ":" reference_marker? type ("=" default_constant)?
 function_params: function_param | function_params "," function_param
 function_def: "func" _WS_INLINE IDENTIFIER "(" function_params? ")" (":" type)? code_block
+reference_marker: "*"
+default_constant: integer_constant | float_constant | string_literal | boolean_literal | var_access
 
-field_entry: IDENTIFIER ":" type ("=" (integer_constant | float_constant | string_literal | boolean_literal | var_access))? ","?
+field_entry: IDENTIFIER ":" type ("=" default_constant)? ","?
 struct_def: "struct" _WS_INLINE IDENTIFIER "{" field_entry+ "}"
 
 IDENTIFIER: /[a-zA-Z_][a-zA-Z_0-9]*/
@@ -50,7 +54,11 @@ variable_dec: "var" _WS_INLINE IDENTIFIER ":" type ";"
 variable_assign: var_access "=" not_expr ";"
 !control: ("break" | "continue" | "return" not_expr?)
 
-function_call: IDENTIFIER "(" (not_expr? | not_expr ("," not_expr)*) ")"
+function_call: IDENTIFIER "(" call_args? ")"
+call_args: call_arg ("," call_arg)*
+?call_arg: keyword_call_arg | positional_call_arg
+positional_call_arg: not_expr
+keyword_call_arg: IDENTIFIER "=" not_expr
 struct_field_init: IDENTIFIER ":" not_expr
 struct_init: IDENTIFIER "(" struct_field_init ("," struct_field_init)* ")"
 enum_variant_init: IDENTIFIER "." IDENTIFIER "{" (struct_field_init ("," struct_field_init)*)? "}"

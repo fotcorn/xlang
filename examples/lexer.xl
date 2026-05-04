@@ -1,4 +1,4 @@
-func is_whitespace(c: char): bool {
+func is_whitespace(_ c: char): bool {
     if (c == ' ') {
         return true;
     }
@@ -14,7 +14,7 @@ func is_whitespace(c: char): bool {
     return false;
 }
 
-func is_digit(c: char): bool {
+func is_digit(_ c: char): bool {
     const zero: char = '0';
     const nine: char = '9';
     if (c.int() >= zero.int()) {

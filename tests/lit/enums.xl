@@ -315,7 +315,7 @@ enum Shape {
     Point,
 }
 
-func classify(s: Shape): i32 {
+func classify(_ s: Shape): i32 {
     match (s) {
         Circle { radius } => {
             return 1;

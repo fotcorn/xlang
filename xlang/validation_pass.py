@@ -496,17 +496,16 @@ class Typeifier:
         expression: FunctionCall,
         function_params: List[FunctionParameter],
     ):
-        # check correct count of params given in call
-        if len(expression.params) != len(function_params):
-            raise ContextException(
-                f"function {expression.function_name} takes "
-                f"{len(function_params)} params, "
-                f"{len(expression.params)} given",
-                expression.context,
-            )
+        bound_arguments = bind_call_arguments(
+            expression, function_params, expression.function_name
+        )
 
-        # evaluate parameters and check if type matches
-        for param_expr, param_type in zip(expression.params, function_params):
+        # Evaluate provided parameters and check if their type matches. Default
+        # values were already type-checked when the function definition was
+        # validated.
+        for param_expr, param_type in bound_arguments:
+            if param_expr is None:
+                continue
             if param_type.reference:
                 if not isinstance(param_expr, VariableAccess):
                     raise TypeMismatchException(
@@ -833,6 +832,174 @@ def get_enum_type(
     return VariableType(variable_type=VariableTypeEnum.ENUM, type_name=enum_type.name)
 
 
+def get_default_value_type(
+    default_value: BaseExpression, global_scope: GlobalScope
+) -> VariableType:
+    if isinstance(default_value, Constant):
+        return get_constant_type(default_value)
+    if isinstance(default_value, VariableAccess):
+        enum_type = get_enum_type(default_value, global_scope)
+        if enum_type is None:
+            raise ContextException(
+                f"Unknown enum type: {default_value.variable_name}",
+                default_value.context,
+            )
+        return enum_type
+    raise ContextException(
+        f"Invalid default value type: {type(default_value)}",
+        default_value.context,
+    )
+
+
+def validate_default_value(
+    name: str,
+    param_type: VariableType,
+    default_value: BaseExpression,
+    global_scope: GlobalScope,
+):
+    value_type = get_default_value_type(default_value, global_scope)
+    if not is_type_compatible(param_type, value_type):
+        raise TypeMismatchException(
+            f"Default value type mismatch for {name}",
+            default_value.context,
+        )
+    default_value.type = value_type
+
+
+def validate_function_parameters(
+    function: Function,
+    global_scope: GlobalScope,
+):
+    seen_names = set()
+    state = "positional_required"
+
+    for parameter in function.function_params:
+        if parameter.name in seen_names:
+            raise ContextException(
+                f"Duplicate function parameter: {parameter.name}",
+                parameter.context,
+            )
+        seen_names.add(parameter.name)
+
+        has_default = parameter.default_value is not None
+        if has_default and parameter.reference:
+            raise ContextException(
+                f"Reference parameter '{parameter.name}' cannot have a default value",
+                parameter.context,
+            )
+
+        if parameter.positional_only:
+            if state in ("keyword_required", "keyword_default"):
+                raise ContextException(
+                    "Positional-only parameters must be declared before keyword-only parameters",
+                    parameter.context,
+                )
+            if has_default:
+                state = "positional_default"
+            elif state == "positional_default":
+                raise ContextException(
+                    "Required positional-only parameters must be declared before "
+                    "positional-only parameters with defaults",
+                    parameter.context,
+                )
+        else:
+            if has_default:
+                state = "keyword_default"
+            elif state == "keyword_default":
+                raise ContextException(
+                    "Required keyword-only parameters must be declared before keyword-only parameters with defaults",
+                    parameter.context,
+                )
+            else:
+                state = "keyword_required"
+
+        parameter.param_type = typeify(
+            parameter.param_type, global_scope, parameter.context
+        )
+        if parameter.default_value is not None:
+            validate_default_value(
+                f"function parameter {parameter.name}",
+                parameter.param_type,
+                parameter.default_value,
+                global_scope,
+            )
+
+
+def bind_call_arguments(
+    expression: FunctionCall,
+    function_params: List[FunctionParameter],
+    function_name: str,
+):
+    positional_params = [param for param in function_params if param.positional_only]
+    keyword_params = [param for param in function_params if not param.positional_only]
+    keyword_params_by_name = {param.name: param for param in keyword_params}
+    positional_param_names = {param.name for param in positional_params}
+
+    bound_arguments = []
+    positional_args = []
+    keyword_args = {}
+    seen_keyword_argument = False
+
+    for argument in expression.params:
+        if argument.name is None:
+            if seen_keyword_argument:
+                raise ContextException(
+                    "Positional arguments must appear before keyword arguments",
+                    argument.context,
+                )
+            positional_args.append(argument)
+            continue
+        seen_keyword_argument = True
+        if argument.name in keyword_args:
+            raise ContextException(
+                f"Duplicate keyword argument: {argument.name}",
+                argument.context,
+            )
+        if argument.name in positional_param_names:
+            raise ContextException(
+                f"Positional-only parameter '{argument.name}' cannot be passed by keyword",
+                argument.context,
+            )
+        if argument.name not in keyword_params_by_name:
+            raise ContextException(
+                f"Unknown keyword argument: {argument.name}",
+                argument.context,
+            )
+        keyword_args[argument.name] = argument
+
+    if len(positional_args) > len(positional_params):
+        raise ContextException(
+            f"function {function_name} takes at most "
+            f"{len(positional_params)} positional arguments, "
+            f"{len(positional_args)} given",
+            expression.context,
+        )
+
+    for index, parameter in enumerate(positional_params):
+        if index < len(positional_args):
+            bound_arguments.append((positional_args[index].value, parameter))
+        elif parameter.default_value is not None:
+            bound_arguments.append((parameter.default_value, parameter))
+        else:
+            raise ContextException(
+                f"Missing required positional argument: {parameter.name}",
+                expression.context,
+            )
+
+    for parameter in keyword_params:
+        if parameter.name in keyword_args:
+            bound_arguments.append((keyword_args[parameter.name].value, parameter))
+        elif parameter.default_value is not None:
+            bound_arguments.append((parameter.default_value, parameter))
+        else:
+            raise ContextException(
+                f"Missing required keyword argument: {parameter.name}",
+                expression.context,
+            )
+
+    return bound_arguments
+
+
 def validation_pass(global_scope: GlobalScope):
     for enum in global_scope.enums.values():
         for entry in enum.entries.values():
@@ -854,27 +1021,12 @@ def validation_pass(global_scope: GlobalScope):
         for member in struct.members:
             member.param_type = typeify(member.param_type, global_scope, member.context)
             if member.default_value:
-                if isinstance(member.default_value, Constant):
-                    value_type = get_constant_type(member.default_value)
-                elif isinstance(member.default_value, VariableAccess):
-                    enum_type = get_enum_type(member.default_value, global_scope)
-                    if enum_type is None:
-                        raise ContextException(
-                            f"Unknown enum type: {member.default_value.variable_name}",
-                            member.default_value.context,
-                        )
-                    value_type = enum_type
-                else:
-                    raise ContextException(
-                        f"Invalid default value type: {type(member.default_value)}",
-                        member.default_value.context,
-                    )
-                if not is_type_compatible(member.param_type, value_type):
-                    raise TypeMismatchException(
-                        f"Default value type mismatch for struct member {member.name}",
-                        member.default_value.context,
-                    )
-                member.default_value.type = value_type
+                validate_default_value(
+                    f"struct member {member.name}",
+                    member.param_type,
+                    member.default_value,
+                    global_scope,
+                )
             else:
                 # Check if enum field lacks required default value
                 if member.param_type.variable_type == VariableTypeEnum.ENUM:
@@ -888,10 +1040,7 @@ def validation_pass(global_scope: GlobalScope):
             function.return_type = typeify(
                 function.return_type, global_scope, function.context
             )
-        for parameter in function.function_params:
-            parameter.param_type = typeify(
-                parameter.param_type, global_scope, parameter.context
-            )
+        validate_function_parameters(function, global_scope)
 
     for function in global_scope.functions.values():
         assert isinstance(function, Function)

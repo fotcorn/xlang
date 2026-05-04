@@ -5,14 +5,14 @@ func a() {
 func b(): i32 {
     return 1;
 }
-func c(p1: i32) {
+func c(_ p1: i32) {
 }
-func d(p1: i32): i32 {
+func d(_ p1: i32): i32 {
     return 2;
 }
-func e(p1: i32, p2: i32) {
+func e(_ p1: i32, _ p2: i32) {
 }
-func f(p1: i32, p2: i32): i32 {
+func f(_ p1: i32, _ p2: i32): i32 {
     return 3;
 }
 func main() {
@@ -67,7 +67,7 @@ struct MyStruct {
     b: i32,
 }
 
-func myfunc(s: MyStruct) {
+func myfunc(_ s: MyStruct) {
     // CHECK: 5
     print(s.a);
     // CHECK: 7
@@ -90,7 +90,7 @@ func main() {
 struct X {
     a: i32,
 }
-func func_ref(x: *X) {
+func func_ref(_ x: *X) {
     x.a = 5;
 }
 func main() {
@@ -104,7 +104,7 @@ func main() {
 //---------------------------------------
 
 // reference parameters
-func test(i: *i32) {
+func test(_ i: *i32) {
     i = i + 1;
 }
 func main() {
@@ -118,7 +118,7 @@ func main() {
 //---------------------------------------
 
 // reference parameters
-func test(i: *i32) {
+func test(_ i: *i32) {
     i = i + 1;
 }
 func main() {

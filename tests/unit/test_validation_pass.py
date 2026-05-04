@@ -11,11 +11,11 @@ def test_validation_pass():
             a: i32,
         }
 
-        func intfunc(a: i32): i32 {
+        func intfunc(_ a: i32): i32 {
             return 5;
         }
 
-        func param_func(a: i32, b: u16, c: [i32], d: MyStruct): [MyStruct] {}
+        func param_func(_ a: i32, _ b: u16, _ c: [i32], _ d: MyStruct): [MyStruct] {}
 
         func main() {
             const a: i32 = 5;
@@ -143,7 +143,7 @@ def test_bool():
 def test_array_access():
     validate(
         """
-        func append(array: [i32], value: i32) {}
+        func append(_ array: [i32], _ value: i32) {}
 
         func main() {
             var b: [i32];

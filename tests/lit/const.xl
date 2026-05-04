@@ -30,7 +30,7 @@ func main() {
 //---------------------------------------
 
 // function parameters are constant
-func function(i: i32) {
+func function(_ i: i32) {
     // CHECK: {{.*}} Cannot assign i, variable is const
     i = i + 1;
     print(i);
@@ -43,7 +43,7 @@ func main() {
 //---------------------------------------
 
 // reference parameters need to be vars
-func function(i: *i32) {
+func function(_ i: *i32) {
     i = i + 1;
 }
 func main() {
@@ -56,7 +56,7 @@ func main() {
 //---------------------------------------
 
 // reference parameters need to be vars (error case)
-func function(i: *i32) {
+func function(_ i: *i32) {
     i = i + 1;
 }
 func main() {

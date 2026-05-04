@@ -196,9 +196,15 @@ class VariableAccess(Statement, BaseExpression):
     method_call: Optional[FunctionCall] = None
 
 
+class FunctionArgument(BaseModel):
+    name: Optional[str] = None
+    value: BaseExpression
+    context: ParseContext
+
+
 class FunctionCall(Statement, BaseExpression):
     function_name: str
-    params: List[BaseExpression]
+    params: List[FunctionArgument]
 
 
 class StructFieldInit(BaseModel):
@@ -244,6 +250,7 @@ class IdentifierAndType(BaseModel):
 
 class FunctionParameter(IdentifierAndType):
     reference: bool
+    positional_only: bool = True
 
 
 class BaseFunction(BaseModel):

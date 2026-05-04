@@ -1,0 +1,91 @@
+// RUN: %run --split-input-file %s | %filecheck --match-full-lines %s
+
+func combine(_ a: i32, _ b: i32 = 10, c: i32, d: i32 = 100): i32 {
+    return a + b + c + d;
+}
+
+func main() {
+    // CHECK: 116
+    print(combine(1, 2, c=3, d=110));
+    // CHECK: 114
+    print(combine(1, c=3));
+    // CHECK: 24
+    print(combine(1, 2, d=20, c=1));
+}
+
+//---------------------------------------
+
+func needs_keyword(_ positional: i32, keyword: i32) {
+}
+
+func main() {
+    // CHECK: {{.*}} function needs_keyword takes at most 1 positional arguments, 2 given
+    needs_keyword(1, 2);
+}
+
+//---------------------------------------
+
+func positional_name(_ a: i32, b: i32) {
+}
+
+func main() {
+    // CHECK: {{.*}} Positional-only parameter 'a' cannot be passed by keyword
+    positional_name(a=1, b=2);
+}
+
+//---------------------------------------
+
+func duplicate_keyword(_ a: i32, b: i32) {
+}
+
+func main() {
+    // CHECK: {{.*}} Duplicate keyword argument: b
+    duplicate_keyword(1, b=2, b=3);
+}
+
+//---------------------------------------
+
+func missing_keyword(_ a: i32, b: i32) {
+}
+
+func main() {
+    // CHECK: {{.*}} Missing required keyword argument: b
+    missing_keyword(1);
+}
+
+//---------------------------------------
+
+func positional_after_keyword(_ a: i32, b: i32) {
+}
+
+func main() {
+    // CHECK: {{.*}} Positional arguments must appear before keyword arguments
+    positional_after_keyword(b=2, 1);
+}
+
+//---------------------------------------
+
+func bad_positional_order(_ a: i32 = 1, _ b: i32) {
+}
+
+func main() {
+    // CHECK: {{.*}} Required positional-only parameters must be declared before positional-only parameters with defaults
+}
+
+//---------------------------------------
+
+func bad_keyword_order(_ a: i32, b: i32 = 1, c: i32) {
+}
+
+func main() {
+    // CHECK: {{.*}} Required keyword-only parameters must be declared before keyword-only parameters with defaults
+}
+
+//---------------------------------------
+
+func bad_default_type(_ a: i32 = "oops") {
+}
+
+func main() {
+    // CHECK: {{.*}} Default value type mismatch for function parameter a
+}

@@ -34,6 +34,7 @@ from xlang.xl_builtins import (
     get_builtin_array_methods,
     get_builtin_primitive_methods,
 )
+from xlang.validation_pass import bind_call_arguments
 
 
 class Interpreter:
@@ -513,13 +514,16 @@ class Interpreter:
 
     def evaluate_call_parameters(self, function, func_call):
         evaluated_params = []
-        for i, param in enumerate(func_call.params):
-            is_ref_param = function.function_params[i].reference
-            if is_ref_param and not isinstance(param, VariableAccess):
+        bound_arguments = bind_call_arguments(
+            func_call, function.function_params, func_call.function_name
+        )
+        for argument_expr, param in bound_arguments:
+            is_ref_param = param.reference
+            if is_ref_param and not isinstance(argument_expr, VariableAccess):
                 raise ContextException(
-                    "Reference parameters can only be variables", param.context
+                    "Reference parameters can only be variables", argument_expr.context
                 )
-            evaluated_param = self.expression(param)
+            evaluated_param = self.expression(argument_expr)
             if not is_ref_param:
                 evaluated_param = copy.deepcopy(evaluated_param)
             evaluated_params.append(evaluated_param)

@@ -17,6 +17,7 @@ from xlang.xl_ast import (
     Elif,
     Else,
     Function,
+    FunctionArgument,
     FunctionCall,
     FunctionParameter,
     GlobalScope,
@@ -139,27 +140,74 @@ class ASTTransformer(Transformer):
         )
 
     def function_call(self, param):
+        call_args = param[1] if len(param) > 1 else []
         return FunctionCall(
             type=None,
             function_name=param[0].value,
-            params=param[1:],
+            params=call_args,
             context=ParseContext.from_token(param[0]),
         )
 
+    def positional_call_arg(self, params):
+        expression = params[0]
+        return FunctionArgument(
+            value=expression,
+            context=expression.context,
+        )
+
+    @v_args(inline=True)
+    def keyword_call_arg(self, name, expression):
+        return FunctionArgument(
+            name=name.value,
+            value=expression,
+            context=ParseContext.from_token(name),
+        )
+
+    def call_args(self, params):
+        return params
+
+    def reference_marker(self, _params):
+        return True
+
+    def default_constant(self, params):
+        return params[0]
+
     def function_param(self, params):
-        assert len(params) in [3, 4]
+        return params[0]
+
+    def positional_only_param(self, params):
+        return self._function_param(params, positional_only=True)
+
+    def keyword_only_param(self, params):
+        return self._function_param(params, positional_only=False)
+
+    def _function_param(self, params, positional_only):
         identifier = params[0]
-        if len(params) == 4:
+        reference = False
+        default_value = None
+
+        if len(params) == 3:
+            if params[1] is True:
+                reference = True
+                param_type = params[2]
+            else:
+                param_type = params[1]
+                default_value = params[2]
+        elif len(params) == 4:
             reference = True
-            param_type = params[3]
-        else:
-            reference = False
             param_type = params[2]
+            default_value = params[3]
+        else:
+            assert len(params) == 2
+            param_type = params[1]
+
         return FunctionParameter(
             name=identifier.value,
             param_type=param_type,
             context=ParseContext.from_token(identifier),
             reference=reference,
+            positional_only=positional_only,
+            default_value=default_value,
         )
 
     def function_params(self, params):

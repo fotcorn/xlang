@@ -1,6 +1,6 @@
 // RUN: %run --split-input-file %s | %filecheck --match-full-lines %s
 
-func printi(value: i32) {
+func printi(_ value: i32) {
     print(value);
 }
 

@@ -89,3 +89,16 @@ func bad_default_type(_ a: i32 = "oops") {
 func main() {
     // CHECK: {{.*}} Default value type mismatch for function parameter a
 }
+
+//---------------------------------------
+
+func char_default(_ value: char = 'z') {
+    print(value);
+}
+
+func main() {
+    // CHECK: z
+    char_default();
+    // CHECK: y
+    char_default('y');
+}

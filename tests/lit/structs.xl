@@ -75,3 +75,15 @@ func main() {
     // CHECK: false
     print(s.b);
 }
+
+//---------------------------------------
+
+struct CharStruct {
+    c: char = 'x',
+}
+
+func main() {
+    var s: CharStruct;
+    // CHECK: x
+    print(s.c);
+}

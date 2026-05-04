@@ -22,7 +22,7 @@ keyword_only_param: IDENTIFIER ":" reference_marker? type ("=" default_constant)
 function_params: function_param | function_params "," function_param
 function_def: "func" _WS_INLINE IDENTIFIER "(" function_params? ")" (":" type)? code_block
 reference_marker: "*"
-default_constant: integer_constant | float_constant | string_literal | boolean_literal | var_access
+default_constant: integer_constant | float_constant | string_literal | char_literal | boolean_literal | var_access
 
 field_entry: IDENTIFIER ":" type ("=" default_constant)? ","?
 struct_def: "struct" _WS_INLINE IDENTIFIER "{" field_entry+ "}"

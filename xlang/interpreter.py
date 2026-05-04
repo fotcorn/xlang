@@ -34,7 +34,7 @@ from xlang.xl_builtins import (
     get_builtin_array_methods,
     get_builtin_primitive_methods,
 )
-from xlang.validation_pass import bind_call_arguments
+from xlang.utils import bind_call_arguments
 
 
 class Interpreter:

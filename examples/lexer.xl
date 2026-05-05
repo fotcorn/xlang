@@ -25,17 +25,29 @@ func is_digit(_ c: char): bool {
     return false;
 }
 
-enum TokenType {
-    Number,
+func string_to_i64(_ s: string): i64 {
+    const zero: char = '0';
+    const zeroInt: u32 = zero.int();
+    var result: i64 = 0;
+    var i: i32 = 0;
+    loop {
+        if (i >= s.length()) {
+            break;
+        }
+        const c: char = s[i];
+        const digit: i64 = c.int() - zeroInt;
+        result = result * 10 + digit;
+        i = i + 1;
+    }
+    return result;
+}
+
+enum Token {
+    Number{value: i64},
     Add,
     Sub,
     Mul,
     Div,
-}
-
-struct Token {
-    type: TokenType = TokenType.Number,
-    value: string,
 }
 
 func main() {
@@ -55,21 +67,13 @@ func main() {
         const c: char = input[i];
 
         if (c == '+') {
-            var token: Token;
-            token.type = TokenType.Add;
-            tokens.append(token);
+            tokens.append(Token.Add);
         } elif (c == '-') {
-            var token: Token;
-            token.type = TokenType.Sub;
-            tokens.append(token);
+            tokens.append(Token.Sub);
         } elif (c == '*') {
-            var token: Token;
-            token.type = TokenType.Mul;
-            tokens.append(token);
+            tokens.append(Token.Mul);
         } elif (c == '/') {
-            var token: Token;
-            token.type = TokenType.Div;
-            tokens.append(token);
+            tokens.append(Token.Div);
         } elif (is_digit(c)) {
             var value: string = "";
             value.append(c);
@@ -84,10 +88,7 @@ func main() {
                 }
                 value.append(c);
             }
-            var token: Token;
-            token.type = TokenType.Number;
-            token.value = value;
-            tokens.append(token);
+            tokens.append(Token.Number{value: string_to_i64(value)});
         } elif (is_whitespace(c)) {
             // ignore
         } else {
@@ -100,16 +101,29 @@ func main() {
 
     i = 0;
     loop {
-        if (i >= 5) { // TODO
+        if (i >= tokens.length()) {
             break;
         }
 
         const token: Token = tokens[i];
-        print(token.type);
-        if (token.type == TokenType.Number) {
-            print(token.value);
+        match (token) {
+            Number{value} => {
+                print(value);
+            }
+            Add => {
+                print("+");
+            }
+            Sub => {
+                print("-");
+            }
+            Mul => {
+                print("*");
+            }
+            Div => {
+                print("/");
+            }
         }
-        print("---");
+
         i = i + 1;
     }
 }
